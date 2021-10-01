@@ -16,7 +16,7 @@ clean:
 	rm listener
 	rm broadcaster
 
-%.o: %.c
+%.o:  %.c
 	$(CC) $(CFLAGS) $*.c
 
 
