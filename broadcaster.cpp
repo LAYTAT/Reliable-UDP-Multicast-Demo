@@ -12,11 +12,25 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <queue>
+#include <iostream>
 
 #define SERVERPORT 4950 // the port users will be connecting to
 
 int main(int argc, char *argv[])
 {
+    // test for queue usage
+    std::queue<int> queue;
+    for (int i = 0 ; i < 10; ++i) {
+        queue.push(i);
+    }
+    queue.pop();
+    std::cout << " after one pop, queue size = " << queue.size() << " queue constains = [ ";
+    for (int i = 0 ; !queue.empty() ; ++i) {
+        queue.pop();
+        std::cout << queue.front() << ", ";
+    }
+
     int sockfd;
     struct sockaddr_in their_addr; // connector's address information
     struct hostent *he;
