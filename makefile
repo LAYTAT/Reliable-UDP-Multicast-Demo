@@ -24,6 +24,7 @@ clean:
 	rm broadcaster
 
 %.o: %.c
+
 	$(CC) $(CFLAGS) $*.c
 
 
