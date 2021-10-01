@@ -1,3 +1,8 @@
+# TODO: add ignore generated files
+
+#ignore jetbrain files
+.idea
+
 # Prerequisites
 *.d
 
