@@ -11,10 +11,10 @@ bool Processor::start_process(){
 
     // Ring formation Process
     // keep sending Message for join with others
-    // until(recv previous & next neighbor in the ring )
+    // until current process has got the token from machines[machine_id - 1]
 
     // Ring is formed, start reacting to token send from previous neighbor
-    // Process the token
+    // Process the token 
 
     // Retransmission Stage
     // This stage only take place if (token.aru < Processor.aru)
