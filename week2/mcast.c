@@ -30,6 +30,13 @@ int main()
     name.sin_addr.s_addr = INADDR_ANY;
     name.sin_port = htons(PORT);
 
+    // TODO: for reuse of addres. delete this setsockopt after debugging
+    int set_resue = 1;
+    if (setsockopt(sr, SOL_SOCKET, SO_REUSEPORT, &set_resue, sizeof(int))<0){ //SO_REUSEADDR
+        perror("Mcast: set reuse failed");
+        exit(1);
+    }
+
     if ( bind( sr, (struct sockaddr *)&name, sizeof(name) ) < 0 ) {
         perror("Mcast: bind");
         exit(1);
