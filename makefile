@@ -4,7 +4,7 @@ CC = g++
 CFLAGS = -g -c -Wall -pedantic
 #CFLAGS = -ansi -c -Wall -pedantic
 
-all: listener broadcaster
+all: listener broadcaster Processor
 
 listener: listener.o
 	    $(CC) -o listener listener.o

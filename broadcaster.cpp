@@ -1,19 +1,7 @@
 //
 // Created by lay on 9/30/2021.
 //
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <queue>
-#include <iostream>
+#include "mcast_include.h"
 
 #define SERVERPORT 4950 // the port users will be connecting to
 
