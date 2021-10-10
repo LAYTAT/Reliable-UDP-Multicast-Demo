@@ -67,21 +67,3 @@ When the ring is formed(start_mcast gets all the ready packets from all of the m
 
 ## Ring Ending
 Each participant has a vector for knowing the newest seq number for each machine when it sees that all the seq numbers for each machine reach the <num_of_packet>. It will flush the data in the queue into the file and start sending a done_packet, it will constantly send this done_packet util that everyone elses’ done_packet is received by itself.
-
-
-## Local Variable for each Token Holder:
-local.aru for local cumulative ack
-index_id as for the unique ring id
-
-## Data Structure
-Queue for sending multicast packets
-Queue for writing multicast packets
-Vector for knowing addresses of each machine index
-Vector for knowing the newest seq number for each machine
-Vector for knowing if each process has got all of the data packets
-
-## Terma Used
-Broadcaster: the current token holder. The current mcast instance that is initializing and sending the multicast data packets, which currently is in possession of the token.
-Participant: one of the sides that are in the multicasting process.
-
-

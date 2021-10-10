@@ -32,7 +32,7 @@ int main()
 
     // TODO: for reuse of addres. delete this setsockopt after debugging
     int set_resue = 1;
-    if (setsockopt(sr, SOL_SOCKET, SO_REUSEPORT, &set_resue, sizeof(int))<0){ //SO_REUSEADDR
+    if (setsockopt(sr, SOL_SOCKET, SO_REUSEADDR, &set_resue, sizeof(int))<0){ //SO_REUSEPORT
         perror("Mcast: set reuse failed");
         exit(1);
     }

@@ -1,27 +1,19 @@
 CC = g++
-#CC = gcc
-
-CFLAGS = -g -c -Wall -pedantic
+CFLAGS = -g -Wall -pedantic
 #CFLAGS = -ansi -c -Wall -pedantic
 
-all: listener broadcaster Processor
+all: mcast
 
-listener: listener.o
-	    $(CC) -o listener listener.o
+mcast:mcast.o Processor.o
+	$(CC) -o mcast mcast.o Processor.o
 
-broadcaster: broadcaster.o
-	    $(CC) -o broadcaster broadcaster.o
+#mcast.o: mcast_include.h
+#	$(CC) -c mcast.c
 
-broadcaster.o: broadcaster.cpp
-		$(CC) $(CFLAGS) broadcaster.cpp
-
-listener.o: listener.cpp
-		$(CC) $(CFLAGS) listener.cpp
 
 clean:
 	rm *.o
-	rm listener
-	rm broadcaster
+	rm mcast
 
 %.o: %.c
 
