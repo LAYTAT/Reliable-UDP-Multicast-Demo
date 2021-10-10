@@ -14,8 +14,10 @@ public:
     Processor(Processor const &) = delete;
     Processor(Processor&&) = delete;
     bool start();
-    bool send_in_queue();
-    
+    void start_chat();
+
+    bool socket_init();
+
 private:
     int machine_id;
     int aru = 0;                        //local aru, acumulatic acknoleged sequemce number for his processor
@@ -26,6 +28,15 @@ private:
     std::queue<Message> msg_received;   //the messages that are to be written into the file
     std::pair<int, struct sockaddr> next; //next neighbor in ring
 
-    bool socket_init();
+
+    // socket
+    int ss,sr;                          //sending & receiving socket fd
+    struct sockaddr_in name;
+    struct sockaddr_in send_addr;
+    fd_set mask;
+    fd_set read_mask, write_mask, excep_mask;
+    struct ip_mreq mreq;
+    unsigned char ttl_val;
+    int mcast_addr;
     // add socket
 };

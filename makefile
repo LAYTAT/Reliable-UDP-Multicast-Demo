@@ -7,10 +7,6 @@ all: mcast
 mcast:mcast.o Processor.o
 	$(CC) -o mcast mcast.o Processor.o
 
-#mcast.o: mcast_include.h
-#	$(CC) -c mcast.c
-
-
 clean:
 	rm *.o
 	rm mcast
