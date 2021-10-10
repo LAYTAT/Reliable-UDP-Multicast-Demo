@@ -1,9 +1,90 @@
 #include "Processor.h"
-bool Processor::start(){
+bool Processor::start_ring(){
+    // TODO: ADD a big big while loop - Begin
 
-    // socket and bind
-    if(!socket_init()) return false;
+    // TODO: ring initlization
+    /*process start_mcast sends start_mcast packets to every node
+    Marked each node for machine id in the range of [0, 10]
+        For each node in the range [1, 10]
+            When the start_mcast packet is received, the node will start an initialization process, the process will not stop until the token is received.
+            while the node does not have received token from the previous node in the ring
+                It keeps sending an Init packet, which contains:
+                    machine_id
+                    node address(implicitly)
+        For each node 0 (the initial token holder)
+            When the start_mcast packet is received, node 0 will initialize a token that contains:
+                machine-id
+                round number, which is 0
+            Keep waiting for node 1 to send its initial packet.
+            When receive node 1’s initial packet, it will store the address of node 1 in loca storage and
+            Send the token to node 1
+            Timeout for token(which has a round number of 0)
+                If timeout
+                    Resend the token
+                If token with round number 0 circled back
+                    Round number plus one
+                Enter the data sending stage
 
+        Ring initialized successfully*/
+
+    // TODO: Special TODOs for node 0
+    //  Whenever received a token with round number R, update the round number to (R+1);
+    //  Reset the fcc to 0 for every circle.
+
+    // TODO: TOKEN HANDLING
+/*  General flow upon receiving the token:
+    ---------(beginning of retransmission stage)---------------------------------------
+            Flow Control
+    determine how many messages this processor can broadcast determined.
+            The maximum number of messages sending for this process is defined as followed:
+    GLOBAL_MAXIMUM, flow control for one ring cycle
+    LOCAL_MAXMUM, flow control for one process
+    Calculate global_balance
+    global_balance = GLOBAL_MAXIMUM - token.fcc
+    local_balance = min(LOCAL_MAXMUM, global_balance)
+    The local_balance will be the maximum number of packets that a process can send.
+
+            update retransmission requests (rtr in the token)
+    broadcast the requested transmission
+    subtract the number of retransmissions took place from the allowed to broadcast
+    ----------(end of retransmission stage)----------------------------------------------
+            ----------(beginning of broadcasting new messages)---------------------------
+    for as many messages the process broadcast:
+    get a message from the msg_2b_sent queue
+    increment token sequence (token.seq)
+    set message fields and broadcast
+    ------------(end of broadcasting new messages)---------------------------------
+            -------------(beginning of local variables & token update)----------------------
+            update local variable my_aru
+    if my_aru < token_aru or local.id == token.last_aru_setter or token.last_aru_setter == null then,
+            token_aru = local.aru
+    if token.aru == token.seq then
+    token.last_aru_setter = null
+    else token.last_aru_setter = local.id
+
+    Retransmission Stage (1)
+    This stage only take place if (token.aru < local.aru)
+        This is where the broadcaster tries to resend the requested packets, and after this preprocessing, the broadcaster will resend all the packets other than the unsent ones.
+        Even though the current broadcaster might not be able to send to all the requested packets(for that it might not have some of the requested packets itself), it will still
+        send all the requested messages in the range of [0, local.aru]. The retransmission packets will not be sent immediately, it will be added to the queue.
+*/
+
+    // TODO: WHEN RECEIVING A REGULAR MESSAGE
+//    If token retransmission timeout is set, check if this broadcast message’s machine-id is the set one, if so, cancel the token retransmission timeout.
+//            Put this newly received message to msg_received queue, if msg.seq is bigger than the local aru.
+//            Write the consecutive data in msg_received into the file.
+//            Update the current process’s retransmission request list
+
+    // TODO: TIMEOUT
+
+    // TODO: TERMINATION
+    //    Termination
+    //    Add a local variable for each process: last_token_aru which keep the last round of token aru
+    //    When last_token_aru == maximum_seq_num and last_token_aru == current token.aru, this will mean
+    //    that everybody can exit the ring for that no one is requesting for message retransmission anymore.
+
+
+    // TODO: ADD a big big while loop - End
 
     return false;
 }
@@ -47,7 +128,7 @@ bool Processor::socket_init(){
     name.sin_addr.s_addr = INADDR_ANY;
     name.sin_port = htons(PORT);
 
-    // TODO: for reuse of addres. delete this setsockopt after debugging
+    // TODO: for reuse of address. delete this setsockopt after debugging is done
     int set_resue = 1;
     if (setsockopt(sr, SOL_SOCKET, SO_REUSEADDR, &set_resue, sizeof(int))<0){ //SO_REUSEPORT
         perror("Mcast: set reuse failed");

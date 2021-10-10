@@ -13,7 +13,7 @@ public:
     }
     Processor(Processor const &) = delete;
     Processor(Processor&&) = delete;
-    bool start();
+    bool start_ring();
     void start_chat();
 
     bool socket_init();
