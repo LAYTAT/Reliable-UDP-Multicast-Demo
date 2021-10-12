@@ -22,6 +22,7 @@
 #include <set>
 #include <utility>
 #include <set>
+#include <arpa/inet.h>
 
 #define MAX_MESS_LEN 1400
 #define PORT (10040)

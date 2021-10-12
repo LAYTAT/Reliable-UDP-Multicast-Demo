@@ -39,6 +39,7 @@ private:
     //generate a new message and token for sending
     void gen_msg(int type, int seq);
     void gen_token(int seq, int aru, int last_aru_setter, std::set<int> &rtr, int round, int fcc);
+    void set_my_info();
 
     //message sending and receiving
     long unsigned int  bytes;
@@ -60,10 +61,44 @@ private:
     struct sockaddr_in serv_addr;       // storing own addr, use for binding
     struct sockaddr_in name;
     struct sockaddr_in send_addr;
+
     fd_set mask;
     fd_set read_mask, write_mask, excep_mask;
     struct ip_mreq mreq;
     unsigned char ttl_val;
     int mcast_addr;
     // add socket
+
+
+    char my_hostname[256];
+    char *my_ip;
+    // Functions for getting address
+    // Returns hostname for the local computer
+    void checkHostName(int hostname)
+    {
+        if (hostname == -1)
+        {
+            perror("gethostname");
+            exit(1);
+        }
+    }
+    // Returns host information corresponding to host name
+    void checkHostEntry(struct hostent * hostentry)
+    {
+        if (hostentry == NULL)
+        {
+            perror("gethostbyname");
+            exit(1);
+        }
+    }
+    // Converts space-delimited IPv4 addresses
+    // to dotted-decimal format
+    void checkIPbuffer(char *IPbuffer)
+    {
+        if (NULL == IPbuffer)
+        {
+            perror("inet_ntoa");
+            exit(1);
+        }
+    }
 };

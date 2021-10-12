@@ -1,7 +1,8 @@
 #include "Processor.h"
 bool Processor::start_mcast(){
     // TODO: ADD a big big while loop - Begin
-
+    printf("Hostname: %s\n", my_hostname);
+    printf("Host IP: %s", my_ip);
 
     for(;;)
     {
@@ -9,7 +10,7 @@ bool Processor::start_mcast(){
         num = select( FD_SETSIZE, &read_mask, &write_mask, &excep_mask, NULL);
         if (num > 0) {
             if ( FD_ISSET(srm, &read_mask) ) {
-                bytes = recvfrom(srm, recv_buf, sizeof(Message), 0, (sockaddr *)&temp_addr, (socklen_t  *)&len);
+                bytes = recv(srm, recv_buf, sizeof(Message), 0);
                 if (bytes == -1) {
                     std::cerr << "Received Message Err" << std::endl;
                 } else if (bytes < sizeof(Message)) {
@@ -53,9 +54,6 @@ bool Processor::send_to_everyone(){
 void Processor::gen_msg(int type, int seq = -1){
     memset(msg_buf, 0, sizeof(Message));
     msg_buf->type = type;
-    if (type == -2) { //its a token!
-        memcpy(&msg_buf->token, token_buf, sizeof(Token));
-    }
     msg_buf->machine_id = machine_id;
     if(seq != -1) {
         memset(msg_buf->payload, 0, sizeof(Message)); //TODO: add payload
@@ -136,9 +134,7 @@ bool Processor::form_ring(sockaddr_in & addr) {
 
 
     // TODO: looking for next machine id
-    if(!next_addr) {
 
-    }
     return true;
 }
 
@@ -315,4 +311,22 @@ bool Processor::socket_init(){
     FD_SET(srm, &mask );
     FD_SET( (long)0, &mask );    /* stdin */
     return true;
+}
+
+void Processor::set_my_info() {
+    struct hostent *host_entry;
+    int hostname;
+
+    // To retrieve hostname
+    hostname = gethostname(my_hostname, sizeof(my_hostname));
+    checkHostName(hostname);
+
+    // To retrieve host information
+    host_entry = gethostbyname(my_hostname);
+    checkHostEntry(host_entry);
+
+    // To convert an Internet network
+    // address into ASCII string
+    my_ip = inet_ntoa(*((struct in_addr*)
+            host_entry->h_addr_list[0]));
 }
