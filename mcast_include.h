@@ -15,6 +15,8 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <errno.h>
+#include <sstream>
+#include <iostream>
 
 #define MAX_MESS_LEN 1400
 #define PORT (10040)
@@ -26,6 +28,9 @@
 
 struct Message{                     // or called packet
     int type;                       // indicate different types of message, join message for example
+    /*
+     *  -1 : start_mcast
+     * */
     int seq;                        // the global sequence number for the current packet
     int machine_id;
     int random_num;

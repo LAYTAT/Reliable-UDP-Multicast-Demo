@@ -7,13 +7,15 @@
 #include <utility>
 
 #define NUM_OF_TOTAL_PACKETS (16000)
+#define NUM_OF_MACHINES (10)
+
 class Processor{
 public:
-    Processor(int m_id, int l, int n = NUM_OF_TOTAL_PACKETS): machine_id(m_id), loss_rate(l), nums_packets(n){
+    Processor(int m_id, int l, int n = NUM_OF_TOTAL_PACKETS, int nm = NUM_OF_MACHINES): machine_id(m_id), loss_rate(l), nums_packets(n), number_of_machines(nm){
     }
     Processor(Processor const &) = delete;
     Processor(Processor&&) = delete;
-    bool start_ring();
+    bool start_mcast();
     void start_chat();
 
     bool socket_init();
@@ -23,6 +25,7 @@ private:
     int aru = 0;                        //local aru, acumulatic acknoleged sequemce number for his processor
     int loss_rate = 0;
     int nums_packets;
+    int number_of_machines;
     int port = PORT;
     std::queue<Message> msg_2b_sent;    //the messages that are waiting to be sent
     std::queue<Message> msg_received;   //the messages that are to be written into the file
@@ -30,7 +33,9 @@ private:
 
 
     // socket
-    int ss,sr;                          //sending & receiving socket fd
+    int ssm,srm;                          //sending & receiving socket fd for multicast
+    int ssu;                              //socket fd for unicast
+    struct sockaddr_in serv_addr;         // storing own addr, use for binding
     struct sockaddr_in name;
     struct sockaddr_in send_addr;
     fd_set mask;
