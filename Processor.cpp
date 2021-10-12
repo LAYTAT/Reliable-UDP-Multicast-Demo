@@ -38,8 +38,8 @@ bool Processor::start_mcast(){
     return false;
 }
 
-bool Processor::send_to_everyone(Message * msg){
-    int bytes_sent = sendto(ssm, msg, sizeof(Message), 0,(struct sockaddr *)&send_addr, sizeof(send_addr) );
+bool Processor::send_to_everyone(){
+    long unsigned int bytes_sent = sendto(ssm, msg_buf, sizeof(Message), 0,(struct sockaddr *)&send_addr, sizeof(send_addr) );
     if(bytes_sent == -1) {
         std::cerr << "Multicast Message Error." << std::endl;
         exit(1);
@@ -50,11 +50,28 @@ bool Processor::send_to_everyone(Message * msg){
     return true;
 }
 
-void Processor::gen_newmsg(int type, int seq = -1){
-    newmsg_buf->type = type;
+void Processor::gen_msg(int type, int seq = -1){
+    memset(msg_buf, 0, sizeof(Message));
+    msg_buf->type = type;
+    msg_buf->machine_id = machine_id;
     if(seq != -1) {
-//        newmsg_buf->data =
-//        random_num =
+        memset(msg_buf->payload, 0, sizeof(Message)); //TODO: add payload
+        msg_buf->random_num = std::rand() % 1000000 + 1;
+    }
+}
+
+void Processor::gen_token(int seq, int aru, int last_aru_setter, std::set<int>& new_rtr, int round, int fcc){
+    memset(token_buf, 0 , sizeof(Message));
+    token_buf->seq = seq;
+    token_buf->fcc = fcc;
+    token_buf->last_aru_setter = last_aru_setter;
+    token_buf->aru = aru;
+    token_buf->round = round;
+    int count = 0;
+    for(auto itr = new_rtr.begin(); itr != new_rtr.end() || count < MAX_RTR; ++itr){
+        token_buf->rtr[count] = *itr;
+        count++;
+        if(count >= MAX_RTR) std::cerr << "Request overflow!" << std::endl;
     }
 }
 
@@ -62,13 +79,8 @@ void Processor::gen_newmsg(int type, int seq = -1){
  * Returns true if ring formed succesfully, false otherwise
  */
 bool Processor::form_ring() {
-    if(!next_addr) {
-        // multicast in order let previous neighbor know your address
 
-    }
-
-
-    if(machine_id == 1){
+    if(machine_id == 1 && has_token ){
 //        When the start_mcast packet is received, node 0 will initialize a token that contains:
 //        machine-id
 //        round number, which is 0
@@ -80,7 +92,7 @@ bool Processor::form_ring() {
 //        Resend the token
 //        If token with round number 0 circled back
 //        Round number plus one
-//        Enter the data sending stage
+//        Enter the payload sending stage
     } else {
 //        process start_mcast sends start_mcast packets to every node
 //        Marked each node for machine id in the range of [0, 10]
@@ -92,12 +104,19 @@ bool Processor::form_ring() {
 //                        node address(implicitly)
 //            For each node 0 (the initial token holder)
         }
-
-        // TODO: look for next machine_id
-
+    // check for token
 
 
-//            Ring initialized successfully*/
+    if(!has_token) {
+        // multicast in order let previous neighbor know your address
+        gen_msg(1);
+        send_to_everyone(); //multicast
+        return false;
+    }
+    // TODO: looking for next machine id
+    if(!next_addr) {
+
+    }
     return true;
 }
 
@@ -147,7 +166,7 @@ bool Processor::form_ring() {
     // TODO: WHEN RECEIVING A REGULAR MESSAGE
 //    If token retransmission timeout is set, check if this broadcast message’s machine-id is the set one, if so, cancel the token retransmission timeout.
 //            Put this newly received message to msg_received queue, if msg.seq is bigger than the local aru.
-//            Write the consecutive data in msg_received into the file.
+//            Write the consecutive payload in msg_received into the file.
 //            Update the current process’s retransmission request list
 
     // TODO: TIMEOUT
