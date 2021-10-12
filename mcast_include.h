@@ -30,6 +30,7 @@ struct Message{                     // or called packet
     int type;                       // indicate different types of message, join message for example
     /*
      *  -1 : start_mcast
+     *   1 : request_ring
      * */
     int seq;                        // the global sequence number for the current packet
     int machine_id;

@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -G -Wall -pedantic
+CFLAGS = -c -g -Wall -pedantic
 #CFLAGS = -ansi -c -Wall -pedantic
 #TODO: delete -g after debug is done
 
@@ -16,8 +16,8 @@ clean:
 	rm mcast
 	rm start_mcast
 
-%.o: %.c
+%.o: %.cpp
 
-	$(CC) $(CFLAGS) $*.c
+	$(CC) $(CFLAGS) $*.cpp
 
 

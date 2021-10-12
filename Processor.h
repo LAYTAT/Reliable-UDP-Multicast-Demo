@@ -12,10 +12,14 @@
 class Processor{
 public:
     Processor(int m_id, int l, int n = NUM_OF_TOTAL_PACKETS, int nm = NUM_OF_MACHINES): machine_id(m_id), loss_rate(l), nums_packets(n), number_of_machines(nm){
+        next_id = m_id%(number_of_machines) + 1;
+        newmsg_buf->machine_id = m_id;
     }
     Processor(Processor const &) = delete;
     Processor(Processor&&) = delete;
     bool start_mcast();
+    bool send_to_everyone(Message *msg);
+
     bool form_ring();
     void start_chat();
     bool socket_init();
@@ -29,19 +33,25 @@ private:
     int port = PORT;
     std::queue<Message> msg_2b_sent;    //the messages that are waiting to be sent
     std::queue<Message> msg_received;   //the messages that are to be written into the file
-    std::pair<int, struct sockaddr> next; //next neighbor in ring
+    struct sockaddr * next_addr = NULL;
+    int next_id = -1;                   //next neighbor in ring <m_id+1, address>
+    //generate a new message for sending
+    void gen_newmsg(int type, int seq);
 
+    //message sending and receiving
     int                bytes;
     int                num;
     Message* recv_buf = new Message();
-    bool mcast_received = false;
-    bool ring_formed = false;
+    Message* newmsg_buf = new Message();
 
+    //states
+    bool mcast_received = false;        //start_mcast is received
+    bool ring_formed = false;           //indicate whether the ring is formed
 
     // socket
-    int ssm,srm;                          //sending & receiving socket fd for multicast
-    int ssu;                              //socket fd for unicast
-    struct sockaddr_in serv_addr;         // storing own addr, use for binding
+    int ssm,srm;                        //sending & receiving socket fd for multicast
+    int ssu;                            //socket fd for unicast
+    struct sockaddr_in serv_addr;       // storing own addr, use for binding
     struct sockaddr_in name;
     struct sockaddr_in send_addr;
     fd_set mask;

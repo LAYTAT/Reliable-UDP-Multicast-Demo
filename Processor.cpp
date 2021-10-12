@@ -10,7 +10,9 @@ bool Processor::start_mcast(){
         if (num > 0) {
             if ( FD_ISSET(srm, &read_mask) ) {
                 bytes = recv(srm, recv_buf, sizeof(Message), 0 );
-                if (bytes == -1 || bytes < sizeof(Message)) {
+                if (bytes == -1) {
+                    std::cerr << "Received Message Err" << std::endl;
+                } else if (bytes < sizeof(Message)) {
                     std::cerr << "Received Message Corrupted. Bytes Received:" << bytes << std::endl;
                 }
 
@@ -36,42 +38,69 @@ bool Processor::start_mcast(){
     return false;
 }
 
+bool Processor::send_to_everyone(Message * msg){
+    int bytes_sent = sendto(ssm, msg, sizeof(Message), 0,(struct sockaddr *)&send_addr, sizeof(send_addr) );
+    if(bytes_sent == -1) {
+        std::cerr << "Multicast Message Error." << std::endl;
+        exit(1);
+    }else if(bytes_sent < sizeof (Message)) {
+        std::cerr << "Multicast Message Error. Bytes Sent:" << bytes << std::endl;
+        return false;
+    }
+    return true;
+}
+
+void Processor::gen_newmsg(int type, int seq = -1){
+    newmsg_buf->type = type;
+    if(seq != -1) {
+//        newmsg_buf->data =
+//        random_num =
+    }
+}
 
 /* It forms a ring between the N machines.
  * Returns true if ring formed succesfully, false otherwise
  */
 bool Processor::form_ring() {
+    if(!next_addr) {
+        // multicast in order let previous neighbor know your address
+
+    }
+
+
+    if(machine_id == 1){
+//        When the start_mcast packet is received, node 0 will initialize a token that contains:
+//        machine-id
+//        round number, which is 0
+//        Keep waiting for node 1 to send its initial packet.
+//                When receive node 1’s initial packet, it will store the address of node 1 in loca storage and
+//        Send the token to node 1
+//        Timeout for token(which has a round number of 0)
+//        If timeout
+//        Resend the token
+//        If token with round number 0 circled back
+//        Round number plus one
+//        Enter the data sending stage
+    } else {
+//        process start_mcast sends start_mcast packets to every node
+//        Marked each node for machine id in the range of [0, 10]
+//            For each node in the range [1, 10]
+//                When the start_mcast packet is received, the node will start an initialization process, the process will not stop until the token is received.
+//                while the node does not have received token from the previous node in the ring
+//                    It keeps sending an Init packet, which contains:
+//                        machine_id
+//                        node address(implicitly)
+//            For each node 0 (the initial token holder)
+        }
+
+        // TODO: look for next machine_id
 
 
 
-
+//            Ring initialized successfully*/
     return true;
 }
-    // TODO: ring initlization
 
-    /*process start_mcast sends start_mcast packets to every node
-    Marked each node for machine id in the range of [0, 10]
-        For each node in the range [1, 10]
-            When the start_mcast packet is received, the node will start an initialization process, the process will not stop until the token is received.
-            while the node does not have received token from the previous node in the ring
-                It keeps sending an Init packet, which contains:
-                    machine_id
-                    node address(implicitly)
-        For each node 0 (the initial token holder)
-            When the start_mcast packet is received, node 0 will initialize a token that contains:
-                machine-id
-                round number, which is 0
-            Keep waiting for node 1 to send its initial packet.
-            When receive node 1’s initial packet, it will store the address of node 1 in loca storage and
-            Send the token to node 1
-            Timeout for token(which has a round number of 0)
-                If timeout
-                    Resend the token
-                If token with round number 0 circled back
-                    Round number plus one
-                Enter the data sending stage
-
-        Ring initialized successfully*/
 
     // TODO: Special TODOs for node 0
     //  Whenever received a token with round number R, update the round number to (R+1);
@@ -177,7 +206,7 @@ bool Processor::socket_init(){
 
     // TODO: for reuse of address. delete this setsockopt after debugging is done
     int set_resue = 1;
-    if (setsockopt(ssu, SOL_SOCKET, SO_REUSEPORT, &set_resue, sizeof(int)) < 0){ //SO_REUSEPORT
+    if (setsockopt(ssu, SOL_SOCKET, SO_REUSEADDR, &set_resue, sizeof(int)) < 0){ //SO_REUSEPORT
         perror("Mcast: set reuse failed");
         exit(1);
     }
@@ -197,7 +226,7 @@ bool Processor::socket_init(){
 
     // TODO: for reuse of address. delete this setsockopt after debugging is done
     set_resue = 1;
-    if (setsockopt(srm, SOL_SOCKET, SO_REUSEPORT, &set_resue, sizeof(int)) < 0){ //SO_REUSEPORT
+    if (setsockopt(srm, SOL_SOCKET, SO_REUSEADDR, &set_resue, sizeof(int)) < 0){ //SO_REUSEPORT
         perror("Mcast: set reuse failed");
         exit(1);
     }
