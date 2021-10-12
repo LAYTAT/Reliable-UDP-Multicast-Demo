@@ -2,10 +2,6 @@
 bool Processor::start_mcast(){
     // TODO: ADD a big big while loop - Begin
 
-    int                bytes;
-    int                num;
-    char mess_buf[MAX_MESS_LEN];
-    Message* msg_buf = new Message();
 
     for(;;)
     {
@@ -13,25 +9,46 @@ bool Processor::start_mcast(){
         num = select( FD_SETSIZE, &read_mask, &write_mask, &excep_mask, NULL);
         if (num > 0) {
             if ( FD_ISSET(srm, &read_mask) ) {
-                bytes = recv(srm, mess_buf, sizeof(mess_buf), 0 );
-                if (bytes != -1) {
-                    memcpy(&msg_buf, &mess_buf, sizeof(msg_buf));
-                } else {
-                    perror("rcv: error");
-                    exit(1);
+                bytes = recv(srm, recv_buf, sizeof(Message), 0 );
+                if (bytes == -1 || bytes < sizeof(Message)) {
+                    std::cerr << "Received Message Corrupted. Bytes Received:" << bytes << std::endl;
                 }
 
-                if(msg_buf->type == -1) {
-                    std::cout << "mcast_start !" << std::endl;
+                //Start_Mcast Message Received, start ring formation
+                if(recv_buf->type == -1) {
+                    std::cout << "mcast_start msg received" << std::endl;
+                    mcast_received = true;
                 }
 
-                mess_buf[bytes] = 0;
-                printf( "received : %s\n", mess_buf );
+                if(mcast_received && !ring_formed) {
+                    ring_formed = form_ring();
+                }
+
+                if(ring_formed) {
+
+                }
+
+
+
             }
         }
+    }
+    return false;
+}
 
-    
+
+/* It forms a ring between the N machines.
+ * Returns true if ring formed succesfully, false otherwise
+ */
+bool Processor::form_ring() {
+
+
+
+
+    return true;
+}
     // TODO: ring initlization
+
     /*process start_mcast sends start_mcast packets to every node
     Marked each node for machine id in the range of [0, 10]
         For each node in the range [1, 10]
@@ -114,9 +131,7 @@ bool Processor::start_mcast(){
 
 
     // TODO: ADD a big big while loop - End
-    }
-    return false;
-}
+
 
 void Processor::start_chat(){
     int                bytes;
@@ -162,7 +177,7 @@ bool Processor::socket_init(){
 
     // TODO: for reuse of address. delete this setsockopt after debugging is done
     int set_resue = 1;
-    if (setsockopt(ssu, SOL_SOCKET, SO_REUSEADDR, &set_resue, sizeof(int)) < 0){ //SO_REUSEPORT
+    if (setsockopt(ssu, SOL_SOCKET, SO_REUSEPORT, &set_resue, sizeof(int)) < 0){ //SO_REUSEPORT
         perror("Mcast: set reuse failed");
         exit(1);
     }
@@ -182,7 +197,7 @@ bool Processor::socket_init(){
 
     // TODO: for reuse of address. delete this setsockopt after debugging is done
     set_resue = 1;
-    if (setsockopt(srm, SOL_SOCKET, SO_REUSEADDR, &set_resue, sizeof(int)) < 0){ //SO_REUSEPORT
+    if (setsockopt(srm, SOL_SOCKET, SO_REUSEPORT, &set_resue, sizeof(int)) < 0){ //SO_REUSEPORT
         perror("Mcast: set reuse failed");
         exit(1);
     }

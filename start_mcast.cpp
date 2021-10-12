@@ -33,10 +33,10 @@ int main(){
     send_addr.sin_port = htons(PORT);
 
 
-    Message* msg = new Message();
+    Message * msg = new Message();
     msg->type = -1; // mcast_start
     std::cout << "before sendto" << std::endl;
-    sendto(ssm, msg, sizeof(msg), 0,(struct sockaddr *) &send_addr, sizeof(send_addr));
+    sendto(ssm, msg, sizeof(Message), 0,(struct sockaddr *) &send_addr, sizeof(send_addr));
 
     return true;
 }

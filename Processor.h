@@ -16,8 +16,8 @@ public:
     Processor(Processor const &) = delete;
     Processor(Processor&&) = delete;
     bool start_mcast();
+    bool form_ring();
     void start_chat();
-
     bool socket_init();
 
 private:
@@ -30,6 +30,12 @@ private:
     std::queue<Message> msg_2b_sent;    //the messages that are waiting to be sent
     std::queue<Message> msg_received;   //the messages that are to be written into the file
     std::pair<int, struct sockaddr> next; //next neighbor in ring
+
+    int                bytes;
+    int                num;
+    Message* recv_buf = new Message();
+    bool mcast_received = false;
+    bool ring_formed = false;
 
 
     // socket
