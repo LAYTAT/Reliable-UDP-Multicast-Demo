@@ -11,20 +11,15 @@ public:
     Processor(int m_id, int l, int n = NUM_OF_TOTAL_PACKETS, int nm = NUM_OF_MACHINES): machine_id(m_id), loss_rate(l), nums_packets(n), number_of_machines(nm){
         next_id = m_id%(number_of_machines) + 1;
         std::srand(std::time(nullptr));
-        if(machine_id == 1) {
-            gen_token(-1, -1, -1, rtr, 0, -1);
-            has_token = true;
-        }
-        memset(recv_buf, 0, sizeof(Message));
-        memset(msg_buf, 0, sizeof(Message));
-        memset(token_buf, 0, sizeof(Token));
+        gen_token(-1, -1, m_id, rtr, 0, -1);
+
     }
     Processor(Processor const &) = delete;
     Processor(Processor&&) = delete;
     bool start_mcast();
     bool send_to_everyone();
 
-    bool form_ring();
+    bool form_ring(sockaddr_in & addr);
     void start_chat();
     bool socket_init();
 
@@ -37,8 +32,10 @@ private:
     int port = PORT;
     std::queue<Message> msg_2b_sent;    //the messages that are waiting to be sent
     std::queue<Message> msg_received;   //the messages that are to be written into the file
-    struct sockaddr * next_addr = NULL;
-    int next_id = -1;                   //next neighbor in ring <m_id+1, address>
+    struct sockaddr_in temp_addr;
+    int len = sizeof(temp_addr);
+    struct sockaddr_in next_addr;
+    int next_id;                   //next neighbor in ring <m_id+1, address>
     //generate a new message and token for sending
     void gen_msg(int type, int seq);
     void gen_token(int seq, int aru, int last_aru_setter, std::set<int> &rtr, int round, int fcc);
@@ -46,8 +43,8 @@ private:
     //message sending and receiving
     long unsigned int  bytes;
     int                num;
-    Message* recv_buf = new Message();
-    Message* msg_buf = new Message();
+    Message* recv_buf = new Message(); //receiving
+    Message* msg_buf = new Message(); //sending
     Token* token_buf = new Token();
     std::set<int> rtr;
 
@@ -55,6 +52,7 @@ private:
     bool mcast_received = false;        //start_mcast is received
     bool ring_formed = false;           //indicate whether the ring is formed
     bool has_token = false;
+    bool had_token = false;
 
     // socket
     int ssm,srm;                        //sending & receiving socket fd for multicast

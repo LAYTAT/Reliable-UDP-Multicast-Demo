@@ -37,6 +37,7 @@ int main(){
     msg->type = -1; // mcast_start
     std::cout << "before sendto" << std::endl;
     sendto(ssm, msg, sizeof(Message), 0,(struct sockaddr *) &send_addr, sizeof(send_addr));
+    delete msg;
 
-    return true;
+    return 1;
 }

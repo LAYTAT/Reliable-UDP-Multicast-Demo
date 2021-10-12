@@ -9,7 +9,7 @@ bool Processor::start_mcast(){
         num = select( FD_SETSIZE, &read_mask, &write_mask, &excep_mask, NULL);
         if (num > 0) {
             if ( FD_ISSET(srm, &read_mask) ) {
-                bytes = recv(srm, recv_buf, sizeof(Message), 0 );
+                bytes = recvfrom(srm, recv_buf, sizeof(Message), 0, (sockaddr *)&temp_addr, (socklen_t  *)&len);
                 if (bytes == -1) {
                     std::cerr << "Received Message Err" << std::endl;
                 } else if (bytes < sizeof(Message)) {
@@ -22,14 +22,14 @@ bool Processor::start_mcast(){
                     mcast_received = true;
                 }
 
+                //Form a ring!
                 if(mcast_received && !ring_formed) {
-                    ring_formed = form_ring();
+                    ring_formed = form_ring(temp_addr);
                 }
 
                 if(ring_formed) {
 
                 }
-
 
 
             }
@@ -53,6 +53,9 @@ bool Processor::send_to_everyone(){
 void Processor::gen_msg(int type, int seq = -1){
     memset(msg_buf, 0, sizeof(Message));
     msg_buf->type = type;
+    if (type == -2) { //its a token!
+        memcpy(&msg_buf->token, token_buf, sizeof(Token));
+    }
     msg_buf->machine_id = machine_id;
     if(seq != -1) {
         memset(msg_buf->payload, 0, sizeof(Message)); //TODO: add payload
@@ -68,17 +71,41 @@ void Processor::gen_token(int seq, int aru, int last_aru_setter, std::set<int>& 
     token_buf->aru = aru;
     token_buf->round = round;
     int count = 0;
-    for(auto itr = new_rtr.begin(); itr != new_rtr.end() || count < MAX_RTR; ++itr){
+    for(auto itr = new_rtr.begin(); itr != new_rtr.end() && count < MAX_RTR; ++itr){
         token_buf->rtr[count] = *itr;
         count++;
-        if(count >= MAX_RTR) std::cerr << "Request overflow!" << std::endl;
     }
+    if(count >= MAX_RTR) std::cerr << "Request overflow!" << std::endl;
 }
 
+
 /* It forms a ring between the N machines.
+ * parameter is a reference of a potential next address
  * Returns true if ring formed succesfully, false otherwise
  */
-bool Processor::form_ring() {
+// send token if you recieved a message from a previous positioned ring & you have token
+// two cases: 1) recieved a token from previous process 2) recieved a message from the next process
+bool Processor::form_ring(sockaddr_in & addr) {
+
+    if (recv_buf->type == -2) { //token recieved
+
+
+
+    }
+
+
+
+
+    //check if token recieved
+    if(!had_token) {
+        // multicast in order let previous neighbor know your address
+        gen_msg(1);
+        send_to_everyone(); //multicast
+        return false;
+    }
+
+
+
 
     if(machine_id == 1 && has_token ){
 //        When the start_mcast packet is received, node 0 will initialize a token that contains:
@@ -95,7 +122,7 @@ bool Processor::form_ring() {
 //        Enter the payload sending stage
     } else {
 //        process start_mcast sends start_mcast packets to every node
-//        Marked each node for machine id in the range of [0, 10]
+//        Marked each node for machine id in the range of [1, 10]
 //            For each node in the range [1, 10]
 //                When the start_mcast packet is received, the node will start an initialization process, the process will not stop until the token is received.
 //                while the node does not have received token from the previous node in the ring
@@ -107,12 +134,7 @@ bool Processor::form_ring() {
     // check for token
 
 
-    if(!has_token) {
-        // multicast in order let previous neighbor know your address
-        gen_msg(1);
-        send_to_everyone(); //multicast
-        return false;
-    }
+
     // TODO: looking for next machine id
     if(!next_addr) {
 
