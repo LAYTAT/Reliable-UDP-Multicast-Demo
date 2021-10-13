@@ -81,7 +81,7 @@ bool Processor::start_mcast(){
 
                 //ring formed, tranfer messages untill finished
                 if(ring_formed) {
-                    std::cout << "Ring is formed" << std::endl;
+                    std::cout << "Ring:     Ring is formed" << std::endl;
                     // TODO: when received token with sent token round number, reset timer
                     // TODO: multicast only with updated token(with plus 1 round #)
                     is_all_data_received = data_tranfer();
@@ -132,7 +132,7 @@ bool Processor::send_to_everyone(){
 
 bool Processor::send_token_to_next() {
     long unsigned int bytes_sent = sendto(ssu, msg_buf, sizeof(Message), 0,(struct sockaddr *)&next_addr, sizeof(next_addr) );
-    std::cout << "Send: machine " << machine_id << " sent token with round number " << token_buf->round << "." << std::endl;
+    std::cout << "Sending:      machine " << machine_id << " sent token with round number " << token_buf->round << "." << std::endl;
     if(bytes_sent == -1) {
         std::cerr << "Unicast Message Error." << std::endl;
         exit(1);
@@ -179,7 +179,7 @@ void Processor::update_token_buf(int seq, int aru, int last_aru_setter, std::set
 }
 
 void Processor::reset_token_timer(){
-    std::cout << "Timer: set for token with round number " << last_token_round << std::endl;
+    std::cout << "Timer:    set for token with round number " << last_token_round << std::endl;
     token_flag = true;
     gettimeofday(&last_token_sent_time, nullptr);
 }
@@ -194,7 +194,7 @@ void Processor::check_timeout(){
         if (timestamp.tv_sec - last_token_sent_time.tv_sec >= TOKEN_TIMEOUT_GAP_IN_SECONDS){
             /* resend token */
             send_token_to_next();
-            std::cout << "Timeout: Token resend at timestamp " << timestamp.tv_sec << std::endl;
+            std::cout << "Timer:      Timeout! Token resend at timestamp " << timestamp.tv_sec << std::endl;
             gettimeofday(&last_token_sent_time,NULL);
         }
     }
@@ -204,10 +204,10 @@ bool Processor::form_ring() {
     switch (recv_buf->type) {
         case MSG_TYPE::TOKEN:
             memcpy(recv_buf->payload, token_buf, sizeof(Token));
-            std::cout << "Received: machine " << machine_id << " received token with round number " << token_buf->round << "." << std::endl;
+            std::cout << "Received:     machine " << machine_id << " received token with round number " << token_buf->round << "." << std::endl;
             if(token_buf->round == last_token_round && machine_id == 1) {
                 if(machine_id == 1) {
-                    std::cout << "Ring is formed!" << std::endl;
+                    std::cout << "Ring:     Ring is formed!" << std::endl;
                     return true;
                 } else {
                     std::cout << "already sent token(with the same round number)" << std::endl;
@@ -240,7 +240,7 @@ bool Processor::form_ring() {
                 has_next = true;
 
                 if(machine_id == 1) {
-                    std::cout << "Sending: machine 1 is sending token" << std::endl;
+                    std::cout << "Sending:      machine 1 is sending token" << std::endl;
                     update_msg_buf(MSG_TYPE::TOKEN);
                     send_token_to_next();
                     has_token = true;
@@ -251,7 +251,7 @@ bool Processor::form_ring() {
             }
             break;
         case MSG_TYPE::DATA:
-            std::cout << "Received: machine " << machine_id << " received data message with from machine " << msg_buf->machine_id << "." << std::endl;
+            std::cout << "Received:     machine " << machine_id << " received data message with from machine " << msg_buf->machine_id << "." << std::endl;
             if(has_next && has_token && had_token) {
                 return true;
             }
