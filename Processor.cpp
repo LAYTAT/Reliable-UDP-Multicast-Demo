@@ -235,24 +235,22 @@ bool Processor::form_ring() {
             break;
         case MSG_TYPE::REQUEST_RING:
             if (next_id != recv_buf->machine_id) break;
-            if (!has_next && !has_token && !had_token) {
+            if (!has_next ) {
                 std::cout << "REQUEST_RING from machine_id : " << recv_buf->machine_id << std::endl;
-                char next_ip[strlen((const char *)recv_buf->payload)];
-                memcpy(next_ip, recv_buf->payload, strlen((char *)recv_buf->payload));
+                char next_ip[strlen((const char *) recv_buf->payload)];
+                memcpy(next_ip, recv_buf->payload, strlen((char *) recv_buf->payload));
                 next_addr.sin_family = AF_INET;
                 next_addr.sin_addr.s_addr = inet_addr(next_ip);// htonl(addr_binary);  /* ucast address */
                 next_addr.sin_port = htons(PORT);
-                std::cout << "Set next addr to: " << next_ip << "; s_addr = " <<  inet_addr(next_ip) << std::endl;
+                std::cout << "Set next addr to: " << next_ip << "; s_addr = " << inet_addr(next_ip) << std::endl;
                 has_next = true;
-
-                if(machine_id == 1) {
-                    std::cout << "Sending:      machine 1 is sending token" << std::endl;
-                    update_msg_buf(MSG_TYPE::TOKEN);
-                    send_token_to_next();
-                    has_token = true;
-                    had_token = true;
-                }
-            } else if (has_token) {
+            }
+            if(machine_id == 1 && has_next && !had_token) {
+                std::cout << "Sending:      machine 1 is sending token" << std::endl;
+                update_msg_buf(MSG_TYPE::TOKEN);
+                send_token_to_next();
+                had_token = true;
+            }else if (has_token && has_next) {
                 std::cout << "Sending:      machine " << machine_id << " is sending token" << std::endl;
                 update_msg_buf(MSG_TYPE::TOKEN);
                 send_token_to_next();
