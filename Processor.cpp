@@ -1,16 +1,55 @@
 #include "Processor.h"
+// Functions for getting address
+// Returns hostname for the local computer
+void checkHostName(int hostname)
+{
+    if (hostname == -1)
+    {
+        perror("gethostname");
+        exit(1);
+    }
+}
+// Returns host information corresponding to host name
+void checkHostEntry(struct hostent * hostentry)
+{
+    if (hostentry == NULL)
+    {
+        perror("gethostbyname");
+        exit(1);
+    }
+}
+// Converts space-delimited IPv4 addresses
+// to dotted-decimal format
+void checkIPbuffer(char *IPbuffer)
+{
+    if (NULL == IPbuffer)
+    {
+        perror("inet_ntoa");
+        exit(1);
+    }
+}
+
 bool Processor::start_mcast(){
     // TODO: ADD a big big while loop - Begin
-    printf("Hostname: %s\n", my_hostname);
-    printf("Host IP: %s", my_ip);
+
+    // get my address for later sending
+    set_my_info();
+    std::cout << "My Host Name: " << my_hostname << std::endl;
+    std::cout << "My Host IP: " << my_ip << std::endl;
+
+    // initialize recv debug mode
+    recv_dbg_init( machine_id, loss_rate );
+    std::cout << "Set machine:" << machine_id << " recv loss rate to " << loss_rate << std::endl;
 
     for(;;)
     {
         read_mask = mask;
+        /* get start time */
+        gettimeofday(&timestamp, NULL);
         num = select( FD_SETSIZE, &read_mask, &write_mask, &excep_mask, NULL);
         if (num > 0) {
             if ( FD_ISSET(srm, &read_mask) ) {
-                bytes = recv(srm, recv_buf, sizeof(Message), 0);
+                bytes = recv_dbg(srm, (char*)recv_buf, sizeof(Message), 0);
                 if (bytes == -1) {
                     std::cerr << "Received Message Err" << std::endl;
                 } else if (bytes < sizeof(Message)) {
@@ -18,7 +57,7 @@ bool Processor::start_mcast(){
                 }
 
                 //Start_Mcast Message Received, start ring formation
-                if(recv_buf->type == -1) {
+                if(recv_buf->type == MSG_TYPE::START_MCAST ) {
                     std::cout << "mcast_start msg received" << std::endl;
                     mcast_received = true;
                 }
@@ -28,14 +67,29 @@ bool Processor::start_mcast(){
                     ring_formed = form_ring(temp_addr);
                 }
 
+                //ring formed, tranfer messages untill finished
                 if(ring_formed) {
-
+                    std::cout << "ring formed" << std::endl;
+                    // TODO: when received token with sent token round number, reset timer
+                    // TODO:  multicast only with updated token(with plus 1 round #)
+                    is_all_data_received = data_tranfer();
                 }
 
-
+                if(is_all_data_received){
+                    std::cout << "congratulation: everything is received" << std::endl;
+                    break;
+                }
             }
         }
     }
+
+
+
+    return false;
+}
+
+bool Processor::data_tranfer(){
+    // TODO: multicast and passing on the token
     return false;
 }
 
@@ -51,13 +105,33 @@ bool Processor::send_to_everyone(){
     return true;
 }
 
-void Processor::gen_msg(int type, int seq = -1){
+bool Processor::send_token_to_next() {
+    long unsigned int bytes_sent = sendto(ssm, msg_buf, sizeof(Message), 0,(struct sockaddr *)&next_addr, sizeof(next_addr) );
+    if(bytes_sent == -1) {
+        std::cerr << "Unicast Message Error." << std::endl;
+        exit(1);
+    }else if(bytes_sent < sizeof (Message)) {
+        std::cerr << "Unicast Message Error. Bytes Sent:" << bytes << std::endl;
+        return false;
+    }
+
+    gettimeofday(&last_token_sent_time, nullptr);
+    return true;
+}
+
+void Processor::gen_msg(MSG_TYPE type, int seq = -1){
     memset(msg_buf, 0, sizeof(Message));
     msg_buf->type = type;
     msg_buf->machine_id = machine_id;
     if(seq != -1) {
         memset(msg_buf->payload, 0, sizeof(Message)); //TODO: add payload
         msg_buf->random_num = std::rand() % 1000000 + 1;
+    }
+    if(type == MSG_TYPE::START_MCAST) {
+        memcpy(msg_buf->payload, my_ip, strlen(my_ip)); //send my_ip
+    }
+    if(type == MSG_TYPE::TOKEN) {
+        memcpy(msg_buf->payload, token_buf, sizeof(Token));
     }
 }
 
@@ -76,6 +150,13 @@ void Processor::gen_token(int seq, int aru, int last_aru_setter, std::set<int>& 
     if(count >= MAX_RTR) std::cerr << "Request overflow!" << std::endl;
 }
 
+void Processor::reset_token_timer(){
+    token_flag = true;
+}
+
+void Processor::cancel_token_timer(){
+    token_flag = true;
+}
 
 /* It forms a ring between the N machines.
  * parameter is a reference of a potential next address
@@ -84,31 +165,35 @@ void Processor::gen_token(int seq, int aru, int last_aru_setter, std::set<int>& 
 // send token if you recieved a message from a previous positioned ring & you have token
 // two cases: 1) recieved a token from previous process 2) recieved a message from the next process
 bool Processor::form_ring(sockaddr_in & addr) {
-
-    if (recv_buf->type == -2) { //token recieved
-
-
-
-    }
-
-
-
-
     //check if token recieved
     if(!had_token) {
-        // multicast in order let previous neighbor know your address
-        gen_msg(1);
-        send_to_everyone(); //multicast
-        return false;
+        // multicast in order let previous neighbor know your address in order to form the ring
+        gen_msg(MSG_TYPE::REQUEST_RING);
+        if(!send_to_everyone()){
+            std::cerr << "send to everyone err" << std::endl;
+        }
     }
 
+    if (recv_buf->type == MSG_TYPE::REQUEST_RING) { //request ring msg recieved
+        if(next_id == recv_buf->machine_id) {
+            int addr_binary;
+            if (inet_pton(AF_INET, my_ip, &addr_binary) < 0) {
+                std::cerr << "inet_pton:" << my_ip << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            next_addr.sin_family = AF_INET;
+            next_addr.sin_addr.s_addr = htonl(addr_binary);  /* mcast address */
+            next_addr.sin_port = htons(PORT);
+            has_next = true;
+            reset_token_timer();
+        }
+    }
 
-
-
-    if(machine_id == 1 && has_token ){
-//        When the start_mcast packet is received, node 0 will initialize a token that contains:
-//        machine-id
-//        round number, which is 0
+    if(machine_id == 1 && has_next ){
+        gen_token(-1,-1,-1, rtr, 0, 0);
+        if(!send_token_to_next()){
+            std::cerr << "send to next err" << std::endl;
+        }
 //        Keep waiting for node 1 to send its initial packet.
 //                When receive node 1’s initial packet, it will store the address of node 1 in loca storage and
 //        Send the token to node 1
@@ -118,24 +203,15 @@ bool Processor::form_ring(sockaddr_in & addr) {
 //        If token with round number 0 circled back
 //        Round number plus one
 //        Enter the payload sending stage
-    } else {
-//        process start_mcast sends start_mcast packets to every node
-//        Marked each node for machine id in the range of [1, 10]
-//            For each node in the range [1, 10]
-//                When the start_mcast packet is received, the node will start an initialization process, the process will not stop until the token is received.
-//                while the node does not have received token from the previous node in the ring
-//                    It keeps sending an Init packet, which contains:
-//                        machine_id
-//                        node address(implicitly)
-//            For each node 0 (the initial token holder)
-        }
+    }
+
     // check for token
 
 
 
     // TODO: looking for next machine id
 
-    return true;
+    return false;
 }
 
 

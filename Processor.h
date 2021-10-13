@@ -18,7 +18,7 @@ public:
     Processor(Processor&&) = delete;
     bool start_mcast();
     bool send_to_everyone();
-
+    bool send_token_to_next();
     bool form_ring(sockaddr_in & addr);
     void start_chat();
     bool socket_init();
@@ -37,15 +37,18 @@ private:
     struct sockaddr_in next_addr;
     int next_id;                   //next neighbor in ring <m_id+1, address>
     //generate a new message and token for sending
-    void gen_msg(int type, int seq);
+    void gen_msg(MSG_TYPE type, int seq);
     void gen_token(int seq, int aru, int last_aru_setter, std::set<int> &rtr, int round, int fcc);
     void set_my_info();
+    bool data_tranfer();
 
     //message sending and receiving
-    long unsigned int  bytes;
-    int                num;
-    Message* recv_buf = new Message(); //receiving
-    Message* msg_buf = new Message(); //sending
+    int bytes;
+    int num;
+    //buffer for receiving
+    Message* recv_buf = new Message();
+    //buffer for sending
+    Message* msg_buf = new Message();
     Token* token_buf = new Token();
     std::set<int> rtr;
 
@@ -54,6 +57,8 @@ private:
     bool ring_formed = false;           //indicate whether the ring is formed
     bool has_token = false;
     bool had_token = false;
+    bool has_next = false;              //has next address
+    bool is_all_data_received = false;  // if ture, then all everyone has everything
 
     // socket
     int ssm,srm;                        //sending & receiving socket fd for multicast
@@ -62,43 +67,22 @@ private:
     struct sockaddr_in name;
     struct sockaddr_in send_addr;
 
+    // token timeout
+    struct timeval timestamp;
+    struct timeval last_token_sent_time;
+    bool token_flag;
+    void reset_token_timer();
+    void cancel_token_timer();
+
+
     fd_set mask;
     fd_set read_mask, write_mask, excep_mask;
     struct ip_mreq mreq;
     unsigned char ttl_val;
     int mcast_addr;
-    // add socket
-
 
     char my_hostname[256];
     char *my_ip;
-    // Functions for getting address
-    // Returns hostname for the local computer
-    void checkHostName(int hostname)
-    {
-        if (hostname == -1)
-        {
-            perror("gethostname");
-            exit(1);
-        }
-    }
-    // Returns host information corresponding to host name
-    void checkHostEntry(struct hostent * hostentry)
-    {
-        if (hostentry == NULL)
-        {
-            perror("gethostbyname");
-            exit(1);
-        }
-    }
-    // Converts space-delimited IPv4 addresses
-    // to dotted-decimal format
-    void checkIPbuffer(char *IPbuffer)
-    {
-        if (NULL == IPbuffer)
-        {
-            perror("inet_ntoa");
-            exit(1);
-        }
-    }
+    size_t ip_len;
+
 };

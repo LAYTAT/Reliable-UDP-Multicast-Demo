@@ -8,8 +8,8 @@ all: mcast start_mcast
 start_mcast: start_mcast.o
 	$(CC) -o start_mcast start_mcast.o
 
-mcast:mcast.o Processor.o
-	$(CC) -o mcast mcast.o Processor.o
+mcast:mcast.o Processor.o recv_dbg.o
+	$(CC) -o mcast mcast.o Processor.o recv_dbg.o
 
 clean:
 	rm *.o

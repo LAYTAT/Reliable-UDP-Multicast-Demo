@@ -23,6 +23,9 @@
 #include <utility>
 #include <set>
 #include <arpa/inet.h>
+#include <sys/time.h>
+#include "recv_dbg.h"
+
 
 #define MAX_MESS_LEN 1400
 #define PORT (10040)
@@ -42,13 +45,14 @@ struct Token{
     int fcc;                        // for flow control
 };
 
+enum class MSG_TYPE{
+    START_MCAST = -1,
+    REQUEST_RING = 1,
+    TOKEN = -2,
+};
+
 struct Message{                     // or called packet
-    int type;                       // indicate different types of message, join message for example
-    /*
-     *  -1 : start_mcast
-     *   1 : request_ring
-     *   -2 : it's a token
-     * */
+    MSG_TYPE type;                       // indicate different types of message, join message for example
     int seq;                        // packet_index
     int machine_id;
     int random_num;

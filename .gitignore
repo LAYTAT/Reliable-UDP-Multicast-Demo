@@ -36,3 +36,4 @@
 *.exe
 *.out
 *.app
+mcast.exe.stackdump
