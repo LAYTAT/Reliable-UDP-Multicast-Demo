@@ -259,16 +259,10 @@ bool Processor::form_ring() {
             std::cout << "REQUEST_RING fomr machine_id : " << recv_buf->machine_id << std::endl;
             if (next_id != recv_buf->machine_id) break;
             if (!has_next && !has_token && !had_token) {
-                char next_ip[strlen((const char *)recv_buf->payload)+1];
-                memcpy(next_ip, recv_buf->payload, strlen((char *)recv_buf->payload)+1);
-                //first time we know next addres
-                int addr_binary;
-                if (inet_pton(AF_INET, next_ip, &addr_binary) < 0) {
-                    std::cerr << "inet_pton:" << my_ip << std::endl;
-                    exit(EXIT_FAILURE);
-                }
+                char next_ip[strlen((const char *)recv_buf->payload)];
+                memcpy(next_ip, recv_buf->payload, strlen((char *)recv_buf->payload));
                 next_addr.sin_family = AF_INET;
-                next_addr.sin_addr.s_addr = htonl(addr_binary);  /* mcast address */
+                next_addr.sin_addr.s_addr = inet_addr(next_ip);// htonl(addr_binary);  /* ucast address */
                 next_addr.sin_port = htons(PORT);
                 has_next = true;
 
