@@ -142,7 +142,7 @@ bool Processor::send_token_to_next() {
     }
     has_token = false;
     last_token_round = token_buf->round;
-    gettimeofday(&last_token_sent_time, nullptr);
+    reset_token_timer();
     return true;
 }
 
@@ -179,6 +179,7 @@ void Processor::update_token_buf(int seq, int aru, int last_aru_setter, std::set
 }
 
 void Processor::reset_token_timer(){
+    std::cout << "Timer set for token with round number " << last_token_round << std::endl;
     token_flag = true;
     gettimeofday(&last_token_sent_time, nullptr);
 }
@@ -227,7 +228,7 @@ bool Processor::form_ring() {
             }
             break;
         case MSG_TYPE::REQUEST_RING:
-            std::cout << "REQUEST_RING fomr machine_id : " << recv_buf->machine_id << std::endl;
+            std::cout << "REQUEST_RING from machine_id : " << recv_buf->machine_id << std::endl;
             if (next_id != recv_buf->machine_id) break;
             if (!has_next && !has_token && !had_token) {
                 char next_ip[strlen((const char *)recv_buf->payload)];
@@ -242,13 +243,11 @@ bool Processor::form_ring() {
                     std::cout << "Sending: machine 1 is sending token" << std::endl;
                     update_msg_buf(MSG_TYPE::TOKEN);
                     send_token_to_next();
-                    reset_token_timer();
                     has_token = true;
                     had_token = true;
                 }
             } else if (has_token) {
                 send_token_to_next();
-                reset_token_timer();
             }
             break;
         case MSG_TYPE::DATA:
