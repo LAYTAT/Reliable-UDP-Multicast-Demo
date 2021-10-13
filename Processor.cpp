@@ -43,7 +43,6 @@ bool Processor::start_mcast(){
     // initialize recv debug mode
     recv_dbg_init( loss_rate, machine_id );
     std::cout << "Set machine" << machine_id << " recv loss rate to " << loss_rate << std::endl;
-    int count = 10;
 
     for(;;)
     {
@@ -94,7 +93,7 @@ bool Processor::start_mcast(){
                 }
             }
         }
-        if(mcast_received && !ring_formed && (machine_id == 2 && count-- > 0) ){
+        if(mcast_received && !ring_formed ){
             ring_request_multicast();           //keep multicast until token received
         }
         check_timeout(); //timeout for token
@@ -133,6 +132,7 @@ bool Processor::send_to_everyone(){
 
 bool Processor::send_token_to_next() {
     long unsigned int bytes_sent = sendto(ssu, msg_buf, sizeof(Message), 0,(struct sockaddr *)&next_addr, sizeof(next_addr) );
+    std::cout << "Send: machine " << machine_id << " sent token with round number " << token_buf->round << "." << std::endl;
     if(bytes_sent == -1) {
         std::cerr << "Unicast Message Error." << std::endl;
         exit(1);
@@ -204,7 +204,10 @@ bool Processor::form_ring() {
         case MSG_TYPE::TOKEN:
             memcpy(recv_buf->payload, token_buf, sizeof(Token));
             std::cout << "Received: machine " << machine_id << " received token with round number " << token_buf->round << "." << std::endl;
-            if(token_buf->round == last_token_round) break;     //dont ack on already sent token(with the same round number)
+            if(token_buf->round == last_token_round) {
+                std::cout << "already sent token(with the same round number)" << std::endl;
+                break;
+            }
             if(token_buf->round == 1) {
                 return true;
             }
