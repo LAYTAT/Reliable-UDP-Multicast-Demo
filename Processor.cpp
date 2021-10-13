@@ -93,33 +93,6 @@ bool Processor::start_mcast(){
                     break;
                 }
             }
-//            else if ( FD_ISSET(sru, &read_mask) ) {
-//                bytes = recv_dbg(sru, (char*)recv_buf, sizeof(Message), 0);
-//                if (bytes == -1) {
-//                    std::cerr << "Received Message Err" << std::endl;
-//                } else if (bytes > 0 && bytes < sizeof(Message)) {
-//                    std::cerr << "Received Message Corrupted. Bytes Received:" << bytes << std::endl;
-//                } // bytes == 0 is ignored for recv_dbg specified so
-//
-//                //Form a ring!
-//                if(mcast_received && !ring_formed) {
-//                    ring_formed = form_ring();
-//                    continue;
-//                }
-//
-//                //ring formed, tranfer messages untill finished
-//                if(ring_formed) {
-//                    std::cout << "Ring is formed" << std::endl;
-//                    // TODO: when received token with sent token round number, reset timer
-//                    // TODO: multicast only with updated token(with plus 1 round #)
-//                    is_all_data_received = data_tranfer();
-//                }
-//
-//                if(is_all_data_received){
-//                    std::cout << "congratulation: everything is received" << std::endl;
-//                    break;
-//                }
-//            }
         }
         if(mcast_received && !ring_formed && (machine_id == 2 && count-- > 0) ){
             ring_request_multicast();           //keep multicast until token received
@@ -226,21 +199,11 @@ void Processor::check_timeout(){
     }
 }
 
-/* It forms a ring between the N machines.
- * parameter is a reference of a potential next address
- * Returns true if ring formed succesfully, false otherwise
- */
-// send token if you recieved a message from a previous positioned ring & you have token
-// two cases: 1) recieved a token from previous process 2) recieved a message from the next process
 bool Processor::form_ring() {
-    //process has token but no
-    //8 cases upon receiving a message
-    // token vs. request_ring, has_next, has_token, had_token --> describes all the states
-
     switch (recv_buf->type) {
         case MSG_TYPE::TOKEN:
             memcpy(recv_buf->payload, token_buf, sizeof(Token));
-            std::cout << "Received: machine " << machine_id << "received token with round number " << token_buf->round << "." << std::endl;
+            std::cout << "Received: machine " << machine_id << " received token with round number " << token_buf->round << "." << std::endl;
             if(token_buf->round == last_token_round) break;     //dont ack on already sent token(with the same round number)
             if(token_buf->round == 1) {
                 return true;
@@ -282,7 +245,7 @@ bool Processor::form_ring() {
             }
             break;
         case MSG_TYPE::DATA:
-            std::cout << "Received: machine " << machine_id << "received data message with from machine " << msg_buf->machine_id << "." << std::endl;
+            std::cout << "Received: machine " << machine_id << " received data message with from machine " << msg_buf->machine_id << "." << std::endl;
             if(has_next && has_token && had_token) {
                 return true;
             }
@@ -299,42 +262,7 @@ bool Processor::form_ring() {
     //  Reset the fcc to 0 for every circle.
 
     // TODO: TOKEN HANDLING
-/*  General flow upon receiving the token:
-    ---------(beginning of retransmission stage)---------------------------------------
-            Flow Control
-    determine how many messages this processor can broadcast determined.
-            The maximum number of messages sending for this process is defined as followed:
-    GLOBAL_MAXIMUM, flow control for one ring cycle
-    LOCAL_MAXMUM, flow control for one process
-    Calculate global_balance
-    global_balance = GLOBAL_MAXIMUM - token.fcc
-    local_balance = min(LOCAL_MAXMUM, global_balance)
-    The local_balance will be the maximum number of packets that a process can send.
 
-            update retransmission requests (rtr in the token)
-    broadcast the requested transmission
-    subtract the number of retransmissions took place from the allowed to broadcast
-    ----------(end of retransmission stage)----------------------------------------------
-            ----------(beginning of broadcasting new messages)---------------------------
-    for as many messages the process broadcast:
-    get a message from the msg_2b_sent queue
-    increment token sequence (token.seq)
-    set message fields and broadcast
-    ------------(end of broadcasting new messages)---------------------------------
-            -------------(beginning of local variables & token update)----------------------
-            update local variable my_aru
-    if my_aru < token_aru or local.id == token.last_aru_setter or token.last_aru_setter == null then,
-            token_aru = local.aru
-    if token.aru == token.seq then
-    token.last_aru_setter = null
-    else token.last_aru_setter = local.id
-
-    Retransmission Stage (1)
-    This stage only take place if (token.aru < local.aru)
-        This is where the broadcaster tries to resend the requested packets, and after this preprocessing, the broadcaster will resend all the packets other than the unsent ones.
-        Even though the current broadcaster might not be able to send to all the requested packets(for that it might not have some of the requested packets itself), it will still
-        send all the requested messages in the range of [0, local.aru]. The retransmission packets will not be sent immediately, it will be added to the queue.
-*/
 
     // TODO: WHEN RECEIVING A REGULAR MESSAGE
 //    If token retransmission timeout is set, check if this broadcast message’s machine-id is the set one, if so, cancel the token retransmission timeout.
@@ -383,13 +311,6 @@ void Processor::start_chat(){
 bool Processor::socket_init(){
     mcast_addr = 225 << 24 | 0 << 16 | 1 << 8 | 1; /* (225.0.1.1) mcast IP group*/
 
-    /*socket for receiving unicast*/
-//    sru = socket(AF_INET, SOCK_DGRAM, 0);
-//    if (sru < 0) {
-//        perror("Ucast: socket");
-//        exit(1);
-//    }
-
     /*socket for sending unicast*/
     ssu = socket(AF_INET, SOCK_DGRAM, 0);
 
@@ -399,19 +320,6 @@ bool Processor::socket_init(){
     serv_addr.sin_addr.s_addr = INADDR_ANY;
     serv_addr.sin_port = htons(PORT);
 
-//    // TODO: for reuse of address. delete this setsockopt after debugging is done
-//    int set_resue = 1;
-//    if (setsockopt(sru, SOL_SOCKET, SO_REUSEADDR, &set_resue, sizeof(int)) < 0){ //SO_REUSEPORT
-//        perror("Mcast: set reuse failed");
-//        exit(1);
-//    }
-
-//    /*unicast server socket*/
-//    if (bind(sru, (struct sockaddr *)&serv_addr, sizeof(serv_addr) ) < 0 ) {
-//        perror("rcv: bind err");
-//        exit(1);
-//    }
-
     /* socket for receiving multicast */
     srm = socket(AF_INET, SOCK_DGRAM, 0);
     if (srm < 0) {
@@ -419,12 +327,12 @@ bool Processor::socket_init(){
         exit(1);
     }
 
-//    // TODO: for reuse of address. delete this setsockopt after debugging is done
-//    set_resue = 1;
-//    if (setsockopt(srm, SOL_SOCKET, SO_REUSEADDR, &set_resue, sizeof(int)) < 0){ //SO_REUSEPORT
-//        perror("Mcast: set reuse failed");
-//        exit(1);
-//    }
+    // TODO: for reuse of address. delete this setsockopt after debugging is done
+    int set_resue = 1;
+    if (setsockopt(srm, SOL_SOCKET, SO_REUSEADDR, &set_resue, sizeof(int)) < 0){ //SO_REUSEPORT
+        perror("Mcast: set reuse failed");
+        exit(1);
+    }
 
     /* socket for receiving multicast */
     name.sin_family = AF_INET;
