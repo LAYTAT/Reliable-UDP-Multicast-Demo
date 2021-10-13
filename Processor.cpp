@@ -136,7 +136,7 @@ bool Processor::send_to_everyone(){
 
 bool Processor::send_token_to_next() {
     long unsigned int bytes_sent = sendto(ssu, msg_buf, sizeof(Message), 0,(struct sockaddr *)&next_addr, sizeof(next_addr) );
-    std::cout << "Sending:      machine " << machine_id << " sent token with round number " << token_buf->round << "." << std::endl;
+    std::cout << "Sending:      machine " << machine_id << " sent token with round number " << token_buf->round << " to " << inet_ntoa(next_addr.sin_addr) << std::endl;
     if(bytes_sent == -1) {
         std::cerr << "Unicast Message Error." << std::endl;
         exit(1);
