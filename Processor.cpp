@@ -240,6 +240,7 @@ bool Processor::form_ring() {
     switch (recv_buf->type) {
         case MSG_TYPE::TOKEN:
             memcpy(recv_buf->payload, token_buf, sizeof(Token));
+            std::cout << "Received: machine " << machine_id << "received token with round number " << token_buf->round << "." << std::endl;
             if(token_buf->round == last_token_round) break;     //dont ack on already sent token(with the same round number)
             if(token_buf->round == 1) {
                 return true;
@@ -268,6 +269,7 @@ bool Processor::form_ring() {
                 has_next = true;
 
                 if(machine_id == 1) {
+                    std::cout << "Sending: machine 1 is sending token" << std::endl;
                     update_msg_buf(MSG_TYPE::TOKEN);
                     send_token_to_next();
                     reset_token_timer();
@@ -280,6 +282,7 @@ bool Processor::form_ring() {
             }
             break;
         case MSG_TYPE::DATA:
+            std::cout << "Received: machine " << machine_id << "received data message with from machine " << msg_buf->machine_id << "." << std::endl;
             if(has_next && has_token && had_token) {
                 return true;
             }
