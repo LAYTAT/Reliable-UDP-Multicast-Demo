@@ -194,7 +194,7 @@ void Processor::check_timeout(){
         if (timestamp.tv_sec - last_token_sent_time.tv_sec >= TOKEN_TIMEOUT_GAP_IN_SECONDS){
             /* resend token */
             send_token_to_next();
-            std::cout << "Timer:      Timeout! Token resend at timestamp " << timestamp.tv_sec << std::endl;
+            std::cout << "Timer:      Timeout! Token resend to mahine "<< next_id <<" at timestamp " << timestamp.tv_sec << std::endl;
             gettimeofday(&last_token_sent_time,NULL);
         }
     }
