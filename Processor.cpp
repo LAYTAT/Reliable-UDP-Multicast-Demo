@@ -110,14 +110,14 @@ void Processor::ring_request_multicast(){
     //check if token recieved
     count = ( count + 1 ) % RING_MCAST_FREQ;
 
-    if(count == 0) {
-        if(!had_token ) {
-            // multicast in order let previous neighbor know your address in order to form the ring
-            std::cout << "Ring request" << std::endl;
-            update_msg_buf(MSG_TYPE::REQUEST_RING);
-            if(!send_to_everyone()){
-                std::cerr << "send to everyone err" << std::endl;
-            }
+    if(count != 0) return;
+
+    if((!had_token && machine_id != 1) || (machine_id == 1)) {
+        // multicast in order let previous neighbor know your address in order to form the ring
+        std::cout << "Ring request" << std::endl;
+        update_msg_buf(MSG_TYPE::REQUEST_RING);
+        if(!send_to_everyone()){
+            std::cerr << "send to everyone err" << std::endl;
         }
     }
 }
@@ -224,6 +224,8 @@ bool Processor::form_ring() {
                 send_token_to_next();
                 had_token = true;
                 //send token to next
+            } else {
+                std::cout << "machine " << machine_id << " does not have next" << std::endl;
             }
             if(!has_next && !had_token){
                 has_token = true;
