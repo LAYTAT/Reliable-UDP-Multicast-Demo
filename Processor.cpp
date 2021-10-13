@@ -264,6 +264,7 @@ bool Processor::form_ring() {
                 next_addr.sin_family = AF_INET;
                 next_addr.sin_addr.s_addr = inet_addr(next_ip);// htonl(addr_binary);  /* ucast address */
                 next_addr.sin_port = htons(PORT);
+                std::cout << "Set next addr to: " << next_ip << "; s_addr = " <<  inet_addr(next_ip) << std::endl;
                 has_next = true;
 
                 if(machine_id == 1) {
