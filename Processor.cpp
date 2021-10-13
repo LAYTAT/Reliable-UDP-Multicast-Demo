@@ -115,7 +115,7 @@ void Processor::ring_request_multicast(){
     if((!had_token && machine_id != 1) || (machine_id == 1)) {
         // multicast in order let previous neighbor know your address in order to form the ring
         update_msg_buf(MSG_TYPE::REQUEST_RING);
-        std::cout << "my ip sent"<< my_ip << std::endl;
+        std::cout << "my ip sent"<< my_ip_ << std::endl;
         if(!send_to_everyone()){
             std::cerr << "send to everyone err" << std::endl;
         }
