@@ -65,7 +65,7 @@ private:
 
     // socket
     int ssm,srm;                        //sending & receiving socket fd for multicast
-    int sru,ssu;                        //socket fd for unicast
+    int ssu;                        //socket fd for unicast
     struct sockaddr_in serv_addr;       // storing own addr, use for binding
     struct sockaddr_in name;
     struct sockaddr_in send_addr;

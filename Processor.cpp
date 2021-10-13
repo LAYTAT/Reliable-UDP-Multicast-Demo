@@ -93,33 +93,33 @@ bool Processor::start_mcast(){
                     break;
                 }
             }
-            else if ( FD_ISSET(sru, &read_mask) ) {
-                bytes = recv_dbg(sru, (char*)recv_buf, sizeof(Message), 0);
-                if (bytes == -1) {
-                    std::cerr << "Received Message Err" << std::endl;
-                } else if (bytes > 0 && bytes < sizeof(Message)) {
-                    std::cerr << "Received Message Corrupted. Bytes Received:" << bytes << std::endl;
-                } // bytes == 0 is ignored for recv_dbg specified so
-
-                //Form a ring!
-                if(mcast_received && !ring_formed) {
-                    ring_formed = form_ring();
-                    continue;
-                }
-
-                //ring formed, tranfer messages untill finished
-                if(ring_formed) {
-                    std::cout << "Ring is formed" << std::endl;
-                    // TODO: when received token with sent token round number, reset timer
-                    // TODO: multicast only with updated token(with plus 1 round #)
-                    is_all_data_received = data_tranfer();
-                }
-
-                if(is_all_data_received){
-                    std::cout << "congratulation: everything is received" << std::endl;
-                    break;
-                }
-            }
+//            else if ( FD_ISSET(sru, &read_mask) ) {
+//                bytes = recv_dbg(sru, (char*)recv_buf, sizeof(Message), 0);
+//                if (bytes == -1) {
+//                    std::cerr << "Received Message Err" << std::endl;
+//                } else if (bytes > 0 && bytes < sizeof(Message)) {
+//                    std::cerr << "Received Message Corrupted. Bytes Received:" << bytes << std::endl;
+//                } // bytes == 0 is ignored for recv_dbg specified so
+//
+//                //Form a ring!
+//                if(mcast_received && !ring_formed) {
+//                    ring_formed = form_ring();
+//                    continue;
+//                }
+//
+//                //ring formed, tranfer messages untill finished
+//                if(ring_formed) {
+//                    std::cout << "Ring is formed" << std::endl;
+//                    // TODO: when received token with sent token round number, reset timer
+//                    // TODO: multicast only with updated token(with plus 1 round #)
+//                    is_all_data_received = data_tranfer();
+//                }
+//
+//                if(is_all_data_received){
+//                    std::cout << "congratulation: everything is received" << std::endl;
+//                    break;
+//                }
+//            }
         }
         if(mcast_received && !ring_formed && (machine_id == 2 && count-- > 0) ){
             ring_request_multicast();           //keep multicast until token received
@@ -380,11 +380,11 @@ bool Processor::socket_init(){
     mcast_addr = 225 << 24 | 0 << 16 | 1 << 8 | 1; /* (225.0.1.1) mcast IP group*/
 
     /*socket for receiving unicast*/
-    sru = socket(AF_INET, SOCK_DGRAM, 0);
-    if (sru < 0) {
-        perror("Ucast: socket");
-        exit(1);
-    }
+//    sru = socket(AF_INET, SOCK_DGRAM, 0);
+//    if (sru < 0) {
+//        perror("Ucast: socket");
+//        exit(1);
+//    }
 
     /*socket for sending unicast*/
     ssu = socket(AF_INET, SOCK_DGRAM, 0);
@@ -395,18 +395,18 @@ bool Processor::socket_init(){
     serv_addr.sin_addr.s_addr = INADDR_ANY;
     serv_addr.sin_port = htons(PORT);
 
-    // TODO: for reuse of address. delete this setsockopt after debugging is done
-    int set_resue = 1;
-    if (setsockopt(sru, SOL_SOCKET, SO_REUSEADDR, &set_resue, sizeof(int)) < 0){ //SO_REUSEPORT
-        perror("Mcast: set reuse failed");
-        exit(1);
-    }
+//    // TODO: for reuse of address. delete this setsockopt after debugging is done
+//    int set_resue = 1;
+//    if (setsockopt(sru, SOL_SOCKET, SO_REUSEADDR, &set_resue, sizeof(int)) < 0){ //SO_REUSEPORT
+//        perror("Mcast: set reuse failed");
+//        exit(1);
+//    }
 
-    /*unicast server socket*/
-    if (bind(sru, (struct sockaddr *)&serv_addr, sizeof(serv_addr) ) < 0 ) {
-        perror("rcv: bind err");
-        exit(1);
-    }
+//    /*unicast server socket*/
+//    if (bind(sru, (struct sockaddr *)&serv_addr, sizeof(serv_addr) ) < 0 ) {
+//        perror("rcv: bind err");
+//        exit(1);
+//    }
 
     /* socket for receiving multicast */
     srm = socket(AF_INET, SOCK_DGRAM, 0);
@@ -415,12 +415,12 @@ bool Processor::socket_init(){
         exit(1);
     }
 
-    // TODO: for reuse of address. delete this setsockopt after debugging is done
-    set_resue = 1;
-    if (setsockopt(srm, SOL_SOCKET, SO_REUSEADDR, &set_resue, sizeof(int)) < 0){ //SO_REUSEPORT
-        perror("Mcast: set reuse failed");
-        exit(1);
-    }
+//    // TODO: for reuse of address. delete this setsockopt after debugging is done
+//    set_resue = 1;
+//    if (setsockopt(srm, SOL_SOCKET, SO_REUSEADDR, &set_resue, sizeof(int)) < 0){ //SO_REUSEPORT
+//        perror("Mcast: set reuse failed");
+//        exit(1);
+//    }
 
     /* socket for receiving multicast */
     name.sin_family = AF_INET;
@@ -463,7 +463,7 @@ bool Processor::socket_init(){
     FD_ZERO( &write_mask );
     FD_ZERO( &excep_mask );
     FD_SET(srm, &mask );
-    FD_SET(sru, &mask);
+//    FD_SET(sru, &mask);
     FD_SET( (long)0, &mask );    /* stdin */
     return true;
 }
