@@ -211,6 +211,10 @@ bool Processor::form_ring() {
             if(token_buf->round == 1) {
                 return true;
             }
+            if(token_buf->round == 0 && machine_id == 1) {
+                std::cout << "Ring is form" << std::endl;
+                return true;
+            }
             if(has_next && !had_token) {
                 update_msg_buf(MSG_TYPE::TOKEN);
                 send_token_to_next();
