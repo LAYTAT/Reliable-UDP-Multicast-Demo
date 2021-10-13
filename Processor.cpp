@@ -227,8 +227,8 @@ bool Processor::form_ring() {
             break;
         case MSG_TYPE::REQUEST_RING:
             if (next_id != recv_buf->machine_id) break;
-            std::cout << "REQUEST_RING from machine_id : " << recv_buf->machine_id << std::endl;
             if (!has_next && !has_token && !had_token) {
+                std::cout << "REQUEST_RING from machine_id : " << recv_buf->machine_id << std::endl;
                 char next_ip[strlen((const char *)recv_buf->payload)];
                 memcpy(next_ip, recv_buf->payload, strlen((char *)recv_buf->payload));
                 next_addr.sin_family = AF_INET;
