@@ -94,5 +94,6 @@ private:
 
     char my_hostname[256];
     char *my_ip;
+    char my_ip_[13];
     size_t ip_len;
 };

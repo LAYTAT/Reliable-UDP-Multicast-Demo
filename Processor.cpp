@@ -160,7 +160,7 @@ void Processor::update_msg_buf(MSG_TYPE type, int seq){
         msg_buf->random_num = std::rand() % 1000000 + 1;
     }
     if(type == MSG_TYPE::REQUEST_RING) {
-        memcpy(msg_buf->payload, my_ip, strlen(my_ip)); //send my_ip
+        memcpy(msg_buf->payload, my_ip_, strlen(my_ip_)); //send my_ip
         msg_buf->payload[strlen(my_ip)] = 0; // null char
     }
     if(type == MSG_TYPE::TOKEN) {
@@ -408,4 +408,5 @@ void Processor::set_my_info() {
     // address into ASCII string
     my_ip = inet_ntoa(*((struct in_addr*)
             host_entry->h_addr_list[0]));
+    memcpy(&my_ip_, my_ip, strlen(my_ip));
 }
