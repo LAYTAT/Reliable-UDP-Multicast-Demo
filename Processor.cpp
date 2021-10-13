@@ -179,7 +179,7 @@ void Processor::update_token_buf(int seq, int aru, int last_aru_setter, std::set
 }
 
 void Processor::reset_token_timer(){
-    std::cout << "Timer set for token with round number " << last_token_round << std::endl;
+    std::cout << "Timer: set for token with round number " << last_token_round << std::endl;
     token_flag = true;
     gettimeofday(&last_token_sent_time, nullptr);
 }
@@ -194,7 +194,7 @@ void Processor::check_timeout(){
         if (timestamp.tv_sec - last_token_sent_time.tv_sec >= TOKEN_TIMEOUT_GAP_IN_SECONDS){
             /* resend token */
             send_token_to_next();
-            std::cout << "Token resend at timestamp " << timestamp.tv_sec << std::endl;
+            std::cout << "Timeout: Token resend at timestamp " << timestamp.tv_sec << std::endl;
             gettimeofday(&last_token_sent_time,NULL);
         }
     }
