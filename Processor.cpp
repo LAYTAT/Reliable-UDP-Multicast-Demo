@@ -246,6 +246,8 @@ bool Processor::form_ring() {
                     had_token = true;
                 }
             } else if (has_token) {
+                std::cout << "Sending:      machine " << machine_id << " is sending token" << std::endl;
+                update_msg_buf(MSG_TYPE::TOKEN);
                 send_token_to_next();
             }
             break;
