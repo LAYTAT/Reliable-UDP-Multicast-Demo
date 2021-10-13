@@ -108,11 +108,16 @@ bool Processor::data_tranfer(){
 
 void Processor::ring_request_multicast(){
     //check if token recieved
-    if(!had_token) {
-        // multicast in order let previous neighbor know your address in order to form the ring
-        update_msg_buf(MSG_TYPE::REQUEST_RING);
-        if(!send_to_everyone()){
-            std::cerr << "send to everyone err" << std::endl;
+    count = ( count + 1 ) % RING_MCAST_FREQ;
+
+    if(count == 0) {
+        if(!had_token ) {
+            // multicast in order let previous neighbor know your address in order to form the ring
+            std::cout << "Ring request" << std::endl;
+            update_msg_buf(MSG_TYPE::REQUEST_RING);
+            if(!send_to_everyone()){
+                std::cerr << "send to everyone err" << std::endl;
+            }
         }
     }
 }
