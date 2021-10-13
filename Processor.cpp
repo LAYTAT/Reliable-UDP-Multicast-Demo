@@ -32,19 +32,24 @@ void checkIPbuffer(char *IPbuffer)
 bool Processor::start_mcast(){
     // get my address for later sending
     set_my_info();
+    std::cout << "My machine id: " << machine_id << std::endl;
     std::cout << "My Host Name: " << my_hostname << std::endl;
     std::cout << "My Host IP: " << my_ip << std::endl;
+
+    struct timeval select_timeout;
+    select_timeout.tv_sec = 0;
+    select_timeout.tv_usec = 0;
 
     // initialize recv debug mode
     recv_dbg_init( loss_rate, machine_id );
     std::cout << "Set machine" << machine_id << " recv loss rate to " << loss_rate << std::endl;
+    int count = 10;
 
     for(;;)
     {
         read_mask = mask;
         /* get start time */
-        gettimeofday(&timestamp, NULL);
-        num = select( FD_SETSIZE, &read_mask, &write_mask, &excep_mask, NULL);
+        num = select( FD_SETSIZE, &read_mask, &write_mask, &excep_mask, &select_timeout);
         if (num > 0) {
             if ( FD_ISSET(srm, &read_mask) ) {
                 if(!mcast_received){ // if not recv mcast start receive using recv
@@ -71,14 +76,42 @@ bool Processor::start_mcast(){
 
                 //Form a ring!
                 if(mcast_received && !ring_formed) {
-                    ring_formed = form_ring(temp_addr);
+                    ring_formed = form_ring();
+                    continue;
                 }
 
                 //ring formed, tranfer messages untill finished
                 if(ring_formed) {
-                    std::cout << "ring formed" << std::endl;
+                    std::cout << "Ring is formed" << std::endl;
                     // TODO: when received token with sent token round number, reset timer
-                    // TODO:  multicast only with updated token(with plus 1 round #)
+                    // TODO: multicast only with updated token(with plus 1 round #)
+                    is_all_data_received = data_tranfer();
+                }
+
+                if(is_all_data_received){
+                    std::cout << "congratulation: everything is received" << std::endl;
+                    break;
+                }
+            }
+            else if ( FD_ISSET(sru, &read_mask) ) {
+                bytes = recv_dbg(sru, (char*)recv_buf, sizeof(Message), 0);
+                if (bytes == -1) {
+                    std::cerr << "Received Message Err" << std::endl;
+                } else if (bytes > 0 && bytes < sizeof(Message)) {
+                    std::cerr << "Received Message Corrupted. Bytes Received:" << bytes << std::endl;
+                } // bytes == 0 is ignored for recv_dbg specified so
+
+                //Form a ring!
+                if(mcast_received && !ring_formed) {
+                    ring_formed = form_ring();
+                    continue;
+                }
+
+                //ring formed, tranfer messages untill finished
+                if(ring_formed) {
+                    std::cout << "Ring is formed" << std::endl;
+                    // TODO: when received token with sent token round number, reset timer
+                    // TODO: multicast only with updated token(with plus 1 round #)
                     is_all_data_received = data_tranfer();
                 }
 
@@ -88,16 +121,29 @@ bool Processor::start_mcast(){
                 }
             }
         }
+        if(mcast_received && !ring_formed && (machine_id == 2 && count-- > 0) ){
+            ring_request_multicast();           //keep multicast until token received
+        }
+        check_timeout(); //timeout for token
     }
-
-
-
     return false;
 }
 
 bool Processor::data_tranfer(){
     // TODO: multicast and updating on the token
     return false;
+}
+
+void Processor::ring_request_multicast(){
+    //check if token recieved
+    if(!had_token) {
+        std::cout << "ring_request_multicast" << std::endl;
+        // multicast in order let previous neighbor know your address in order to form the ring
+        update_msg_buf(MSG_TYPE::REQUEST_RING);
+        if(!send_to_everyone()){
+            std::cerr << "send to everyone err" << std::endl;
+        }
+    }
 }
 
 bool Processor::send_to_everyone(){
@@ -113,7 +159,7 @@ bool Processor::send_to_everyone(){
 }
 
 bool Processor::send_token_to_next() {
-    long unsigned int bytes_sent = sendto(ssm, msg_buf, sizeof(Message), 0,(struct sockaddr *)&next_addr, sizeof(next_addr) );
+    long unsigned int bytes_sent = sendto(ssu, msg_buf, sizeof(Message), 0,(struct sockaddr *)&next_addr, sizeof(next_addr) );
     if(bytes_sent == -1) {
         std::cerr << "Unicast Message Error." << std::endl;
         exit(1);
@@ -121,12 +167,13 @@ bool Processor::send_token_to_next() {
         std::cerr << "Unicast Message Error. Bytes Sent:" << bytes << std::endl;
         return false;
     }
-
+    has_token = false;
+    last_token_round = token_buf->round;
     gettimeofday(&last_token_sent_time, nullptr);
     return true;
 }
 
-void Processor::gen_msg(MSG_TYPE type, int seq = -1){
+void Processor::update_msg_buf(MSG_TYPE type, int seq){
     memset(msg_buf, 0, sizeof(Message));
     msg_buf->type = type;
     msg_buf->machine_id = machine_id;
@@ -134,15 +181,16 @@ void Processor::gen_msg(MSG_TYPE type, int seq = -1){
         memset(msg_buf->payload, 0, sizeof(Message)); //TODO: add payload
         msg_buf->random_num = std::rand() % 1000000 + 1;
     }
-    if(type == MSG_TYPE::START_MCAST) {
+    if(type == MSG_TYPE::REQUEST_RING) {
         memcpy(msg_buf->payload, my_ip, strlen(my_ip)); //send my_ip
+        msg_buf->payload[strlen(my_ip)] = 0; // null char
     }
     if(type == MSG_TYPE::TOKEN) {
         memcpy(msg_buf->payload, token_buf, sizeof(Token));
     }
 }
 
-void Processor::gen_token(int seq, int aru, int last_aru_setter, std::set<int>& new_rtr, int round, int fcc){
+void Processor::update_token_buf(int seq, int aru, int last_aru_setter, std::set<int>& new_rtr, int round, int fcc){
     memset(token_buf, 0 , sizeof(Message));
     token_buf->seq = seq;
     token_buf->fcc = fcc;
@@ -166,59 +214,84 @@ void Processor::cancel_token_timer(){
     token_flag = false;
 }
 
+void Processor::check_timeout(){
+    if(token_flag){
+        gettimeofday(&timestamp, NULL);
+        if (timestamp.tv_sec - last_token_sent_time.tv_sec >= TOKEN_TIMEOUT_GAP_IN_SECONDS){
+            /* resend token */
+            send_token_to_next();
+            std::cout << "Token resend at timestamp " << timestamp.tv_sec << std::endl;
+            gettimeofday(&last_token_sent_time,NULL);
+        }
+    }
+}
+
 /* It forms a ring between the N machines.
  * parameter is a reference of a potential next address
  * Returns true if ring formed succesfully, false otherwise
  */
 // send token if you recieved a message from a previous positioned ring & you have token
 // two cases: 1) recieved a token from previous process 2) recieved a message from the next process
-bool Processor::form_ring(sockaddr_in & addr) {
-    //check if token recieved
-    if(!had_token) {
-        // multicast in order let previous neighbor know your address in order to form the ring
-        gen_msg(MSG_TYPE::REQUEST_RING);
-        if(!send_to_everyone()){
-            std::cerr << "send to everyone err" << std::endl;
-        }
-    }
+bool Processor::form_ring() {
+    //process has token but no
+    //8 cases upon receiving a message
+    // token vs. request_ring, has_next, has_token, had_token --> describes all the states
 
-    if (recv_buf->type == MSG_TYPE::REQUEST_RING) { //request ring msg recieved
-        if(next_id == recv_buf->machine_id) {
-            int addr_binary;
-            if (inet_pton(AF_INET, my_ip, &addr_binary) < 0) {
-                std::cerr << "inet_pton:" << my_ip << std::endl;
-                exit(EXIT_FAILURE);
+    switch (recv_buf->type) {
+        case MSG_TYPE::TOKEN:
+            memcpy(recv_buf->payload, token_buf, sizeof(Token));
+            if(token_buf->round == last_token_round) break;     //dont ack on already sent token(with the same round number)
+            if(token_buf->round == 1) {
+                return true;
             }
-            next_addr.sin_family = AF_INET;
-            next_addr.sin_addr.s_addr = htonl(addr_binary);  /* mcast address */
-            next_addr.sin_port = htons(PORT);
-            has_next = true;
-            reset_token_timer();
-        }
+            if(has_next && !had_token) {
+                update_msg_buf(MSG_TYPE::TOKEN);
+                send_token_to_next();
+                had_token = true;
+                //send token to next
+            }
+            if(!has_next && !had_token){
+                has_token = true;
+                had_token = true;
+            }
+            break;
+        case MSG_TYPE::REQUEST_RING:
+            std::cout << "REQUEST_RING fomr machine_id : " << recv_buf->machine_id << std::endl;
+            if (next_id != recv_buf->machine_id) break;
+            if (!has_next && !has_token && !had_token) {
+                char next_ip[strlen((const char *)recv_buf->payload)+1];
+                memcpy(next_ip, recv_buf->payload, strlen((char *)recv_buf->payload)+1);
+                //first time we know next addres
+                int addr_binary;
+                if (inet_pton(AF_INET, next_ip, &addr_binary) < 0) {
+                    std::cerr << "inet_pton:" << my_ip << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                next_addr.sin_family = AF_INET;
+                next_addr.sin_addr.s_addr = htonl(addr_binary);  /* mcast address */
+                next_addr.sin_port = htons(PORT);
+                has_next = true;
+
+                if(machine_id == 1) {
+                    update_msg_buf(MSG_TYPE::TOKEN);
+                    send_token_to_next();
+                    reset_token_timer();
+                    has_token = true;
+                    had_token = true;
+                }
+            } else if (has_token) {
+                send_token_to_next();
+                reset_token_timer();
+            }
+            break;
+        case MSG_TYPE::DATA:
+            if(has_next && has_token && had_token) {
+                return true;
+            }
+            break;
+        default:
+            break;
     }
-
-    if(machine_id == 1 && has_next ){
-        gen_token(-1,-1,-1, rtr, 0, 0);
-        if(!send_token_to_next()){
-            std::cerr << "send to next err" << std::endl;
-        }
-//        Keep waiting for node 1 to send its initial packet.
-//                When receive node 1’s initial packet, it will store the address of node 1 in loca storage and
-//        Send the token to node 1
-//        Timeout for token(which has a round number of 0)
-//        If timeout
-//        Resend the token
-//        If token with round number 0 circled back
-//        Round number plus one
-//        Enter the payload sending stage
-    }
-
-    // check for token
-
-
-
-    // TODO: looking for next machine id
-
     return false;
 }
 
@@ -313,11 +386,14 @@ bool Processor::socket_init(){
     mcast_addr = 225 << 24 | 0 << 16 | 1 << 8 | 1; /* (225.0.1.1) mcast IP group*/
 
     /*socket for receiving unicast*/
-    ssu = socket(AF_INET, SOCK_DGRAM, 0);
-    if (ssu < 0) {
+    sru = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sru < 0) {
         perror("Ucast: socket");
         exit(1);
     }
+
+    /*socket for sending unicast*/
+    ssu = socket(AF_INET, SOCK_DGRAM, 0);
 
     /*specify server address for binding*/
     memset(&serv_addr, 0, sizeof(serv_addr));
@@ -327,13 +403,13 @@ bool Processor::socket_init(){
 
     // TODO: for reuse of address. delete this setsockopt after debugging is done
     int set_resue = 1;
-    if (setsockopt(ssu, SOL_SOCKET, SO_REUSEADDR, &set_resue, sizeof(int)) < 0){ //SO_REUSEPORT
+    if (setsockopt(sru, SOL_SOCKET, SO_REUSEADDR, &set_resue, sizeof(int)) < 0){ //SO_REUSEPORT
         perror("Mcast: set reuse failed");
         exit(1);
     }
 
     /*unicast server socket*/
-    if ( bind( ssu, (struct sockaddr *)&serv_addr, sizeof(serv_addr) ) < 0 ) {
+    if (bind(sru, (struct sockaddr *)&serv_addr, sizeof(serv_addr) ) < 0 ) {
         perror("rcv: bind err");
         exit(1);
     }
@@ -393,6 +469,7 @@ bool Processor::socket_init(){
     FD_ZERO( &write_mask );
     FD_ZERO( &excep_mask );
     FD_SET(srm, &mask );
+    FD_SET(sru, &mask);
     FD_SET( (long)0, &mask );    /* stdin */
     return true;
 }

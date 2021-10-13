@@ -34,6 +34,7 @@
 #define MAX_FLOW_FOR_ONE_PROCESS (500)
 #define MAX_FLOW_FOR_ONE_RING_CYCLE (5000)
 #define MAX_RTR (1000)
+#define TOKEN_TIMEOUT_GAP_IN_SECONDS (1)
 
 struct Token{
     int seq;                        // The largest sequence number for any message, an upper limit of sequemce number
@@ -49,6 +50,7 @@ enum class MSG_TYPE{
     START_MCAST = -1,
     REQUEST_RING = 1,
     TOKEN = -2,
+    DATA = 2,
 };
 
 struct Message{                     // or called packet

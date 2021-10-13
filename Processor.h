@@ -11,17 +11,20 @@ public:
     Processor(int m_id, int l, int n = NUM_OF_TOTAL_PACKETS, int nm = NUM_OF_MACHINES): machine_id(m_id), loss_rate(l), nums_packets(n), number_of_machines(nm){
         next_id = m_id%(number_of_machines) + 1;
         std::srand(std::time(nullptr));
-        gen_token(-1, -1, m_id, rtr, 0, -1);
-
+        if( machine_id == 1 ) {
+            update_token_buf(-1, -1, m_id, rtr, 0, -1);
+        }
     }
     Processor(Processor const &) = delete;
     Processor(Processor&&) = delete;
     bool start_mcast();
     bool send_to_everyone();
     bool send_token_to_next();
-    bool form_ring(sockaddr_in & addr);
+    bool form_ring();
     void start_chat();
     bool socket_init();
+    //sending multicast for previous neighbor in the ring
+    void ring_request_multicast();
 
 private:
     int machine_id;
@@ -37,8 +40,8 @@ private:
     struct sockaddr_in next_addr;
     int next_id;                   //next neighbor in ring <m_id+1, address>
     //generate a new message and token for sending
-    void gen_msg(MSG_TYPE type, int seq);
-    void gen_token(int seq, int aru, int last_aru_setter, std::set<int> &rtr, int round, int fcc);
+    void update_msg_buf(MSG_TYPE type, int seq=-1);
+    void update_token_buf(int seq, int aru, int last_aru_setter, std::set<int> &new_rtr, int round, int fcc);
     void set_my_info();
     bool data_tranfer();
 
@@ -62,7 +65,7 @@ private:
 
     // socket
     int ssm,srm;                        //sending & receiving socket fd for multicast
-    int ssu;                            //socket fd for unicast
+    int sru,ssu;                        //socket fd for unicast
     struct sockaddr_in serv_addr;       // storing own addr, use for binding
     struct sockaddr_in name;
     struct sockaddr_in send_addr;
@@ -71,10 +74,14 @@ private:
     struct timeval timestamp;
     struct timeval last_token_sent_time;
     bool token_flag;
-    void reset_token_timer();
     void cancel_token_timer();
+    void check_timeout();
+    int last_token_round = -1;
 
+public:
+    void reset_token_timer();
 
+private:
     fd_set mask;
     fd_set read_mask, write_mask, excep_mask;
     struct ip_mreq mreq;
@@ -84,5 +91,4 @@ private:
     char my_hostname[256];
     char *my_ip;
     size_t ip_len;
-
 };
