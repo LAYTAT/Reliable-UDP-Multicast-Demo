@@ -79,7 +79,7 @@ private:
     int last_token_round = -1;
 
     // ring multicast request
-    int RING_MCAST_FREQ = 2000000;
+    int RING_MCAST_FREQ = 200000;
     int count = 0;
 
 public:

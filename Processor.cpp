@@ -209,7 +209,7 @@ bool Processor::form_ring() {
         case MSG_TYPE::TOKEN:
             memcpy(recv_buf->payload, token_buf, sizeof(Token));
             std::cout << "Received:     machine " << machine_id << " received token with round number " << token_buf->round << "." << std::endl;
-            if(token_buf->round == last_token_round && machine_id == 1) {
+            if(token_buf->round == last_token_round) {
                 if(machine_id == 1) {
                     std::cout << "Ring:     Ring is formed!" << std::endl;
                     return true;
