@@ -114,8 +114,8 @@ void Processor::ring_request_multicast(){
 
     if((!had_token && machine_id != 1) || (machine_id == 1)) {
         // multicast in order let previous neighbor know your address in order to form the ring
-        std::cout << "Ring request" << std::endl;
         update_msg_buf(MSG_TYPE::REQUEST_RING);
+        std::cout << "my ip sent"<< my_ip << std::endl;
         if(!send_to_everyone()){
             std::cerr << "send to everyone err" << std::endl;
         }
@@ -199,7 +199,7 @@ void Processor::check_timeout(){
         if (timestamp.tv_sec - last_token_sent_time.tv_sec >= TOKEN_TIMEOUT_GAP_IN_SECONDS){
             /* resend token */
             send_token_to_next();
-            std::cout << "Timer:      Timeout! Token resend to mahine "<< next_id <<" at timestamp " << timestamp.tv_sec << std::endl;
+            std::cout << "Timer:      Timeout! Token resend to machine "<< next_id <<" at timestamp " << timestamp.tv_sec << std::endl;
             gettimeofday(&last_token_sent_time,NULL);
         }
     }
