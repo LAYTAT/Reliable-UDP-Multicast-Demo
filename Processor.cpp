@@ -204,17 +204,17 @@ bool Processor::form_ring() {
         case MSG_TYPE::TOKEN:
             memcpy(recv_buf->payload, token_buf, sizeof(Token));
             std::cout << "Received: machine " << machine_id << " received token with round number " << token_buf->round << "." << std::endl;
-            if(token_buf->round == last_token_round && machine_id!=1) {
-                std::cout << "already sent token(with the same round number)" << std::endl;
-                break;
-            }
-            if(token_buf->round == 1) {
-                return true;
-            }
             if(token_buf->round == last_token_round && machine_id == 1) {
-                std::cout << "Ring is form" << std::endl;
-                return true;
+                if(machine_id == 1) {
+                    std::cout << "Ring is formed!" << std::endl;
+                    return true;
+                } else {
+                    std::cout << "already sent token(with the same round number)" << std::endl;
+                    break;
+                }
+
             }
+
             if(has_next && !had_token) {
                 update_msg_buf(MSG_TYPE::TOKEN);
                 send_token_to_next();
