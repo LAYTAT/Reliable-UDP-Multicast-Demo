@@ -35,8 +35,13 @@ int main(){
 
     Message * msg = new Message();
     msg->type = MSG_TYPE::START_MCAST; // mcast_start
-    std::cout << "before sendto" << std::endl;
-    sendto(ssm, msg, sizeof(Message), 0,(struct sockaddr *) &send_addr, sizeof(send_addr));
+    int sent = sendto(ssm, msg, sizeof(Message), 0,(struct sockaddr *) &send_addr, sizeof(send_addr));
+    if(sent == -1) {
+        std::cerr << "sendto err" << std::endl;
+    } else if (sent < sizeof(Message)) {
+        std::cerr << "sendto only sent " << sent << " bytes instead of " << sizeof(Message) << std::endl;
+    }
+    std::cout << "start_mcast message is successfully sent!" << std::endl;
     delete msg;
 
     return 1;

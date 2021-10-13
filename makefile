@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -c -g -Wall -pedantic
 #CFLAGS = -ansi -c -Wall -pedantic
-#TODO: delete -g after debug is done
+#TODO: delete -g after debugging is done
 
 all: mcast start_mcast
 

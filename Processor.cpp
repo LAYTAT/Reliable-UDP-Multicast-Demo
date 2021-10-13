@@ -30,16 +30,14 @@ void checkIPbuffer(char *IPbuffer)
 }
 
 bool Processor::start_mcast(){
-    // TODO: ADD a big big while loop - Begin
-
     // get my address for later sending
     set_my_info();
     std::cout << "My Host Name: " << my_hostname << std::endl;
     std::cout << "My Host IP: " << my_ip << std::endl;
 
     // initialize recv debug mode
-    recv_dbg_init( machine_id, loss_rate );
-    std::cout << "Set machine:" << machine_id << " recv loss rate to " << loss_rate << std::endl;
+    recv_dbg_init( loss_rate, machine_id );
+    std::cout << "Set machine" << machine_id << " recv loss rate to " << loss_rate << std::endl;
 
     for(;;)
     {
@@ -49,18 +47,27 @@ bool Processor::start_mcast(){
         num = select( FD_SETSIZE, &read_mask, &write_mask, &excep_mask, NULL);
         if (num > 0) {
             if ( FD_ISSET(srm, &read_mask) ) {
+                if(!mcast_received){ // if not recv mcast start receive using recv
+                    bytes = recv(srm, (char*)recv_buf, sizeof(Message), 0);
+                    if (bytes == -1) {
+                        std::cerr << "Received Message Err" << std::endl;
+                    } else if (bytes > 0 && bytes < sizeof(Message)) {
+                        std::cerr << "Received Message Corrupted. Bytes Received:" << bytes << std::endl;
+                    }
+                    //Start_Mcast Message Received, start ring formation
+                    if(recv_buf->type == MSG_TYPE::START_MCAST ) {
+                        std::cout << "mcast_start msg received" << std::endl;
+                        mcast_received = true;
+                    }
+                    continue;
+                }
+
                 bytes = recv_dbg(srm, (char*)recv_buf, sizeof(Message), 0);
                 if (bytes == -1) {
                     std::cerr << "Received Message Err" << std::endl;
-                } else if (bytes < sizeof(Message)) {
+                } else if (bytes > 0 && bytes < sizeof(Message)) {
                     std::cerr << "Received Message Corrupted. Bytes Received:" << bytes << std::endl;
-                }
-
-                //Start_Mcast Message Received, start ring formation
-                if(recv_buf->type == MSG_TYPE::START_MCAST ) {
-                    std::cout << "mcast_start msg received" << std::endl;
-                    mcast_received = true;
-                }
+                } // bytes == 0 is ignored for recv_dbg specified so
 
                 //Form a ring!
                 if(mcast_received && !ring_formed) {
@@ -89,7 +96,7 @@ bool Processor::start_mcast(){
 }
 
 bool Processor::data_tranfer(){
-    // TODO: multicast and passing on the token
+    // TODO: multicast and updating on the token
     return false;
 }
 
@@ -152,10 +159,11 @@ void Processor::gen_token(int seq, int aru, int last_aru_setter, std::set<int>& 
 
 void Processor::reset_token_timer(){
     token_flag = true;
+    gettimeofday(&last_token_sent_time, nullptr);
 }
 
 void Processor::cancel_token_timer(){
-    token_flag = true;
+    token_flag = false;
 }
 
 /* It forms a ring between the N machines.
