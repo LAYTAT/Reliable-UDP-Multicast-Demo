@@ -63,7 +63,6 @@ bool Processor::start_mcast(){
                         std::cout << "mcast_start msg received" << std::endl;
                         mcast_received = true;
                     }
-                    continue;
                 }
 
                 bytes = recv_dbg(srm, (char*)recv_buf, sizeof(Message), 0);
@@ -72,7 +71,7 @@ bool Processor::start_mcast(){
                 } else if (bytes > 0 && bytes < sizeof(Message)) {
                     std::cerr << "Received Message Corrupted. Bytes Received:" << bytes << std::endl;
                 } else {
-                    break;
+                    continue;
                 }
 
                 //Form a ring!
