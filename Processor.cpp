@@ -78,14 +78,11 @@ bool Processor::start_mcast(){
                 //Form a ring!
                 if(mcast_received && !ring_formed) {
                     ring_formed = form_ring();
-                    continue;
                 }
 
                 //ring formed, tranfer messages untill finished
                 if(ring_formed) {
                     std::cout << "Ring:             Ring is formed!" << std::endl;
-                    // TODO: when received token with sent token round number, reset timer
-                    // TODO: multicast only with updated token(with plus 1 round #)
                     is_all_data_received = data_tranfer();
                 }
 
@@ -104,7 +101,27 @@ bool Processor::start_mcast(){
 }
 
 bool Processor::data_tranfer(){
+
+    // TODO:  rcvbuf->type token
+        // TODO:  handle retransmission
+        // TODO:  specify a limit M for this processor  ( fcc += M )
+        // TODO:  update local.rtr
+        // TODO:  broadcast packets for rtr (M = M - retrans)
+
+        // assert (M > 0)
+
+
+    // TODO:  rcvbuf->type data
+
+
     // TODO: multicast and updating on the token
+    // TODO: multicast only with updated token(with plus 1 round #)
+    // TODO: WHEN RECEIVING A REGULAR MESSAGE
+    //    If token retransmission timeout is set, check if this broadcast message’s machine-id is the set one, if so, cancel the token retransmission timeout.
+    //            Put this newly received message to msg_received queue, if msg.seq is bigger than the local aru.
+    //            Write the consecutive payload in msg_received into the file.
+    //            Update the current process’s retransmission request list
+
     return false;
 }
 
@@ -153,13 +170,15 @@ bool Processor::send_token_to_next() {
     return true;
 }
 
-void Processor::update_msg_buf(MSG_TYPE type, int seq){
+void Processor::update_msg_buf(MSG_TYPE type) {
     memset(msg_buf, 0, sizeof(Message));
     msg_buf->type = type;
     msg_buf->machine_id = machine_id;
-    if(seq != -1) {
-        memset(msg_buf->payload, 0, sizeof(Message)); //TODO: add payload
+    if(type == MSG_TYPE::DATA) {
+        memset(msg_buf->payload, 0, sizeof(msg_buf->payload)); //TODO: add payload
         msg_buf->random_num = std::rand() % 1000000 + 1;
+        msg_buf->pkt_idx = pkt_idx;
+        msg_buf->seq = seq;
     }
     if(type == MSG_TYPE::REQUEST_RING) {
         memcpy(msg_buf->payload, my_ip_, strlen(my_ip_)); //send my_ip
@@ -211,6 +230,7 @@ bool Processor::form_ring() {
     switch (recv_buf->type) {
         case MSG_TYPE::TOKEN:
             memcpy(recv_buf->payload, token_buf, sizeof(Token));
+            if(token_buf->round == 1) return true;
             std::cout << "Received:       machine " << machine_id << " received token with round number " << token_buf->round << "." << std::endl;
             if(token_buf->round == last_token_round) {
                 if(machine_id == 1) {
@@ -260,9 +280,7 @@ bool Processor::form_ring() {
             break;
         case MSG_TYPE::DATA:
             std::cout << "Received:      machine " << machine_id << " received data message with from machine " << msg_buf->machine_id << "." << std::endl;
-            if(has_next && has_token && had_token) {
-                return true;
-            }
+            return true;
             break;
         default:
             break;
@@ -270,19 +288,9 @@ bool Processor::form_ring() {
     return false;
 }
 
-
     // TODO: Special TODOs for node 0
     //  Whenever received a token with round number R, update the round number to (R+1);
     //  Reset the fcc to 0 for every circle.
-
-    // TODO: TOKEN HANDLING
-
-
-    // TODO: WHEN RECEIVING A REGULAR MESSAGE
-//    If token retransmission timeout is set, check if this broadcast message’s machine-id is the set one, if so, cancel the token retransmission timeout.
-//            Put this newly received message to msg_received queue, if msg.seq is bigger than the local aru.
-//            Write the consecutive payload in msg_received into the file.
-//            Update the current process’s retransmission request list
 
     // TODO: TIMEOUT
 

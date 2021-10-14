@@ -55,7 +55,8 @@ enum class MSG_TYPE{
 
 struct Message{                     // or called packet
     MSG_TYPE type;                       // indicate different types of message, join message for example
-    int seq;                        // packet_index
+    int seq;                        // global packet_index
+    int pkt_idx;                    // packet index for each machine
     int machine_id;
     int random_num;
     //struct Token token;

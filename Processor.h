@@ -28,9 +28,7 @@ public:
 
 private:
     int machine_id;
-    int aru = 0;                        //local aru, acumulatic acknoleged sequemce number for his processor
     int loss_rate = 0;
-    int nums_packets;
     int number_of_machines;
     int port = PORT;
     std::queue<Message> msg_2b_sent;    //the messages that are waiting to be sent
@@ -40,7 +38,7 @@ private:
     struct sockaddr_in next_addr;
     int next_id;                   //next neighbor in ring <m_id+1, address>
     //generate a new message and token for sending
-    void update_msg_buf(MSG_TYPE type, int seq=-1);
+    void update_msg_buf(MSG_TYPE type);
     void update_token_buf(int seq, int aru, int last_aru_setter, std::set<int> &new_rtr, int round, int fcc);
     void set_my_info();
     bool data_tranfer();
@@ -74,12 +72,12 @@ private:
     struct timeval timestamp;
     struct timeval last_token_sent_time;
     bool token_flag;
-    void cancel_token_timer();
+    void cancel_token_timer();      // TODO:
     void check_timeout();
     int last_token_round = -1;
 
     // ring multicast request
-    int RING_MCAST_FREQ = 1000000;  //test shows 10000000 is a usable baseline
+    int RING_MCAST_FREQ = 500000;  //test shows 10000000 is a usable baseline
     int count = 0;
 
 public:
@@ -92,8 +90,15 @@ private:
     unsigned char ttl_val;
     int mcast_addr;
 
+    // ip
     char my_hostname[256];
     char *my_ip;
     char my_ip_[13];
     size_t ip_len;
+
+    // packets
+    int aru = 0;                        //local aru, acumulatic acknoleged sequemce number for his processor
+    int pkt_idx;
+    int nums_packets;
+    int seq;
 };
