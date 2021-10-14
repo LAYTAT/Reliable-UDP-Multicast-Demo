@@ -224,7 +224,7 @@ void Processor::check_timeout(){
 //        if (timestamp.tv_usec - last_token_sent_time.tv_usec >= TOEKN_TIMEOUT_GAP_IN_USEC){
             /* resend token */
             send_token_to_next();
-            std::cout << "Timer:            Timeout! Token resend to machine "<< next_id <<" at timestamp " << timestamp.tv_sec << std::endl;
+            std::cout << "Timer:            Timeout! Token resend to machine "<< next_id <<" at " <<  inet_ntoa(next_addr.sin_addr) << std::endl;
             gettimeofday(&last_token_sent_time,NULL);
         }
     }
