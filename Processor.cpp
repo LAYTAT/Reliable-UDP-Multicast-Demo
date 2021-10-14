@@ -354,11 +354,11 @@ bool Processor::socket_init(){
     }
 
     // TODO: for reuse of address. delete this setsockopt after debugging is done
-    int set_resue = 1;
-    if (setsockopt(srm, SOL_SOCKET, SO_REUSEADDR, &set_resue, sizeof(int)) < 0){ //SO_REUSEPORT
-        perror("Mcast: set reuse failed");
-        exit(1);
-    }
+//    int set_resue = 1;
+//    if (setsockopt(srm, SOL_SOCKET, SO_REUSEADDR, &set_resue, sizeof(int)) < 0){ //SO_REUSEPORT
+//        perror("Mcast: set reuse failed");
+//        exit(1);
+//    }
 
     /* socket for receiving multicast */
     name.sin_family = AF_INET;
