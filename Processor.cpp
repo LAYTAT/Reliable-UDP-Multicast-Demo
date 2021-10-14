@@ -402,7 +402,7 @@ bool Processor::socket_init(){
     FD_ZERO( &excep_mask );
     FD_SET(srm, &mask );
 //    FD_SET(sru, &mask);
-    FD_SET( (long)0, &mask );    /* stdin */
+//    FD_SET( (long)0, &mask );    /* stdin */
     return true;
 }
 
