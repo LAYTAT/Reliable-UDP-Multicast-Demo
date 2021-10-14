@@ -74,6 +74,8 @@ bool Processor::start_mcast(){
                 } else if(bytes == 0) {
                     if (recv_buf->type == MSG_TYPE::TOKEN){
                         std::cerr << "Lost Token machine id: " << recv_buf->machine_id << std::endl;
+                    } else {
+                        std::cerr << "Lost Msg from machine id: " << recv_buf->machine_id << std::endl;
                     }
                     continue;
                 }
@@ -228,6 +230,7 @@ void Processor::check_timeout(){
         if (timestamp.tv_sec - last_token_sent_time.tv_sec >= TOKEN_TIMEOUT_GAP_IN_SECONDS){
 //        if (timestamp.tv_usec - last_token_sent_time.tv_usec >= TOEKN_TIMEOUT_GAP_IN_USEC){
             /* resend token */
+            update_msg_buf(MSG_TYPE::TOKEN);
             send_token_to_next();
             std::cout << "Timer:            Timeout! Token resend to machine "<< next_id <<" at " <<  inet_ntoa(next_addr.sin_addr) << std::endl;
             gettimeofday(&last_token_sent_time,NULL);
