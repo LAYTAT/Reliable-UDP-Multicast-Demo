@@ -116,10 +116,35 @@ void Processor::store_to_input() {
     input_buf.push_back(message);
 }
 
+void Processor::update_rtr_aru(int new_seq) {
+    //update aru if this one connected
+    input_set.insert(new_seq);
+    auto itr = rtr.find(new_seq);
+    if(itr != rtr.end()){
+        itr++;
+        if(itr!= rtr.end()){
+            aru = *itr - 1;
+        }
+        rtr.erase(new_seq);
+        return;
+    }
+    //update aru if this one is next
+    if ( new_seq == aru + 1 ) {
+        aru++;
+        return;
+    }
+
+    // update rtr
+    for(int i = aru + 1; i < new_seq; ++i) {
+        if(input_set.count(i)==0)
+            rtr.insert(i);
+    }
+}
+
 bool Processor::data_tranfer(){
 
     switch (recv_buf->type) {
-        case MSG_TYPE::DATA:
+        case MSG_TYPE::DATA: {
             //we recieved a multicast data
             int temp_seq = 0;
             recv_buf->seq = temp_seq;
@@ -138,9 +163,9 @@ bool Processor::data_tranfer(){
             // recieved 3, 9 //aru = 6, rtr =,,,,
             // sort buffer, aru = last continous integer in the buffer, rtr = from aru (4) to input_buf last element (10)...
             update_rtr_aru(temp_seq);
-
             break;
-        case MSG_TYPE::TOKEN:
+        }
+        case MSG_TYPE::TOKEN: {
             //we recieved a token
 
             //copy token data into our local token_buf
@@ -158,12 +183,12 @@ bool Processor::data_tranfer(){
             //update retransmission requst (already updated when recieved packets)
 
             //broadcast the requested transmission
-            for
+            for(;;){break;}
 
             //flush out the input buffer either by delivering the messages or retaining them until they can be delivered in order
 
-
             break;
+        }
         default:
             break;
     }
@@ -265,11 +290,11 @@ void Processor::update_msg_buf(MSG_TYPE type) {
     }
 }
 
-void Processor::update_token_buf(int seq, int aru, int last_aru_setter, int size_of_rtr, std::set<int>& new_rtr, int round, int fcc){
+void Processor::update_token_buf(int seq, int aru, int last_aru_setter, std::set<int>& new_rtr, int round, int fcc){
     memset(token_buf, 0 , sizeof(Message));
     token_buf->seq = seq;
     token_buf->fcc = fcc;
-    token_buf->rtr_size = size_of_rtr;
+    token_buf->rtr_size = new_rtr.size();
     token_buf->last_aru_setter = last_aru_setter;
     token_buf->aru = aru;
     token_buf->round = round;

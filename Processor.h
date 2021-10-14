@@ -41,14 +41,14 @@ private:
     bool data_tranfer();
     int last_token_aru;
     std::vector<Message> input_buf;
-
+    std::set<int> input_set;
 
     //generate a new message and token for sending
     // when sending token: update_token_buf, update_msg_buf, send token
     void update_msg_buf(MSG_TYPE type); //always update msg_buf before sending anything
+
     void update_token_buf(int seq, int aru, int last_aru_setter, std::set<int> &new_rtr, int round, int fcc);
     void set_my_info();
-
 
     //message sending and receiving
     int bytes;
@@ -112,9 +112,9 @@ private:
     int nums_packets;
     int seq;
 
+    // token process
     void store_to_input();
-
     int find_max_messages();
-
     void union_rtr();
+    void update_rtr_aru(int new_seq);
 };
