@@ -119,21 +119,12 @@ void Processor::store_to_input() {
 void Processor::update_rtr_aru(int new_seq) {
     //update aru if this one connected
     input_set.insert(new_seq);
-    auto itr = rtr.find(new_seq);
-    if(itr != rtr.end()){
-        itr++;
-        if(itr!= rtr.end()){
-            aru = *itr - 1;
-        }
-        rtr.erase(new_seq);
-        return;
+    rtr.erase(new_seq);
+    for(auto itr = input_set.find(new_seq); itr!=input_set.end(); itr++){
+        if(*itr == aru + 1) {
+            aru++;
+        } else break;
     }
-    //update aru if this one is next
-    if ( new_seq == aru + 1 ) {
-        aru++;
-        return;
-    }
-
     // update rtr
     for(int i = aru + 1; i < new_seq; ++i) {
         if(input_set.count(i)==0)
