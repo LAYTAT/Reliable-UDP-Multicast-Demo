@@ -70,7 +70,7 @@ bool Processor::start_mcast(){
                     std::cerr << "Received Message Err" << std::endl;
                 } else if (bytes > 0 && bytes < sizeof(Message)) {
                     std::cerr << "Received Message Corrupted. Bytes Received:" << bytes << std::endl;
-                } else {
+                } else if (bytes == 0) {
                     continue;
                 }
 
