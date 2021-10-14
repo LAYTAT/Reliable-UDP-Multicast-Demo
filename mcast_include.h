@@ -26,6 +26,7 @@
 #include <sys/time.h>
 #include "recv_dbg.h"
 #include <assert.h>
+#include <algorithm>
 
 #define MAX_MESS_LEN 1400
 #define PORT (10040)

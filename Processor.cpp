@@ -110,20 +110,72 @@ bool Processor::start_mcast(){
     return false;
 }
 
+void Processor::store_to_input() {
+    Message message;
+    memcpy(&message, recv_buf, sizeof(Message));
+    input_buf.push_back(message);
+}
+
 bool Processor::data_tranfer(){
+
+    switch (recv_buf->type) {
+        case MSG_TYPE::DATA:
+            //we recieved a multicast data
+            int temp_seq = 0;
+            recv_buf->seq = temp_seq;
+
+            //ignore data you already have
+            if (temp_seq <= aru) {
+                break;
+            }
+
+            //push new message into the input_buffer
+            store_to_input();
+
+            //update_rtr_aru wanted action
+            // recieved 1, 2, 4, //3 will go to the rtr, aru = 2, 1,2,4 is in the input buffer
+            // recieved 5, 6, 8 // aru = 2, rtr = 3,4,7, and 1,2,4,5,6,8 in input buffer
+            // recieved 3, 9 //aru = 6, rtr =,,,,
+            // sort buffer, aru = last continous integer in the buffer, rtr = from aru (4) to input_buf last element (10)...
+            update_rtr_aru(temp_seq);
+
+            break;
+        case MSG_TYPE::TOKEN:
+            //we recieved a token
+
+            //copy token data into our local token_buf
+            memcpy(recv_buf->payload, token_buf, sizeof(Token));
+
+            //find max number of messages that can be sent by this processor
+            int m = find_max_messages();
+
+            //find number of max retransmissions
+            int num_retrans = std::min(m, (int)token_buf->rtr_size);
+
+            //union the token rtr with your own rtr
+            union_rtr();
+
+            //update retransmission requst (already updated when recieved packets)
+
+            //broadcast the requested transmission
+            for
+
+            //flush out the input buffer either by delivering the messages or retaining them until they can be delivered in order
+
+
+            break;
+        default:
+            break;
+    }
+
 
     // TODO:  rcvbuf->type token
         // TODO:  handle retransmission
         // TODO:  specify a limit M for this processor  ( fcc += M )
         // TODO:  update local.rtr
         // TODO:  broadcast packets for rtr (M = M - retrans)
-
         // assert (M > 0)
-
-
     // TODO:  rcvbuf->type data
-
-
     // TODO: multicast and updating on the token
     // TODO: multicast only with updated token(with plus 1 round #)
     // TODO: WHEN RECEIVING A REGULAR MESSAGE
@@ -131,9 +183,23 @@ bool Processor::data_tranfer(){
     //            Put this newly received message to msg_received queue, if msg.seq is bigger than the local aru.
     //            Write the consecutive payload in msg_received into the file.
     //            Update the current process’s retransmission request list
-
     return false;
 }
+void Processor::union_rtr() {
+    for (int i = 0; i < token_buf->rtr_size; i++) {
+
+    }
+}
+
+int Processor::find_max_messages() {
+    //round_balance = GLOBAL_MAXIMUM - token.fcc
+    //local_balance = min(LOCAL_MAXMUM, round_balance)
+    //The local_balance will be the maximum number of packets that a process can send.
+    int round_balance = GLOBAL_MAX - token_buf->fcc;
+    int local_balance = std::min(LOCAL_MAX, round_balance);
+    return local_balance;
+}
+
 
 void Processor::ring_request_multicast(){
     //check if token recieved
@@ -199,10 +265,11 @@ void Processor::update_msg_buf(MSG_TYPE type) {
     }
 }
 
-void Processor::update_token_buf(int seq, int aru, int last_aru_setter, std::set<int>& new_rtr, int round, int fcc){
+void Processor::update_token_buf(int seq, int aru, int last_aru_setter, int size_of_rtr, std::set<int>& new_rtr, int round, int fcc){
     memset(token_buf, 0 , sizeof(Message));
     token_buf->seq = seq;
     token_buf->fcc = fcc;
+    token_buf->rtr_size = size_of_rtr;
     token_buf->last_aru_setter = last_aru_setter;
     token_buf->aru = aru;
     token_buf->round = round;
