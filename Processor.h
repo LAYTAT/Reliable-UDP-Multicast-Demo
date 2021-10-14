@@ -79,7 +79,7 @@ private:
     int last_token_round = -1;
 
     // ring multicast request
-    int RING_MCAST_FREQ = 10000000;  //test shows 10000000 is a usable baseline
+    int RING_MCAST_FREQ = 1000000;  //test shows 10000000 is a usable baseline
     int count = 0;
 
 public:
