@@ -71,7 +71,9 @@ bool Processor::start_mcast(){
                     std::cerr << "Received Message Err" << std::endl;
                 } else if (bytes > 0 && bytes < sizeof(Message)) {
                     std::cerr << "Received Message Corrupted. Bytes Received:" << bytes << std::endl;
-                } // bytes == 0 is ignored for recv_dbg specified so
+                } else {
+                    break;
+                }
 
                 //Form a ring!
                 if(mcast_received && !ring_formed) {
