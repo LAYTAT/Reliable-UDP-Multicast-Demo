@@ -93,6 +93,11 @@ bool Processor::start_mcast(){
                     std::cout << "congratulation: everything is received" << std::endl;
                     break;
                 }
+            } else if (FD_ISSET( srm, &excep_mask) ){
+                std::cout << "exception for srm " << std::endl;
+            }
+            else {
+                std::cout << "msg for non-srm " << std::endl;
             }
         }
         if(mcast_received && !ring_formed ){
