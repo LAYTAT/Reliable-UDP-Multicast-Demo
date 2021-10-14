@@ -136,6 +136,8 @@ bool Processor::data_tranfer(){
 
     switch (recv_buf->type) {
         case MSG_TYPE::DATA: {
+            reset_token_timer();
+
             //we recieved a multicast data
             int temp_seq = 0;
             recv_buf->seq = temp_seq;
@@ -150,17 +152,41 @@ bool Processor::data_tranfer(){
 
             //update_rtr_aru wanted action
             // recieved 1, 2, 4, //3 will go to the rtr, aru = 2, 1,2,4 is in the input buffer
-            // recieved 5, 6, 8 // aru = 2, rtr = 3,4,7, and 1,2,4,5,6,8 in input buffer
-            // recieved 3, 9 //aru = 6, rtr =,,,,
+            // recieved 5, 6, 8 // aru = 2, rtr = 3,7, and 1,2,4,5,6,8 in input buffer
+            // recieved 3, 9 //aru = 6, rtr =,,,,//update_rtr_aru wanted action
+            //            // recieved 1, 2, 4, //3 will go to the rtr, aru = 2, 1,2,4 is in the input buffer
+            //            // recieved 5, 6, 8 // aru = 2, rtr = 3,4,7, and 1,2,4,5,6,8 in input buffer
+            //            // recieved 3, 9 //aru = 6, rtr =,,,,
+            //            // sort buffer, aru = last continous integer in the buffer, rtr = from aru (4) to input_buf last element (10)...
             // sort buffer, aru = last continous integer in the buffer, rtr = from aru (4) to input_buf last element (10)...
             update_rtr_aru(temp_seq);
             break;
         }
         case MSG_TYPE::TOKEN: {
+            cancel_token_timer();
             //we recieved a token
-
             //copy token data into our local token_buf
             memcpy(recv_buf->payload, token_buf, sizeof(Token));
+            std::cout << "Token Recieved with Round Number: " << token_buf->round << std::endl;
+
+            //flush our input buffer by writing them or retain them.
+
+            /*
+             * Updating data structures
+             */
+
+
+            flush_input_buf();
+
+            //write as much as we can, limited by aru
+            write_to_file();
+
+            //update msg_2b_sent which are messeages waiting for actual broadcasting
+            update_msg_2b_sent();
+
+            /*
+             * flow control & data retransmissions
+             */
 
             //find max number of messages that can be sent by this processor
             int m = find_max_messages();
@@ -168,15 +194,26 @@ bool Processor::data_tranfer(){
             //find number of max retransmissions
             int num_retrans = std::min(m, (int)token_buf->rtr_size);
 
-            //union the token rtr with your own rtr
-            union_rtr();
-
+            //union the token rtr with your own rtr, (remove rtrs that are sent, and accordingly)
+            //fin all possible retransmission requests
+            retransmission();
             //update retransmission requst (already updated when recieved packets)
 
-            //broadcast the requested transmission
-            for(;;){break;}
+            //subtract number of retransmissions from m, call it m2
 
-            //flush out the input buffer either by delivering the messages or retaining them until they can be delivered in order
+            //broadcasting!
+            //for (m) send messsages
+            broadcasting_new_messages();
+
+
+            //update local variables
+            update_local_variables();
+
+            //update token_buf
+            update_msg_buf();
+            update_token_buf();
+            send_token_to_next();
+
 
             break;
         }
@@ -201,7 +238,48 @@ bool Processor::data_tranfer(){
     //            Update the current process’s retransmission request list
     return false;
 }
-void Processor::union_rtr() {
+
+//for the rest of the input buffer gets copied into the msg_recieved data structure
+// purpose 1) wait for to be written, 2) for retransmission cache
+//for each round, put it into the queue in the seq order
+void Processor::flush_input_buf() {
+
+    //sort input_buf by its content->seq, ascending order
+    std::sort(input_buf.begin(), input_buf.end(),[](const Message & a, const Message & b){
+        return a.seq < b.seq;
+    });
+
+    //copy everything from input buf to msg_recieved queue
+    for (int i = 0; i < input_buf.size(); i++) {
+        msg_received.push(input_buf[i]);
+    }
+
+    //empty the input buffer
+    input_buf.clear();
+
+    //write to file as much as we can from the msg_recieved
+    //upper limit is upto agreed_aru
+    //lower limit is fwut (file written up to), if it's n, then n sequence numbers have been written
+    int agreed_aru = std::min(last_token_aru, token_buf->aru);
+
+
+
+
+}
+//initialize file pointer
+void Processor::open_file() {
+    fp = fopen("machine_index.txt", "w");
+    if (fp == NULL) {
+        std::cerr << "Error: file failed to open" << std::endl;
+        exit(1);
+    }
+
+
+
+}
+
+
+void Processor::find_all_rtr() {
     for (int i = 0; i < token_buf->rtr_size; i++) {
 
     }

@@ -35,13 +35,15 @@ private:
     int loss_rate = 0;
     int number_of_machines;
     int port = PORT;
-    std::priority_queue<Message> msg_2b_sent;    //the messages that are waiting to be sent
-    std::priority_queue<Message> msg_received;   //the messages that are to be written into the file
+    std::queue<Message> msg_2b_sent;    //the messages that are waiting to be sent
+    std::queue<Message> msg_received;   //the messages that are to be written into the file
     int next_id;                   //next neighbor in ring <m_id+1, address>
     bool data_tranfer();
     int last_token_aru;
     std::vector<Message> input_buf;
     std::set<int> input_set;
+    int fwut = 0; //file written up to.
+    FILE * fp; //file pointer for writing into the file
 
     //generate a new message and token for sending
     // when sending token: update_token_buf, update_msg_buf, send token
@@ -117,4 +119,6 @@ private:
     int find_max_messages();
     void union_rtr();
     void update_rtr_aru(int new_seq);
+
+    void flush_input_buf();
 };

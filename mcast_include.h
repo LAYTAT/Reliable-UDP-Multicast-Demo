@@ -27,6 +27,7 @@
 #include "recv_dbg.h"
 #include <assert.h>
 #include <algorithm>
+#include <fstream>
 
 #define MAX_MESS_LEN 1400
 #define PORT (10040)
