@@ -217,7 +217,8 @@ void Processor::cancel_token_timer(){
 void Processor::check_timeout(){
     if(token_flag){
         gettimeofday(&timestamp, NULL);
-        if (timestamp.tv_sec - last_token_sent_time.tv_sec >= TOKEN_TIMEOUT_GAP_IN_SECONDS){
+//        if (timestamp.tv_sec - last_token_sent_time.tv_sec >= TOKEN_TIMEOUT_GAP_IN_SECONDS){
+        if (timestamp.tv_usec - last_token_sent_time.tv_usec >= TOEKN_TIMEOUT_GAP_IN_USEC){
             /* resend token */
             send_token_to_next();
             std::cout << "Timer:            Timeout! Token resend to machine "<< next_id <<" at timestamp " << timestamp.tv_sec << std::endl;

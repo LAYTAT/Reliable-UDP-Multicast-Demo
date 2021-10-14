@@ -35,6 +35,7 @@
 #define MAX_FLOW_FOR_ONE_RING_CYCLE (5000)
 #define MAX_RTR (1000)
 #define TOKEN_TIMEOUT_GAP_IN_SECONDS (1)
+#define TOEKN_TIMEOUT_GAP_IN_USEC  (100000) //1 / 10 sec
 
 struct Token{
     int seq;                        // The largest sequence number for any message, an upper limit of sequemce number
