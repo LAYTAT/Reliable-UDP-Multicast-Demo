@@ -72,6 +72,9 @@ bool Processor::start_mcast(){
                 } else if (bytes > 0 && bytes < sizeof(Message)) {
                     std::cerr << "Received Message Corrupted. Bytes Received:" << bytes << std::endl;
                 } else if(bytes == 0) {
+                    if (recv_buf->type == MSG_TYPE::TOKEN){
+                        std::cerr << "Lost Token machine id: " << recv_buf->machine_id << std::endl;
+                    }
                     continue;
                 }
 
