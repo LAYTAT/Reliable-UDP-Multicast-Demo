@@ -83,7 +83,7 @@ bool Processor::start_mcast(){
 
                 //ring formed, tranfer messages untill finished
                 if(ring_formed) {
-                    std::cout << "Ring:     Ring is formed" << std::endl;
+                    std::cout << "Ring:             Ring is formed!" << std::endl;
                     // TODO: when received token with sent token round number, reset timer
                     // TODO: multicast only with updated token(with plus 1 round #)
                     is_all_data_received = data_tranfer();
@@ -117,7 +117,7 @@ void Processor::ring_request_multicast(){
     if((!had_token && machine_id != 1) || (machine_id == 1)) {
         // multicast in order let previous neighbor know your address in order to form the ring
         update_msg_buf(MSG_TYPE::REQUEST_RING);
-        std::cout << "my ip sent"<< my_ip_ << std::endl;
+        std::cout << "Ring:             my ip sent "<< my_ip_ << std::endl;
         if(!send_to_everyone()){
             std::cerr << "send to everyone err" << std::endl;
         }
@@ -139,7 +139,7 @@ bool Processor::send_to_everyone(){
 bool Processor::send_token_to_next() {
     assert(has_next);
     long unsigned int bytes_sent = sendto(ssu, msg_buf, sizeof(Message), 0,(struct sockaddr *)&next_addr, sizeof(next_addr) );
-    std::cout << "Sending:      machine " << machine_id << " sent token with round number " << token_buf->round << " to " << inet_ntoa(next_addr.sin_addr) << std::endl;
+    std::cout << "Sending:        machine " << machine_id << " sent token with round number " << token_buf->round << " to " << inet_ntoa(next_addr.sin_addr) << std::endl;
     if(bytes_sent == -1) {
         std::cerr << "Unicast Message Error." << std::endl;
         exit(1);
@@ -186,7 +186,7 @@ void Processor::update_token_buf(int seq, int aru, int last_aru_setter, std::set
 }
 
 void Processor::reset_token_timer(){
-    std::cout << "Timer:    set for token with round number " << last_token_round << std::endl;
+    std::cout << "Timer:            set for token with round number " << last_token_round << std::endl;
     token_flag = true;
     gettimeofday(&last_token_sent_time, nullptr);
 }
@@ -201,7 +201,7 @@ void Processor::check_timeout(){
         if (timestamp.tv_sec - last_token_sent_time.tv_sec >= TOKEN_TIMEOUT_GAP_IN_SECONDS){
             /* resend token */
             send_token_to_next();
-            std::cout << "Timer:      Timeout! Token resend to machine "<< next_id <<" at timestamp " << timestamp.tv_sec << std::endl;
+            std::cout << "Timer:            Timeout! Token resend to machine "<< next_id <<" at timestamp " << timestamp.tv_sec << std::endl;
             gettimeofday(&last_token_sent_time,NULL);
         }
     }
@@ -211,13 +211,13 @@ bool Processor::form_ring() {
     switch (recv_buf->type) {
         case MSG_TYPE::TOKEN:
             memcpy(recv_buf->payload, token_buf, sizeof(Token));
-            std::cout << "Received:     machine " << machine_id << " received token with round number " << token_buf->round << "." << std::endl;
+            std::cout << "Received:       machine " << machine_id << " received token with round number " << token_buf->round << "." << std::endl;
             if(token_buf->round == last_token_round) {
                 if(machine_id == 1) {
-                    std::cout << "Ring:     Ring is formed!" << std::endl;
+                    std::cout << "Ring:              Ring is formed!" << std::endl;
                     return true;
                 } else {
-                    std::cout << "already sent token(with the same round number)" << std::endl;
+                    std::cout << "Token:           Already sent token round number"<< last_token_round << std::endl;
                     break;
                 }
             }
@@ -228,7 +228,7 @@ bool Processor::form_ring() {
                 had_token = true;
                 //send token to next
             } else {
-                std::cout << "machine " << machine_id << " does not have next" << std::endl;
+                std::cout << "Token:           But machine " << machine_id << " does not have next address" << std::endl;
             }
             if(!has_next && !had_token){
                 has_token = true;
@@ -238,28 +238,28 @@ bool Processor::form_ring() {
         case MSG_TYPE::REQUEST_RING:
             if (next_id != recv_buf->machine_id) break;
             if (!has_next ) {
-                std::cout << "REQUEST_RING from machine_id : " << recv_buf->machine_id << std::endl;
+                std::cout << "Ring:             From machine_id : " << recv_buf->machine_id << std::endl;
                 char next_ip[strlen((const char *) recv_buf->payload)];
                 memcpy(next_ip, recv_buf->payload, strlen((char *) recv_buf->payload));
                 next_addr.sin_family = AF_INET;
                 next_addr.sin_addr.s_addr = inet_addr(next_ip);// htonl(addr_binary);  /* ucast address */
                 next_addr.sin_port = htons(PORT);
-                std::cout << "Set next addr to: " << next_ip << "; s_addr = " << inet_addr(next_ip) << std::endl;
+                std::cout << "Set next: " << next_ip << std::endl;
                 has_next = true;
             }
             if(machine_id == 1 && has_next && !had_token) {
-                std::cout << "Sending:      machine 1 is sending token" << std::endl;
+                std::cout << "Sending:       machine 1 is sending token" << std::endl;
                 update_msg_buf(MSG_TYPE::TOKEN);
                 send_token_to_next();
                 had_token = true;
             }else if (has_token && has_next) {
-                std::cout << "Sending:      machine " << machine_id << " is sending token" << std::endl;
+                std::cout << "Sending:       machine " << machine_id << " is sending token" << std::endl;
                 update_msg_buf(MSG_TYPE::TOKEN);
                 send_token_to_next();
             }
             break;
         case MSG_TYPE::DATA:
-            std::cout << "Received:     machine " << machine_id << " received data message with from machine " << msg_buf->machine_id << "." << std::endl;
+            std::cout << "Received:      machine " << machine_id << " received data message with from machine " << msg_buf->machine_id << "." << std::endl;
             if(has_next && has_token && had_token) {
                 return true;
             }
