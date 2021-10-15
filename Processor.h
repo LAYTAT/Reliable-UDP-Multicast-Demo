@@ -131,8 +131,13 @@ private:
     int retransmission(int n);
     void update_rtr();
     int broadcasting_new_messages(int m2);
-
     Message *make_Message(MSG_TYPE type, int s, int pkt, int id, int rand);
 
+    // termination
+    bool check_if_everybody_ready_to_exit();
+    int ENDING_COUNT = 10;
+    int BROADCASTING_TIMES = 100;
+    int seq_equal_last_seq_and_aru_equal_seq_count = 0;
 
+    void broadcast_exit_messages();
 };

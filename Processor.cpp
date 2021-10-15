@@ -189,7 +189,7 @@ bool Processor::data_tranfer(){
         case MSG_TYPE::TOKEN: {
 
             memcpy(token_buf, recv_buf->payload, sizeof(Token));
-            cancel_token_timer();
+
 
             //if round number is 50 break TODO: fix this ending condition
 
@@ -200,8 +200,17 @@ bool Processor::data_tranfer(){
 
             std::cout << "When I Received a Token, My ARU is  " << aru << "My seq idx: " << seq << std::endl;
 
+            if(token_buf -> round == last_token_round && machine_id != 1) {
+                std::cout << "Received Token with last_token_round =" << last_token_round << std::endl;
+                break;
+            }
 
-            if(token_buf -> round == last_token_round && machine_id != 1) break;
+            if(check_if_everybody_ready_to_exit()) {
+                return true;
+            }
+
+            //cancel timer before send token
+            cancel_token_timer();
 
             //we recieved a token
             //copy token data into our local token_buf
@@ -270,8 +279,11 @@ bool Processor::data_tranfer(){
             //update token_buf
             update_token_buf(token_seq, token_aru, last_aru_setter, rtr, round, fcc);
             update_msg_buf(MSG_TYPE::TOKEN);
-            send_token_to_next();
+            send_token_to_next(); //this will reset timer
             break;
+        }
+        case MSG_TYPE::EXIT: {
+            return true;
         }
         default:
             break;
@@ -279,6 +291,16 @@ bool Processor::data_tranfer(){
 
     return false;
 }
+
+void Processor::broadcast_exit_messages() {
+    for (int i = 0; i < BROADCASTING_TIMES; i++) {
+        seq = token_buf->seq;
+        update_msg_buf(MSG_TYPE::EXIT);
+        std::cout << "EXIT:         Machine " << machine_id << " is broadcasting exit messages !" << std::endl;
+        send_to_everyone();
+    }
+}
+
 
 //broadcasting new messages
 //think about pkt_index, seq_num, recieved_msg,
@@ -480,13 +502,19 @@ void Processor::update_msg_buf(MSG_TYPE type) { //when broadcasting new messages
         msg_buf->random_num = std::rand() % 1000000 + 1;
         msg_buf->pkt_idx = pkt_idx;
         msg_buf->seq = seq;
+        return;
     }
     if(type == MSG_TYPE::REQUEST_RING) {
         memcpy(msg_buf->payload, my_ip_, strlen(my_ip_)); //send my_ip
         msg_buf->payload[strlen(my_ip)] = 0; // null char
+        return;
     }
     if(type == MSG_TYPE::TOKEN) {
         memcpy(msg_buf->payload, token_buf, sizeof(Token));
+        return;
+    }
+    if(type == MSG_TYPE::EXIT) {
+        return;
     }
 }
 
@@ -720,4 +748,16 @@ void Processor::close_sockets() {
     close(srm);
     close(ssm);
     close(ssu);
+}
+
+bool Processor::check_if_everybody_ready_to_exit(){
+    if(token_buf->seq == seq && token_buf->aru == token_buf->seq) {
+        seq_equal_last_seq_and_aru_equal_seq_count ++;
+    } else {
+        seq_equal_last_seq_and_aru_equal_seq_count = 0;
+    }
+    if(seq_equal_last_seq_and_aru_equal_seq_count >= ENDING_COUNT) {
+        broadcast_exit_messages();
+    }
+    return true;
 }

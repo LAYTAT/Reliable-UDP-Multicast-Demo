@@ -39,6 +39,7 @@
 #define MAX_RTR (300)
 #define TOKEN_TIMEOUT_GAP_IN_SECONDS (1)
 #define TOEKN_TIMEOUT_GAP_IN_USEC  (100000) //1 / 10 sec
+#define NUM_OF_MEMBER (10)
 
 struct Token{
     int seq;                        // The largest sequence number for any message, an upper limit of sequemce number
@@ -55,6 +56,7 @@ enum class MSG_TYPE{
     REQUEST_RING = 1,
     TOKEN = -2,
     DATA = 2,
+    EXIT = 3
 };
 
 struct Message{                     // or called packet
