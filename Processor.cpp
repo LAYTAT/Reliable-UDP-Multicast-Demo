@@ -32,6 +32,7 @@ void checkIPbuffer(char *IPbuffer)
 bool Processor::start_mcast(){
     // get my address for later sending
 
+    open_file();
 
     set_my_info();
     std::cout << "My machine id: " << machine_id << std::endl;
