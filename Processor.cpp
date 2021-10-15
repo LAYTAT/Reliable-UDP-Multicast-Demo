@@ -498,7 +498,7 @@ bool Processor::send_token_to_next() {
     }
     has_token = false;
     last_token_round = token_buf->round;
-    //last_token_aru = token_buf->aru;
+    last_token_aru = token_buf->aru;
     reset_token_timer();
     return true;
 }
