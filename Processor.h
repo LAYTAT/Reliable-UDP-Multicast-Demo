@@ -13,9 +13,7 @@ public:
     Processor(int m_id, int l, int n = NUM_OF_TOTAL_PACKETS, int nm = NUM_OF_MACHINES): machine_id(m_id), loss_rate(l), nums_packets(n), number_of_machines(nm), msg_2b_sent(), msg_received(), input_buf(){
         next_id = m_id%(number_of_machines) + 1;
         std::srand(std::time(nullptr));
-        if( machine_id == 1 ) {
-            update_token_buf(0, 0, 0, rtr, 0, 0);
-        }
+
     }
     Processor(Processor const &) = delete;
     Processor(Processor&&) = delete;
@@ -38,7 +36,9 @@ private:
     //data transfer
     int machine_id;
     int loss_rate = 0;
+    int nums_packets;
     int number_of_machines;
+
     int port = PORT;
     std::queue<Message> msg_2b_sent;    //the messages that are waiting to be sent
     std::vector<Message> msg_received;   //the messages that are to be written into the file
@@ -120,7 +120,7 @@ private:
     // packets
     int aru = 0;                        //local aru, acumulatic acknoleged sequemce number for his processor
     int pkt_idx;
-    int nums_packets;
+
     int seq = 0;
 
     // token process

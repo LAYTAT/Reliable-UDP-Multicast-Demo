@@ -551,6 +551,7 @@ bool Processor::form_ring() {
             }
             if(machine_id == 1 && has_next && !had_token) {
                 std::cout << "Sending:       machine 1 is sending token" << std::endl;
+                update_token_buf(0, 0, 0, rtr, 0, 0);
                 update_msg_buf(MSG_TYPE::TOKEN);
                 send_token_to_next();
                 had_token = true;
