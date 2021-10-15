@@ -421,7 +421,7 @@ void Processor::flush_input_buf() {
         fwut_count++;
     }
     fwut = fwut + fwut_count;
-    if(fwut == agreed_aru) { // TODO: delet this after debugging is done
+    if(fwut != agreed_aru) { // TODO: delet this after debugging is done
         std::cout << "WRONG:        fwut " << fwut << " do not equal agreed_aru" << agreed_aru << std::endl;
 
     }
