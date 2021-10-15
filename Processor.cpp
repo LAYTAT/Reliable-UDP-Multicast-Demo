@@ -111,11 +111,10 @@ bool Processor::start_mcast(){
 }
 
 void Processor::store_to_input() {
-    Message message;
-    memcpy(&message, recv_buf, sizeof(Message));
+    Message * message = make_Message(MSG_TYPE::DATA, recv_buf->seq, recv_buf->pkt_idx, recv_buf->machine_id, recv_buf->random_num);
     input_buf.push_back(message);
     //input_set.insert(recv_buf->seq);
-    std::cout << "I just stored to input_buf, and its content: seq: " << message.seq << std::endl;
+    std::cout << "I just stored to input_buf, and its content: seq: " << message->seq << std::endl;
 }
 
 void Processor::update_rtr() {
@@ -160,7 +159,8 @@ bool Processor::data_tranfer(){
             recv_buf->seq = temp_seq;
 
             //ignore data you already have
-            if (input_set.count(temp_seq) == 1) {
+            if (temp_seq <= aru) {
+                std::cout << "I already received this seq number" << std::endl;
                 break;
             }
 
@@ -177,7 +177,7 @@ bool Processor::data_tranfer(){
             //            // sort buffer, aru = last continous integer in the buffer, rtr = from aru (4) to input_buf last element (10)...
             // sort buffer, aru = last continous integer in the buffer, rtr = from aru (4) to input_buf last element (10)...
             update_rtr_aru(temp_seq);
-            std::cout << "After Processing this Message, My ARU is  ";
+            std::cout << "After Processing this Message, My ARU is " << aru << std::endl;
             break;
         }
         case MSG_TYPE::TOKEN: {
@@ -342,18 +342,17 @@ int Processor::retransmission(int n) {
 //for each round, put it into the queue in the seq order
 void Processor::flush_input_buf() {
 
-    //sort input_buf by its content->seq, ascending order
-    std::sort(input_buf.begin(), input_buf.end(),[](const Message & a, const Message & b){
-        return a.seq < b.seq;
-    });
 
     //copy everything from input buf to msg_recieved
     for (int i = 0; i < input_buf.size(); i++) {
         //msg_received.push(input_buf[i]);
-        msg_received_map.insert(std::make_pair(input_buf[i].seq,
-                                               make_Message(input_buf[i].type, input_buf[i].seq, input_buf[i].pkt_idx, input_buf[i].machine_id, input_buf[i].random_num)));
+        msg_received_map.insert(std::make_pair(input_buf[i]->seq,
+                                               make_Message(input_buf[i]->type, input_buf[i]->seq, input_buf[i]->pkt_idx, input_buf[i]->machine_id, input_buf[i]->random_num)));
     }
     //empty the input buffer
+    for (int i = 0; i < input_buf.size(); i++) {
+        delete input_buf[i];
+    }
     input_buf.clear();
 
     //write to file as much as we can from the msg_recieved
