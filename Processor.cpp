@@ -115,6 +115,7 @@ void Processor::store_to_input() {
     memcpy(&message, recv_buf, sizeof(Message));
     input_buf.push_back(message);
     //input_set.insert(recv_buf->seq);
+    std::cout << "I just stored to input_buf, and its content: seq: " << message.seq << std::endl;
 }
 
 void Processor::update_rtr() {
