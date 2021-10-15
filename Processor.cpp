@@ -384,16 +384,16 @@ void Processor::flush_input_buf() {
         msg_received_map.insert(std::make_pair(input_buf[i]->seq,
                                                make_Message(input_buf[i]->type, input_buf[i]->seq, input_buf[i]->pkt_idx, input_buf[i]->machine_id, input_buf[i]->random_num)));
     }
-    std::cout << "flush_input: Copy Success!" << std::endl;
+//    std::cout << "flush_input: Copy Success!" << std::endl;
     //empty the input buffer
     for (int i = 0; i < input_buf.size(); i++) {
         delete input_buf[i];
     }
-    std::cout << "flush_input: freeing Message Objects Sucess!" << std::endl;
+//    std::cout << "flush_input: freeing Message Objects Sucess!" << std::endl;
     if (input_buf.size() > 0) {
         input_buf.clear();
     }
-    std::cout << "flush_input: Input Vector Clear Sucess!" << std::endl;
+//    std::cout << "flush_input: Input Vector Clear Sucess!" << std::endl;
 
     //write to file as much as we can from the msg_recieved
     //upper limit is upto agreed_aru
@@ -484,7 +484,7 @@ bool Processor::send_to_everyone(){
 bool Processor::send_token_to_next() {
     assert(has_next);
     long unsigned int bytes_sent = sendto(ssu, msg_buf, sizeof(Message), 0,(struct sockaddr *)&next_addr, sizeof(next_addr) );
-    std::cout << "Sending:        machine " << machine_id << " sent token with "<< "rtr = " << token_buf->rtr_size <<"round number " << token_buf->round << " to " << inet_ntoa(next_addr.sin_addr) << std::endl;
+    std::cout << "Sending:        machine " << machine_id << " sent token with "<< "rtr_size = " << token_buf->rtr_size <<"round number " << token_buf->round << " to " << inet_ntoa(next_addr.sin_addr) << std::endl;
     /*std::cout << "Sent Token Info" << std::endl;
     for (int i = 0; i < DATA_SIZE; i++) {
         std::cout << msg_buf->payload[i] << std::endl;
