@@ -116,7 +116,7 @@ bool Processor::start_mcast(){
 void Processor::store_to_input() {
     Message * message = make_Message(MSG_TYPE::DATA, recv_buf->seq, recv_buf->pkt_idx, recv_buf->machine_id, recv_buf->random_num);
     input_buf.push_back(message);
-    input_set.insert(recv_buf->seq);
+    input_set.insert(message->seq);
     std::cout << "I just stored to input_buf, and its content: seq: " << message->seq << " randnum: " << message->random_num << std::endl;
 }
 
