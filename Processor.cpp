@@ -192,9 +192,6 @@ bool Processor::data_tranfer(){
             cancel_token_timer();
 
             //if round number is 50 break TODO: fix this ending condition
-            if (token_buf->round > 50) {
-                return true;
-            }
 
             std::cout << "Received token info: seq: " << token_buf->seq << "aru: " << token_buf->aru <<
                       "las: " << token_buf->last_aru_setter << "round: " << token_buf->round << "fcc: " << token_buf->fcc << std::endl;
