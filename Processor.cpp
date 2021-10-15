@@ -530,6 +530,7 @@ void Processor::update_token_buf(int s, int a, int last_aru_setter, std::set<int
     token_buf->round = round;
     int c = 0;
     for(auto itr = new_rtr.begin(); itr != new_rtr.end() && c < MAX_RTR; ++itr){
+        assert(*itr != 0);
         token_buf->rtr[count] = *itr;
         c++;
     }
