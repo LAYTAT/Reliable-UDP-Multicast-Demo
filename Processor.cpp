@@ -147,10 +147,14 @@ bool Processor::data_tranfer(){
     switch (recv_buf->type) {
         case MSG_TYPE::DATA: {
 
+            std::cout << "Data Message Recieved, SEQ: " << recv_buf->seq << "pkt idx: " << recv_buf->pkt_idx <<
+                      "from machine: " << recv_buf->machine_id << "rand: " << recv_buf->random_num << std::endl;
+
 
             reset_token_timer();
 
             //we recieved a multicast data
+            //temp seq is the message seq
             int temp_seq = 0;
             recv_buf->seq = temp_seq;
 
@@ -248,7 +252,7 @@ bool Processor::data_tranfer(){
             fcc = fcc + r + b;
 
             std::cout << "Token Updated to seq: " << token_seq << "aru: " << token_aru <<
-            "las: " << last_aru_setter << "round: " << round << "fcc: " << std::endl;
+            "las: " << last_aru_setter << "round: " << round << "fcc: " << fcc << std::endl;
 
 
             //update token_buf
@@ -549,7 +553,7 @@ bool Processor::form_ring() {
             }
             break;
         case MSG_TYPE::DATA:
-            std::cout << "Received:      machine " << machine_id << " received data message with from machine " << msg_buf->machine_id << "." << std::endl;
+            std::cout << "Received:      machine " << machine_id << " received data message with from machine " << recv_buf->machine_id << "." << std::endl;
             return true;
             break;
         default:
