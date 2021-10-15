@@ -133,7 +133,7 @@ private:
 
     // termination
     bool check_if_everybody_ready_to_exit();
-    int ENDING_COUNT = 10;
+    int ENDING_COUNT = 50;
     int BROADCASTING_TIMES = 100;
     int seq_equal_last_seq_and_aru_equal_seq_count = 0;
 
