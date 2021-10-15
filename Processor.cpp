@@ -497,7 +497,7 @@ void Processor::update_msg_buf(MSG_TYPE type) { //when broadcasting new messages
 }
 
 void Processor::update_token_buf(int s, int a, int last_aru_setter, std::set<int>& new_rtr, int round, int fcc){
-    memset(token_buf, 0 , sizeof(Message));
+    memset(token_buf, 0 , sizeof(Token));
     token_buf->seq = s;
     token_buf->fcc = fcc;
     token_buf->rtr_size = new_rtr.size();
