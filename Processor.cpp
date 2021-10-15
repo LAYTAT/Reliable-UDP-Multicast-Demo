@@ -452,11 +452,11 @@ void Processor::update_token_buf(int s, int a, int last_aru_setter, std::set<int
     token_buf->aru = a;
     token_buf->round = round;
     int c = 0;
-    for(auto itr = new_rtr.begin(); itr != new_rtr.end() && count < MAX_RTR; ++itr){
+    for(auto itr = new_rtr.begin(); itr != new_rtr.end() && c < MAX_RTR; ++itr){
         token_buf->rtr[count] = *itr;
         c++;
     }
-    if(count >= MAX_RTR) std::cerr << "Request overflow!" << std::endl;
+    if(c >= MAX_RTR) std::cerr << "Request overflow!" << std::endl;
 }
 
 void Processor::reset_token_timer(){
