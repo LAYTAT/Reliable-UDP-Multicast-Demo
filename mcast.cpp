@@ -16,6 +16,8 @@ int main(int argc, char * argv[])
     s2 >> machine_index;
     s3 >> number_of_machines;
     s4 >> loss_rate;
+
+    /*
     Processor* p = new Processor(machine_index, loss_rate, num_of_packets, number_of_machines);
 
     p->open_file();
@@ -28,5 +30,6 @@ int main(int argc, char * argv[])
     p->deleteMap(p->msg_received_map);
 
     delete p;
+     */
     return 0;
 }
