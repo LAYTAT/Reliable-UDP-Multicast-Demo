@@ -10,7 +10,7 @@
 
 class Processor{
 public:
-    Processor(int m_id, int l, int n = NUM_OF_TOTAL_PACKETS, int nm = NUM_OF_MACHINES): machine_id(m_id), loss_rate(l), nums_packets(n), number_of_machines(nm), msg_2b_sent(), msg_received(), input_buf(){
+    Processor(int m_id, int l, int n = NUM_OF_TOTAL_PACKETS, int nm = NUM_OF_MACHINES): machine_id(m_id), loss_rate(l), nums_packets(n), number_of_machines(nm),  input_buf(){
         next_id = m_id%(number_of_machines) + 1;
         std::srand(std::time(nullptr));
 
