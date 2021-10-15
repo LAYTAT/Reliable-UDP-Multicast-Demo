@@ -409,6 +409,9 @@ void Processor::flush_input_buf() {
             break;
         }
         // i is the sequence number we can write into, i.e. we can find it from the msg_recieved!
+        if(msg_received_map.count(i) == 0) {
+            std::cout << "WRONG: I do not have seq " << i << "in my input buffer" << std::endl;
+        }
         assert(msg_received_map.count(i) == 1);
         std::cout << "About to write to file " << std::endl;
         std::cout << "Message about to be written: id: " << msg_received_map[i]->machine_id << " pkt_idx: " << msg_received_map[i]->pkt_idx << " rand: " << msg_received_map[i]->random_num << std::endl;
