@@ -349,28 +349,27 @@ void Processor::deleteMap(std::unordered_map<int, Message *> map) {
 //output: returns number of retransmissions happened
 //update token_buf->with new rtrs
 int Processor::retransmission(int n) {
-
-    std::vector<int> resent_rtrs;
-    std::vector<int> unresent_rtrs;
+    int count_resend = 0;
+//    std::vector<int> resent_rtrs;
 
     for (int i = 0; i < token_buf->rtr_size; i++) {
         if (msg_received_map.count(token_buf->rtr[i]) == 0) {
             std::cout << "Retransmission:       I do not have request seq " <<  token_buf->rtr[i] << std::endl;
             assert(token_buf->rtr[i] != 0);
-            unresent_rtrs.push_back(token_buf->rtr[i]);
             if (rtr.find(token_buf->rtr[i]) == rtr.end()) {
-                std::cout << "token contains unexpected rtr" << std::endl;
+                std::cout << "WRONG:        token contains unexpected rtr" << std::endl;
             }
-            assert(unresent_rtrs[i]!=0);
-            rtr.insert(unresent_rtrs[i]);
+            rtr.insert(token_buf->rtr[i]);
             continue;
         }
         std::cout << "Retransmission:       Sending requested message with seq " <<  token_buf->rtr[i] << std::endl;
         sendto(ssm, msg_received_map[token_buf->rtr[i]], sizeof(Message), 0,(struct sockaddr *)&send_addr, sizeof(send_addr));
-        resent_rtrs.push_back(token_buf->rtr[i]);
+//        resent_rtrs.push_back(token_buf->rtr[i]);
+        count_resend++;
     }
 
-    return resent_rtrs.size();
+//    return resent_rtrs.size();
+    return count_resend;
 }
 
 //for the rest of the input buffer gets copied into the msg_recieved data structure
