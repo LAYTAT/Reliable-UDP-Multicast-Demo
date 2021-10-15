@@ -388,10 +388,7 @@ void Processor::flush_input_buf() {
         assert(msg_received_map.count(i) == 1);
         std::cout << "About to write to file " << std::endl;
         std::cout << "Message about to be written: id: " << msg_received_map[i]->machine_id << " pkt_idx: " << msg_received_map[i]->pkt_idx << " rand: " << msg_received_map[i]->random_num << std::endl;
-        int m_id = msg_received_map[i]->machine_id;
-        int pkt = msg_received_map[i]->pkt_idx;
-        int rand = msg_received_map[i]->random_num;
-        fprintf(fp, "%d\n", 1);
+        fprintf(fd, "%2d, %8d, %8d\n", msg_received_map[i]->machine_id, msg_received_map[i]->pkt_idx, msg_received_map[i]->random_num);
         //std::cout << "Bytes Written to the File: " << bytes_written << std::endl;
         msg_received_map.erase(i);
         fwut_count++;
