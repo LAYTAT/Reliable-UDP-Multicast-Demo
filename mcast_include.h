@@ -44,9 +44,9 @@ struct Token{
     int seq;                        // The largest sequence number for any message, an upper limit of sequemce number
     int aru;                        // Used to demtermine if all processors on the ring have received all messages up until this number
     int last_aru_setter;            // the machine id of the last processor that have set aru OR the token initiator for ring forming round.
-    int rtr_size;          // the number of requested
-    int rtr[MAX_RTR];      // also called nacks, a request list that contains one or more retransmission requiest check vector size for request size
-    int round;             // the round number in the ring cycle
+    unsigned int rtr_size;          // the number of requested
+    unsigned int rtr[MAX_RTR];      // also called nacks, a request list that contains one or more retransmission requiest check vector size for request size
+    unsigned int round;             // the round number in the ring cycle
     int fcc;                        // for flow control
 };
 
