@@ -114,19 +114,28 @@ void Processor::store_to_input() {
     Message message;
     memcpy(&message, recv_buf, sizeof(Message));
     input_buf.push_back(message);
+    //input_set.insert(recv_buf->seq);
 }
 
-void Processor::update_rtr_aru(int new_seq) {
+void Processor::update_rtr() {
+    //update rtr by checking token_buf->seq
+    for(int i = aru + 1; i <= token_buf->seq; ++i) {
+        if(input_set.count(i)==0)
+            rtr.insert(i);
+    }
+}
+
+void Processor::update_rtr_aru(int msg_seq) {
     //update aru if this one connected
-    input_set.insert(new_seq);
-    rtr.erase(new_seq);
-    for(auto itr = input_set.find(new_seq); itr!=input_set.end(); itr++){
+    input_set.insert(msg_seq);
+    rtr.erase(msg_seq);
+    for(auto itr = input_set.find(msg_seq); itr != input_set.end(); itr++){
         if(*itr == aru + 1) {
             aru++;
         } else break;
     }
     // update rtr
-    for(int i = aru + 1; i < new_seq; ++i) {
+    for(int i = aru + 1; i < msg_seq; ++i) {
         if(input_set.count(i)==0)
             rtr.insert(i);
     }
@@ -163,80 +172,129 @@ bool Processor::data_tranfer(){
             break;
         }
         case MSG_TYPE::TOKEN: {
+
+            memcpy(recv_buf->payload, token_buf, sizeof(Token));
+
+
+
+            if(token_buf -> round == last_token_round && machine_id != 1) break;
+
             cancel_token_timer();
             //we recieved a token
             //copy token data into our local token_buf
-            memcpy(recv_buf->payload, token_buf, sizeof(Token));
+
             std::cout << "Token Recieved with Round Number: " << token_buf->round << std::endl;
 
             //flush our input buffer by writing them or retain them.
-
             /*
              * Updating data structures
              */
+            flush_input_buf(); // writes to a file, updates msg_received, input empty
 
-
-            flush_input_buf();
-
-            //write as much as we can, limited by aru
-            write_to_file();
-
-            //update msg_2b_sent which are messeages waiting for actual broadcasting
-            update_msg_2b_sent();
-
-            /*
-             * flow control & data retransmissions
-             */
 
             //find max number of messages that can be sent by this processor
             int m = find_max_messages();
 
+            //update retransmission request by looking at token seq
+            update_rtr();
+
             //find number of max retransmissions
             int num_retrans = std::min(m, (int)token_buf->rtr_size);
 
-            //union the token rtr with your own rtr, (remove rtrs that are sent, and accordingly)
-            //fin all possible retransmission requests
-            retransmission();
-            //update retransmission requst (already updated when recieved packets)
-
+            //r is the number of retranmission happened
+            int r = retransmission(num_retrans);
             //subtract number of retransmissions from m, call it m2
+            int m2 = m - r;
+            int b = 0;
 
-            //broadcasting!
-            //for (m) send messsages
-            broadcasting_new_messages();
+            if (token_buf->seq == token_buf->aru) {
+                //updates token_aru, local_aru, and token_seq as broadcasting messages
+                b = broadcasting_new_messages(m2);
+                token_buf->last_aru_setter = 0;
+            }
+            if (token_buf->seq - b == aru) {
+                aru += b;
+            }
 
+            //update token parameters
+            if (aru < token_buf->aru || machine_id == token_buf->last_aru_setter || last_token_aru == 0) {
+                token_buf->aru = aru;
+                if (token_buf->aru == token_buf->seq) {
+                    token_buf->last_aru_setter = 0;
+                } else {
+                    token_buf->last_aru_setter = machine_id;
+                }
+            }
+            //token_aru updated, token_last setter updated, token seq updated, update token rtr now before sending a token
+            //iterate through set rtr and put it into token_buf rtr
+            //update_token_buf(int seq, int aru, int last_aru_setter, std::set<int>& new_rtr, int round, int fcc){
+            int token_seq = token_buf->seq; int token_aru = token_buf->aru; int last_aru_setter = token_buf->last_aru_setter;
+            int round = token_buf->round;
+            int fcc = token_buf->fcc;
+            if (machine_id == 1) { //handles the machine id = 1, round update and fcc update
+                round = token_buf->round + 1;
+                fcc = 0;
+            }
+            fcc = fcc + r + b;
 
-            //update local variables
-            update_local_variables();
 
             //update token_buf
-            update_msg_buf();
-            update_token_buf();
+            update_token_buf(token_seq, token_aru, last_aru_setter, rtr, round, fcc);
+            update_msg_buf(MSG_TYPE::TOKEN);
             send_token_to_next();
-
-
             break;
         }
         default:
             break;
     }
 
-
-    // TODO:  rcvbuf->type token
-        // TODO:  handle retransmission
-        // TODO:  specify a limit M for this processor  ( fcc += M )
-        // TODO:  update local.rtr
-        // TODO:  broadcast packets for rtr (M = M - retrans)
-        // assert (M > 0)
-    // TODO:  rcvbuf->type data
-    // TODO: multicast and updating on the token
-    // TODO: multicast only with updated token(with plus 1 round #)
-    // TODO: WHEN RECEIVING A REGULAR MESSAGE
-    //    If token retransmission timeout is set, check if this broadcast message’s machine-id is the set one, if so, cancel the token retransmission timeout.
-    //            Put this newly received message to msg_received queue, if msg.seq is bigger than the local aru.
-    //            Write the consecutive payload in msg_received into the file.
-    //            Update the current process’s retransmission request list
     return false;
+}
+
+//broadcasting new messages
+//think about pkt_index, seq_num, recieved_msg,
+int Processor::broadcasting_new_messages(int m2) {
+
+    int b =0;
+    for (int i = 0; i < m2; i++) {
+        if (pkt_idx == nums_packets) {
+            break;
+        }
+        token_buf->seq++; pkt_idx++; seq++;
+        update_msg_buf(MSG_TYPE::DATA);
+        msg_received.push(*msg_buf);
+        msg_received_map.insert(std::make_pair(msg_buf->seq, &msg_received.back()));
+        send_to_everyone();
+        b++;
+
+    }
+    return b;
+}
+
+
+//update our own rtr first
+//input: number of maximum retransmission
+//output: returns number of retransmissions happened
+//update token_buf->with new rtrs
+int Processor::retransmission(int n) {
+
+    std::vector<int> resent_rtrs;
+    std::vector<int> unresent_rtrs;
+
+    for (int i = 0; i < token_buf->rtr_size; i++) {
+        if (msg_received_map.count(token_buf->rtr[i]) == 0) {
+            unresent_rtrs.push_back(token_buf->rtr[i]);
+            if (rtr.find(token_buf->rtr[i]) == rtr.end()) {
+                std::cout << "token contains unexpected rtr" << std::endl;
+            }
+            rtr.insert(unresent_rtrs[i]);
+            continue;
+        }
+        sendto(ssm, msg_received_map[token_buf->rtr[i]], sizeof(Message), 0,(struct sockaddr *)&send_addr, sizeof(send_addr));
+        resent_rtrs.push_back(token_buf->rtr[i]);
+    }
+
+    return resent_rtrs.size();
 }
 
 //for the rest of the input buffer gets copied into the msg_recieved data structure
@@ -252,6 +310,7 @@ void Processor::flush_input_buf() {
     //copy everything from input buf to msg_recieved queue
     for (int i = 0; i < input_buf.size(); i++) {
         msg_received.push(input_buf[i]);
+        msg_received_map.insert(std::make_pair(input_buf[i].seq, &msg_received.back()));
     }
 
     //empty the input buffer
@@ -260,12 +319,25 @@ void Processor::flush_input_buf() {
     //write to file as much as we can from the msg_recieved
     //upper limit is upto agreed_aru
     //lower limit is fwut (file written up to), if it's n, then n sequence numbers have been written
+    //so, look for n+1 and increment if yes
     int agreed_aru = std::min(last_token_aru, token_buf->aru);
 
-
-
+    int fwut_count = 0;
+    for (int i = fwut; i <= agreed_aru; i++) {
+        assert(fwut + 1 == msg_received.front().seq);
+        fprintf(fp, "%2d, %8d, %8d\n", msg_received.front().machine_id, msg_received.front().pkt_idx, msg_received.front().random_num);
+        assert(!msg_received.empty());
+        msg_received_map.erase(msg_received.front().seq);
+        msg_received.pop();
+        fwut_count++;
+    }
+    fwut = fwut + fwut_count;
+    assert(fwut == agreed_aru);
+    assert(msg_received.size() == msg_received_map.size());
 
 }
+
+
 //initialize file pointer
 void Processor::open_file() {
     fp = fopen("machine_index.txt", "w");
@@ -273,16 +345,10 @@ void Processor::open_file() {
         std::cerr << "Error: file failed to open" << std::endl;
         exit(1);
     }
-
-
-
 }
-
-
-void Processor::find_all_rtr() {
-    for (int i = 0; i < token_buf->rtr_size; i++) {
-
-    }
+//close file
+void Processor::close_file() {
+    fclose(fp);
 }
 
 int Processor::find_max_messages() {
@@ -336,11 +402,12 @@ bool Processor::send_token_to_next() {
     }
     has_token = false;
     last_token_round = token_buf->round;
+    last_token_aru = token_buf->aru;
     reset_token_timer();
     return true;
 }
 
-void Processor::update_msg_buf(MSG_TYPE type) {
+void Processor::update_msg_buf(MSG_TYPE type) { //when broadcasting new messages
     memset(msg_buf, 0, sizeof(Message));
     msg_buf->type = type;
     msg_buf->machine_id = machine_id;

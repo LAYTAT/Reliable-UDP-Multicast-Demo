@@ -28,6 +28,7 @@
 #include <assert.h>
 #include <algorithm>
 #include <fstream>
+#include <map>
 
 #define MAX_MESS_LEN 1400
 #define PORT (10040)

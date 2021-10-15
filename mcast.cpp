@@ -3,6 +3,7 @@
 
 int main(int argc, char * argv[])
 {
+
     std::stringstream s1(argv[1]);
     std::stringstream s2(argv[2]);
     std::stringstream s3(argv[3]);
@@ -16,9 +17,15 @@ int main(int argc, char * argv[])
     s3 >> number_of_machines;
     s4 >> loss_rate;
     Processor* p = new Processor(machine_index, loss_rate, num_of_packets, number_of_machines);
+
+    p->open_file();
+
     p->socket_init();
 //    p->start_chat();
     p->start_mcast(); // main loop
     delete p;
+
+
+    p->close_file();
     return 0;
 }

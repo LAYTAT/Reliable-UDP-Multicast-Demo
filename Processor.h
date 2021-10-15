@@ -14,7 +14,7 @@ public:
         next_id = m_id%(number_of_machines) + 1;
         std::srand(std::time(nullptr));
         if( machine_id == 1 ) {
-            update_token_buf(-1, -1, m_id, rtr, 0, -1);
+            update_token_buf(0, 0, 0, rtr, 0, 0);
         }
     }
     Processor(Processor const &) = delete;
@@ -27,6 +27,9 @@ public:
     bool socket_init();
     //sending multicast for previous neighbor in the ring
     void ring_request_multicast();
+    void close_file();
+
+    void open_file();
 
 private:
 
@@ -37,6 +40,7 @@ private:
     int port = PORT;
     std::queue<Message> msg_2b_sent;    //the messages that are waiting to be sent
     std::queue<Message> msg_received;   //the messages that are to be written into the file
+    std::map<int, Message*> msg_received_map; //keeps track of sequence numbers in msg_received
     int next_id;                   //next neighbor in ring <m_id+1, address>
     bool data_tranfer();
     int last_token_aru;
@@ -44,6 +48,9 @@ private:
     std::set<int> input_set;
     int fwut = 0; //file written up to.
     FILE * fp; //file pointer for writing into the file
+    int last_agreed_aru = 0;
+    int agreed_aru_count = 0;
+
 
     //generate a new message and token for sending
     // when sending token: update_token_buf, update_msg_buf, send token
@@ -112,13 +119,14 @@ private:
     int aru = 0;                        //local aru, acumulatic acknoleged sequemce number for his processor
     int pkt_idx;
     int nums_packets;
-    int seq;
+    int seq = 0;
 
     // token process
     void store_to_input();
     int find_max_messages();
-    void union_rtr();
-    void update_rtr_aru(int new_seq);
-
+    void update_rtr_aru(int msg_seq);
     void flush_input_buf();
+    int retransmission(int n);
+    void update_rtr();
+    int broadcasting_new_messages(int m2);
 };
