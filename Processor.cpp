@@ -116,7 +116,7 @@ bool Processor::start_mcast(){
 void Processor::store_to_input() {
     Message * message = make_Message(MSG_TYPE::DATA, recv_buf->seq, recv_buf->pkt_idx, recv_buf->machine_id, recv_buf->random_num);
     input_buf.push_back(message);
-    //input_set.insert(recv_buf->seq);
+    input_set.insert(recv_buf->seq);
     std::cout << "I just stored to input_buf, and its content: seq: " << message->seq << " randnum: " << message->random_num << std::endl;
 }
 
@@ -186,8 +186,8 @@ bool Processor::data_tranfer(){
             //            // sort buffer, aru = last continous integer in the buffer, rtr = from aru (4) to input_buf last element (10)...
             // sort buffer, aru = last continous integer in the buffer, rtr = from aru (4) to input_buf last element (10)...
             update_rtr_aru(temp_seq);
-            std::cout << "After Processing this Message, My ARU is " << aru << std::endl;
-            std::cout << "Input Buffer has now Rand Num: " << input_buf.front()->random_num << std::endl;
+//            std::cout << "After Processing this Message, My ARU is " << aru << std::endl;
+//            std::cout << "Input Buffer has now Rand Num: " << input_buf.front()->random_num << std::endl;
             break;
         }
         case MSG_TYPE::TOKEN: {
@@ -408,7 +408,7 @@ void Processor::flush_input_buf() {
         }
         // i is the sequence number we can write into, i.e. we can find it from the msg_recieved!
         if(msg_received_map.count(i) == 0) { // TODO: delet this after debugging is done
-            std::cout << "WRONG:        I do not have seq " << i << "in my input buffer: agreed_aru = " << agreed_aru << "token_buf->aru = "<< token_buf->aru << std::endl;
+            std::cout << "WRONG:        I do not have seq " << i << " in my input buffer: agreed_aru = " << agreed_aru << ", token_buf->aru = "<< token_buf->aru << std::endl;
         }
         assert(msg_received_map.count(i) == 1);
         std::cout << "About to write to file " << std::endl;
