@@ -365,17 +365,19 @@ void Processor::flush_input_buf() {
     //upper limit is upto agreed_aru
     //lower limit is fwut (file written up to), if it's n, then n sequence numbers have been written
     //so, look for n+1 and increment if yes
+    assert(fwut == last_agreed_aru);
     int agreed_aru = std::min(last_token_aru, token_buf->aru);
 
 
     int fwut_count = 0;
-    for (int i = fwut; i <= agreed_aru; i++) {
+    for (int i = fwut + 1; i <= agreed_aru; i++) {
         if (agreed_aru == 0) {
             break;
         }
         // i is the sequence number we can write into, i.e. we can find it from the msg_recieved!
         assert(msg_received_map.count(i) == 1);
-        fprintf(fp, "%2d, %8d, %8d\n", msg_received_map[i]->machine_id, msg_received_map[i]->pkt_idx, msg_received_map[i]->random_num);
+        int bytes_written = fprintf(fp, "%2d, %8d, %8d\n", msg_received_map[i]->machine_id, msg_received_map[i]->pkt_idx, msg_received_map[i]->random_num);
+        std::cout << "Bytes Written to the File: " << bytes_written << std::endl;
         msg_received_map.erase(i);
         //find stack
         fwut_count++;
