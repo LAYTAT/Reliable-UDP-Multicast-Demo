@@ -354,8 +354,8 @@ int Processor::retransmission(int n) {
     std::vector<int> unresent_rtrs;
 
     for (int i = 0; i < token_buf->rtr_size; i++) {
-        if(token_buf->rtr[i] == 0) {
-            std::cout << "Token_buf rtr["<< i <<">>>>]has a request for 0" << std::endl;
+        if(token_buf->rtr[i] == 0) { //TODO: delete this if after debug
+            std::cout << "WRONG: Token_buf rtr["<< i <<"] == 0" << std::endl;
         }
         assert(token_buf->rtr[i] != 0);
         if (msg_received_map.count(token_buf->rtr[i]) == 0) {
@@ -539,7 +539,7 @@ void Processor::update_token_buf(int s, int a, int last_aru_setter, std::set<int
     int c = 0;
     for(auto itr = new_rtr.begin(); itr != new_rtr.end() && c < MAX_RTR; ++itr){
         assert(*itr != 0);
-        token_buf->rtr[count] = *itr;
+        token_buf->rtr[c] = *itr;
         c++;
     }
     if(c >= MAX_RTR) std::cerr << "Request overflow!" << std::endl;

@@ -100,10 +100,8 @@ private:
     void reset_token_timer();
 
     // ring multicast request
-    int RING_MCAST_FREQ = 500000;  //test shows 10000000 is a usable baseline
+    int RING_MCAST_FREQ = 500000;  //test shows 500000 is a usable baseline
     int count = 0;
-
-
 
     fd_set mask;
     fd_set read_mask, write_mask, excep_mask;
