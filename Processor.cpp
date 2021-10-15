@@ -284,7 +284,8 @@ int Processor::broadcasting_new_messages(int m2) {
         if (pkt_idx == nums_packets) {
             break;
         }
-        token_buf->seq++; pkt_idx++; seq++;
+        token_buf->seq++; pkt_idx++;
+        seq = token_buf->seq;
         update_msg_buf(MSG_TYPE::DATA);
         msg_received_map.insert(std::make_pair(msg_buf->seq,
                                                make_Message(msg_buf->type, msg_buf->seq, msg_buf->pkt_idx, msg_buf->machine_id, msg_buf->random_num)));
