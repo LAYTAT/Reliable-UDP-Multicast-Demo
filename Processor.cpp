@@ -123,8 +123,10 @@ void Processor::store_to_input() {
 void Processor::update_rtr() {
     //update rtr by checking token_buf->seq
     for(int i = aru + 1; i <= token_buf->seq; ++i) {
-        if(input_set.count(i)==0)
+        if(input_set.count(i)==0) {
+            assert(i!=0);
             rtr.insert(i);
+        }
     }
 }
 
@@ -139,8 +141,10 @@ void Processor::update_rtr_aru(int msg_seq) {
     }
     // update rtr
     for(int i = aru + 1; i < msg_seq; ++i) {
-        if(input_set.count(i)==0)
+        if(input_set.count(i)==0) {
+            assert(i!=0);
             rtr.insert(i);
+        }
     }
 }
 
@@ -358,6 +362,7 @@ int Processor::retransmission(int n) {
             if (rtr.find(token_buf->rtr[i]) == rtr.end()) {
                 std::cout << "token contains unexpected rtr" << std::endl;
             }
+            assert(unresent_rtrs[i]!=0);
             rtr.insert(unresent_rtrs[i]);
             continue;
         }
