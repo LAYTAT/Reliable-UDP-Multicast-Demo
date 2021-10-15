@@ -158,7 +158,7 @@ bool Processor::data_tranfer(){
             //we recieved a multicast data
             //temp seq is the message seq
             int temp_seq = 0;
-            recv_buf->seq = temp_seq;
+            temp_seq = recv_buf->seq ;
 
             //ignore data you already have
             if (temp_seq <= aru) {
