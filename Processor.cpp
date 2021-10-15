@@ -704,3 +704,9 @@ void Processor::set_my_info() {
             host_entry->h_addr_list[0]));
     memcpy(&my_ip_, my_ip, strlen(my_ip));
 }
+
+void Processor::close_sockets() {
+    close(srm);
+    close(ssm);
+    close(ssu);
+}
