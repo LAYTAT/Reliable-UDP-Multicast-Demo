@@ -7,7 +7,7 @@ int main(int argc, char * argv[])
     std::stringstream s1(argv[1]);
     std::stringstream s2(argv[2]);
     std::stringstream s3(argv[3]);
-    std::stringstream s4(argv[4]);
+    //std::stringstream s4(argv[4]);
     int machine_index = 0;
     int loss_rate = 0;
     int num_of_packets;
@@ -15,7 +15,7 @@ int main(int argc, char * argv[])
     s1 >> num_of_packets;
     s2 >> machine_index;
     s3 >> number_of_machines;
-    s4 >> loss_rate;
+    //s4 >> loss_rate;
 
     /*
     Processor* p = new Processor(machine_index, loss_rate, num_of_packets, number_of_machines);
