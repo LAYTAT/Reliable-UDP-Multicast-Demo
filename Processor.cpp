@@ -198,10 +198,10 @@ bool Processor::data_tranfer(){
 
             int token_aru_received = token_buf->aru;
 
-            std::cout << "When I Received a Token, My ARU is  " << aru << "My seq idx: " << seq << std::endl;
+            std::cout << "Token Received:       My ARU is  " << aru << "My seq idx: " << seq << std::endl;
 
             if(token_buf -> round == last_token_round && machine_id != 1) {
-                std::cout << "Received Token with last_token_round =" << last_token_round << std::endl;
+                std::cout << "Token Received:       with same last_token_round =" << last_token_round << std::endl;
                 break;
             }
 
@@ -265,13 +265,13 @@ bool Processor::data_tranfer(){
             int round = token_buf->round;
             int fcc = token_buf->fcc;
             if (machine_id == 1) { //handles the machine id = 1, round update and fcc update
-                std::cout << "I incremente token to " << round + 1 << std::endl;
+                std::cout << "Token:        increment round to " << round + 1 << std::endl;
                 round = token_buf->round + 1;
                 fcc = 0;
             }
             fcc = fcc + r + b;
 
-            std::cout << "Token Updated to seq: " << token_seq << "aru: " << token_aru <<
+            std::cout << "Token:        Updated to seq: " << token_seq << "aru: " << token_aru <<
             "las: " << last_aru_setter << "round: " << round << "fcc: " << fcc << std::endl;
 
             last_token_aru = token_aru_received;
