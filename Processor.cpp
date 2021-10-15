@@ -176,6 +176,7 @@ bool Processor::data_tranfer(){
             //            // sort buffer, aru = last continous integer in the buffer, rtr = from aru (4) to input_buf last element (10)...
             // sort buffer, aru = last continous integer in the buffer, rtr = from aru (4) to input_buf last element (10)...
             update_rtr_aru(temp_seq);
+            std::cout << "After Processing this Message, My ARU is  " << aru << "My seq idx: " << seq << std::endl;
             break;
         }
         case MSG_TYPE::TOKEN: {
@@ -190,7 +191,7 @@ bool Processor::data_tranfer(){
             std::cout << "Received token info: seq: " << token_buf->seq << "aru: " << token_buf->aru <<
                       "las: " << token_buf->last_aru_setter << "round: " << token_buf->round << "fcc: " << token_buf->fcc << std::endl;
 
-            std::cout << "My ARU is  " << aru << "My seq idx: " << seq << std::endl;
+            std::cout << "When I Received a Token, My ARU is  " << aru << "My seq idx: " << seq << std::endl;
 
 
             if(token_buf -> round == last_token_round && machine_id != 1) break;
