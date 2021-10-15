@@ -355,11 +355,16 @@ void Processor::flush_input_buf() {
         msg_received_map.insert(std::make_pair(input_buf[i]->seq,
                                                make_Message(input_buf[i]->type, input_buf[i]->seq, input_buf[i]->pkt_idx, input_buf[i]->machine_id, input_buf[i]->random_num)));
     }
+    std::cout << "flush_input: Copy Success!" << std::endl;
     //empty the input buffer
     for (int i = 0; i < input_buf.size(); i++) {
         delete input_buf[i];
     }
-    input_buf.clear();
+    std::cout << "flush_input: freeing Message Objects Sucess!" << std::endl;
+    if (input_buf.size() > 0) {
+        input_buf.clear();
+    }
+    std::cout << "flush_input: Input Vector Clear Sucess!" << std::endl;
 
     //write to file as much as we can from the msg_recieved
     //upper limit is upto agreed_aru
