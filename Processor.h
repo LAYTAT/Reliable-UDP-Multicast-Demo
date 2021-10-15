@@ -26,6 +26,7 @@ public:
     //sending multicast for previous neighbor in the ring
     void ring_request_multicast();
     void close_file();
+    void close_sockets();
 
     void open_file();
     void deleteMap(std::map<int, Message *> map);

@@ -27,9 +27,9 @@ int main(int argc, char * argv[])
     p->start_mcast(); // main loop
 
     p->close_file();
+    p->close_sockets();
     p->deleteMap(p->msg_received_map);
 
     delete p;
-
     return 0;
 }
