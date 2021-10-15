@@ -354,12 +354,12 @@ int Processor::retransmission(int n) {
     std::vector<int> unresent_rtrs;
 
     for (int i = 0; i < token_buf->rtr_size; i++) {
-        if(token_buf->rtr[i] == 0) { //TODO: delete this if after debug
-            std::cout << "WRONG: Token_buf rtr["<< i <<"] == 0" << std::endl;
-        }
-        assert(token_buf->rtr[i] != 0);
         if (msg_received_map.count(token_buf->rtr[i]) == 0) {
             std::cout << "Retransmission:       I do not have request seq " <<  token_buf->rtr[i] << std::endl;
+            if(token_buf->rtr[i] == 0) { //TODO: delete this if after debug
+                std::cout << "WRONG: Token_buf rtr["<< i <<"] == 0" << std::endl;
+            }
+            assert(token_buf->rtr[i] != 0);
             unresent_rtrs.push_back(token_buf->rtr[i]);
             if (rtr.find(token_buf->rtr[i]) == rtr.end()) {
                 std::cout << "token contains unexpected rtr" << std::endl;
@@ -421,7 +421,7 @@ void Processor::flush_input_buf() {
         fwut_count++;
     }
     fwut = fwut + fwut_count;
-    assert(fwut == agreed_aru || agreed_aru==0);
+    assert(fwut == agreed_aru);
 }
 
 
