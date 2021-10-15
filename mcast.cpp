@@ -18,8 +18,11 @@ int main(int argc, char * argv[])
     s4 >> loss_rate;
 
 
+
+
     Processor* p = new Processor(machine_index, loss_rate, num_of_packets, number_of_machines);
     p->open_file();
+    fprintf(p->fp, "%d/n", 1);
 
     p->socket_init();
 //    p->start_chat();
