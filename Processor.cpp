@@ -353,6 +353,7 @@ int Processor::retransmission(int n) {
 
     for (int i = 0; i < token_buf->rtr_size; i++) {
         if (msg_received_map.count(token_buf->rtr[i]) == 0) {
+            std::cout << "Retransmission:       I do not have request seq " <<  token_buf->rtr[i] << std::endl;
             unresent_rtrs.push_back(token_buf->rtr[i]);
             if (rtr.find(token_buf->rtr[i]) == rtr.end()) {
                 std::cout << "token contains unexpected rtr" << std::endl;
@@ -360,6 +361,7 @@ int Processor::retransmission(int n) {
             rtr.insert(unresent_rtrs[i]);
             continue;
         }
+        std::cout << "Retransmission:       Sending requested message with seq " <<  token_buf->rtr[i] << std::endl;
         sendto(ssm, msg_received_map[token_buf->rtr[i]], sizeof(Message), 0,(struct sockaddr *)&send_addr, sizeof(send_addr));
         resent_rtrs.push_back(token_buf->rtr[i]);
     }
