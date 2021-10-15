@@ -375,7 +375,7 @@ void Processor::flush_input_buf() {
     //upper limit is upto agreed_aru
     //lower limit is fwut (file written up to), if it's n, then n sequence numbers have been written
     //so, look for n+1 and increment if yes
-    assert(fwut == last_agreed_aru);
+    //assert(fwut == last_agreed_aru);
     int agreed_aru = std::min(last_token_aru, token_buf->aru);
 
 
