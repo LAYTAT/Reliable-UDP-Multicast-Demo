@@ -31,6 +31,7 @@ public:
     void open_file();
     void deleteMap(std::map<int, Message *> map);
     std::map<int, Message *> msg_received_map; //keeps track of sequence numbers in msg_received, also cache
+    FILE * fp; //file pointer for writing into the file
 
 private:
 
@@ -48,7 +49,7 @@ private:
     std::vector<Message *> input_buf;
     std::set<int> input_set;
     int fwut = 0; //file written up to.
-    FILE * fp; //file pointer for writing into the file
+
     int last_agreed_aru = 0;
     int agreed_aru_count = 0;
 
