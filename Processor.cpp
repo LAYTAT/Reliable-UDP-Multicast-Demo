@@ -113,7 +113,7 @@ void Processor::store_to_input() {
     Message * message = make_Message(MSG_TYPE::DATA, recv_buf->seq, recv_buf->pkt_idx, recv_buf->machine_id, recv_buf->random_num);
     input_buf.push_back(message);
     //input_set.insert(recv_buf->seq);
-    std::cout << "I just stored to input_buf, and its content: seq: " << message->seq << std::endl;
+    std::cout << "I just stored to input_buf, and its content: seq: " << message->seq << " randnum: " << message->random_num << std::endl;
 }
 
 void Processor::update_rtr() {
@@ -179,6 +179,7 @@ bool Processor::data_tranfer(){
             // sort buffer, aru = last continous integer in the buffer, rtr = from aru (4) to input_buf last element (10)...
             update_rtr_aru(temp_seq);
             std::cout << "After Processing this Message, My ARU is " << aru << std::endl;
+            std::cout << "Input Buffer has now Rand Num: " << input_buf.front()->random_num << std::endl;
             break;
         }
         case MSG_TYPE::TOKEN: {
