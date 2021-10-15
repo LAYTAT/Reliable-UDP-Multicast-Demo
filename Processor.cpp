@@ -361,7 +361,7 @@ int Processor::retransmission(int n) {
             if (rtr.find(token_buf->rtr[i]) == rtr.end()) {
                 std::cout << "token contains unexpected rtr" << std::endl;
             }
-//            assert(unresent_rtrs[i]!=0);
+            assert(unresent_rtrs[i]!=0);
             continue;
         }
         std::cout << "Retransmission:       Sending requested message with seq " <<  token_buf->rtr[i] << std::endl;
@@ -402,8 +402,6 @@ void Processor::flush_input_buf() {
     //assert(fwut == last_agreed_aru);
     int agreed_aru = std::min(last_token_aru, token_buf->aru);
 
-
-    int fwut_count = 0;
     for (int i = fwut + 1; i <= agreed_aru; i++) {
         if (agreed_aru == 0) {
             break;
@@ -418,11 +416,10 @@ void Processor::flush_input_buf() {
         fprintf(fp, "%2d, %8d, %8d\n", msg_received_map[i]->machine_id, msg_received_map[i]->pkt_idx, msg_received_map[i]->random_num);
         //std::cout << "Bytes Written to the File: " << bytes_written << std::endl;
         msg_received_map.erase(i);
-        fwut_count++;
+        fwut++;
     }
-    fwut = fwut + fwut_count;
     if(fwut != agreed_aru) { // TODO: delet this after debugging is done
-        std::cout << "WRONG:        fwut " << fwut << " do not equal agreed_aru" << agreed_aru << std::endl;
+        std::cout << "WRONG:        fwut " << fwut << " do not equal agreed_aru " << agreed_aru << std::endl;
 
     }
     assert(fwut == agreed_aru);
