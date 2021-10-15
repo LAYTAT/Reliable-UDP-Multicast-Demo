@@ -281,6 +281,9 @@ int Processor::broadcasting_new_messages(int m2) {
         update_msg_buf(MSG_TYPE::DATA);
         msg_received_map.insert(std::make_pair(msg_buf->seq,
                                                make_Message(msg_buf->type, msg_buf->seq, msg_buf->pkt_idx, msg_buf->machine_id, msg_buf->random_num)));
+        std::cout << "Data Message Sent, SEQ: " << msg_buf->seq << "pkt idx: " << msg_buf->pkt_idx <<
+                  "from machine: " << msg_buf->machine_id << "rand: " << msg_buf->random_num << std::endl;
+
         send_to_everyone();
         b++;
     }
