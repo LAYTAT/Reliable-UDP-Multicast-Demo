@@ -148,8 +148,6 @@ bool Processor::data_tranfer(){
         case MSG_TYPE::DATA: {
 
 
-
-
             reset_token_timer();
 
             //we recieved a multicast data
@@ -243,10 +241,14 @@ bool Processor::data_tranfer(){
             int round = token_buf->round;
             int fcc = token_buf->fcc;
             if (machine_id == 1) { //handles the machine id = 1, round update and fcc update
+                std::cout << "I incremente token to " << round + 1 << std::endl;
                 round = token_buf->round + 1;
                 fcc = 0;
             }
             fcc = fcc + r + b;
+
+            std::cout << "Token Updated to seq: " << token_seq << "aru: " << token_aru <<
+            "las: " << last_aru_setter << "round: " << round << "fcc: " << std::endl;
 
 
             //update token_buf
