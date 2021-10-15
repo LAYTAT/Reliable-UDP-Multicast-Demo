@@ -396,7 +396,10 @@ void Processor::flush_input_buf() {
 
 //initialize file pointer
 void Processor::open_file() {
-    fp = fopen("machine_index.txt", "w");
+
+    std::string filename = std::to_string(machine_id) + ".txt";
+
+    fp = fopen(filename.c_str(), "w");
     if (fp == NULL) {
         std::cerr << "Error: file failed to open" << std::endl;
         exit(1);
