@@ -758,6 +758,7 @@ bool Processor::check_if_everybody_ready_to_exit(){
     }
     if(seq_equal_last_seq_and_aru_equal_seq_count >= ENDING_COUNT) {
         broadcast_exit_messages();
+        return true;
     }
-    return true;
+    return false;
 }
