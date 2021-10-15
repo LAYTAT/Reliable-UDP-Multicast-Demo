@@ -30,6 +30,8 @@ public:
     void close_file();
 
     void open_file();
+    void deleteMap(std::map<int, Message *> map);
+    std::map<int, Message *> msg_received_map; //keeps track of sequence numbers in msg_received, also cache
 
 private:
 
@@ -39,8 +41,8 @@ private:
     int number_of_machines;
     int port = PORT;
     std::queue<Message> msg_2b_sent;    //the messages that are waiting to be sent
-    std::queue<Message> msg_received;   //the messages that are to be written into the file
-    std::map<int, Message*> msg_received_map; //keeps track of sequence numbers in msg_received
+    std::vector<Message> msg_received;   //the messages that are to be written into the file
+
     int next_id;                   //next neighbor in ring <m_id+1, address>
     bool data_tranfer();
     int last_token_aru;
@@ -129,4 +131,8 @@ private:
     int retransmission(int n);
     void update_rtr();
     int broadcasting_new_messages(int m2);
+
+    Message *make_Message(MSG_TYPE type, int s, int pkt, int id, int rand);
+
+
 };

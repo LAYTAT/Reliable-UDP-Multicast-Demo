@@ -262,15 +262,30 @@ int Processor::broadcasting_new_messages(int m2) {
         }
         token_buf->seq++; pkt_idx++; seq++;
         update_msg_buf(MSG_TYPE::DATA);
-        msg_received.push(*msg_buf);
-        msg_received_map.insert(std::make_pair(msg_buf->seq, &msg_received.back()));
+        msg_received_map.insert(std::make_pair(msg_buf->seq,
+                                               make_Message(msg_buf->type, msg_buf->seq, msg_buf->pkt_idx, msg_buf->machine_id, msg_buf->random_num)));
         send_to_everyone();
         b++;
-
     }
     return b;
 }
 
+Message * Processor::make_Message(MSG_TYPE type, int s, int pkt, int id, int rand) {
+    Message * m = new Message();
+    memset(m->payload, 0, sizeof(m->payload));
+    m->type = type;
+    m->seq = s;
+    m->pkt_idx = pkt;
+    m->machine_id = id;
+    m->random_num = rand;
+    return m;
+}
+
+void Processor::deleteMap(std::map<int, Message *> map) {
+    for (int i = 0; i < map.size(); i++) {
+        delete map[i];
+    }
+}
 
 //update our own rtr first
 //input: number of maximum retransmission
@@ -307,12 +322,12 @@ void Processor::flush_input_buf() {
         return a.seq < b.seq;
     });
 
-    //copy everything from input buf to msg_recieved queue
+    //copy everything from input buf to msg_recieved
     for (int i = 0; i < input_buf.size(); i++) {
-        msg_received.push(input_buf[i]);
-        msg_received_map.insert(std::make_pair(input_buf[i].seq, &msg_received.back()));
+        //msg_received.push(input_buf[i]);
+        msg_received_map.insert(std::make_pair(input_buf[i].seq,
+                                               make_Message(input_buf[i].type, input_buf[i].seq, input_buf[i].pkt_idx, input_buf[i].machine_id, input_buf[i].random_num)));
     }
-
     //empty the input buffer
     input_buf.clear();
 
@@ -322,19 +337,18 @@ void Processor::flush_input_buf() {
     //so, look for n+1 and increment if yes
     int agreed_aru = std::min(last_token_aru, token_buf->aru);
 
+
     int fwut_count = 0;
     for (int i = fwut; i <= agreed_aru; i++) {
-        assert(fwut + 1 == msg_received.front().seq);
-        fprintf(fp, "%2d, %8d, %8d\n", msg_received.front().machine_id, msg_received.front().pkt_idx, msg_received.front().random_num);
-        assert(!msg_received.empty());
-        msg_received_map.erase(msg_received.front().seq);
-        msg_received.pop();
+        // i is the sequence number we can write into, i.e. we can find it from the msg_recieved!
+        assert(msg_received_map.count(i) == 1);
+        fprintf(fp, "%2d, %8d, %8d\n", msg_received_map[i]->machine_id, msg_received_map[i]->pkt_idx, msg_received_map[i]->random_num);
+        msg_received_map.erase(i);
+        //find stack
         fwut_count++;
     }
     fwut = fwut + fwut_count;
     assert(fwut == agreed_aru);
-    assert(msg_received.size() == msg_received_map.size());
-
 }
 
 
@@ -426,18 +440,18 @@ void Processor::update_msg_buf(MSG_TYPE type) { //when broadcasting new messages
     }
 }
 
-void Processor::update_token_buf(int seq, int aru, int last_aru_setter, std::set<int>& new_rtr, int round, int fcc){
+void Processor::update_token_buf(int s, int a, int last_aru_setter, std::set<int>& new_rtr, int round, int fcc){
     memset(token_buf, 0 , sizeof(Message));
-    token_buf->seq = seq;
+    token_buf->seq = s;
     token_buf->fcc = fcc;
     token_buf->rtr_size = new_rtr.size();
     token_buf->last_aru_setter = last_aru_setter;
-    token_buf->aru = aru;
+    token_buf->aru = a;
     token_buf->round = round;
-    int count = 0;
+    int c = 0;
     for(auto itr = new_rtr.begin(); itr != new_rtr.end() && count < MAX_RTR; ++itr){
         token_buf->rtr[count] = *itr;
-        count++;
+        c++;
     }
     if(count >= MAX_RTR) std::cerr << "Request overflow!" << std::endl;
 }

@@ -23,9 +23,10 @@ int main(int argc, char * argv[])
     p->socket_init();
 //    p->start_chat();
     p->start_mcast(); // main loop
-    delete p;
-
 
     p->close_file();
+    p->deleteMap(p->msg_received_map);
+
+    delete p;
     return 0;
 }
