@@ -189,9 +189,10 @@ bool Processor::data_tranfer(){
         case MSG_TYPE::TOKEN: {
 
             memcpy(token_buf, recv_buf->payload, sizeof(Token));
+            cancel_token_timer();
 
             //if round number is 50 break TODO: fix this ending condition
-            if (token_buf->round >= 50) {
+            if (token_buf->round > 50) {
                 return true;
             }
 
@@ -205,7 +206,6 @@ bool Processor::data_tranfer(){
 
             if(token_buf -> round == last_token_round && machine_id != 1) break;
 
-            cancel_token_timer();
             //we recieved a token
             //copy token data into our local token_buf
 
