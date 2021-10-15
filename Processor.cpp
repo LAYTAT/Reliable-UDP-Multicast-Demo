@@ -187,7 +187,8 @@ bool Processor::data_tranfer(){
                 return true;
             }
 
-            std::cout << "Recieved Token of round" << token_buf->round << std::endl;
+            std::cout << "Received token info: seq: " << token_buf->seq << "aru: " << token_buf->aru <<
+                      "las: " << token_buf->last_aru_setter << "round: " << token_buf->round << "fcc: " << token_buf->fcc << std::endl;
 
 
             if(token_buf -> round == last_token_round && machine_id != 1) break;
