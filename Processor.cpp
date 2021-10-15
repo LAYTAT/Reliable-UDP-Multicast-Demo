@@ -421,7 +421,7 @@ void Processor::flush_input_buf() {
         fwut_count++;
     }
     fwut = fwut + fwut_count;
-    assert(fwut == agreed_aru);
+    assert(fwut == agreed_aru || agreed_aru==0);
 }
 
 
