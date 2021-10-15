@@ -87,7 +87,6 @@ bool Processor::start_mcast(){
 
                 //ring formed, tranfer messages untill finished
                 if(ring_formed) {
-                    std::cout << "Ring:             Ring is formed!" << std::endl;
                     is_all_data_received = data_tranfer();
                 }
 
@@ -212,7 +211,7 @@ bool Processor::data_tranfer(){
              * Updating data structures
              */
             flush_input_buf(); // writes to a file, updates msg_received, input empty
-
+            std::cout << "input flush success!" <<std::endl;
 
             //find max number of messages that can be sent by this processor
             int m = find_max_messages();
@@ -225,6 +224,7 @@ bool Processor::data_tranfer(){
 
             //r is the number of retranmission happened
             int r = retransmission(num_retrans);
+            std::cout << "Retransmission success! number of retransmission was: " << r << std::endl;
             //subtract number of retransmissions from m, call it m2
             int m2 = m - r;
             int b = 0;
@@ -523,7 +523,10 @@ bool Processor::form_ring() {
     switch (recv_buf->type) {
         case MSG_TYPE::TOKEN:
             memcpy(recv_buf->payload, token_buf, sizeof(Token));
-            if(token_buf->round == 1) return true;
+            if(token_buf->round == 1) {
+                std::cout << "Ring:             Ring is formed!" << std::endl;
+                return true;
+            }
             std::cout << "Received:       machine " << machine_id << " received token with round number " << token_buf->round << "." << std::endl;
             if(token_buf->round == last_token_round) {
                 if(machine_id == 1) {
@@ -574,6 +577,7 @@ bool Processor::form_ring() {
             break;
         case MSG_TYPE::DATA:
             std::cout << "Received:      machine " << machine_id << " received data message with from machine " << recv_buf->machine_id << "." << std::endl;
+            std::cout << "Ring:             Ring is formed!" << std::endl;
             return true;
             break;
         default:
