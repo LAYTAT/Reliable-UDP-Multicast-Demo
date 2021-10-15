@@ -150,6 +150,8 @@ bool Processor::data_tranfer(){
             std::cout << "Data Message Recieved, SEQ: " << recv_buf->seq << "pkt idx: " << recv_buf->pkt_idx <<
                       "from machine: " << recv_buf->machine_id << "rand: " << recv_buf->random_num << std::endl;
 
+            std::cout << "My ARU is: " << aru << std::endl;
+
 
             reset_token_timer();
 
