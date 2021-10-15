@@ -160,7 +160,7 @@ bool Processor::data_tranfer(){
             recv_buf->seq = temp_seq;
 
             //ignore data you already have
-            if (temp_seq <= aru) {
+            if (input_set.count(temp_seq) == 1) {
                 break;
             }
 
@@ -177,7 +177,7 @@ bool Processor::data_tranfer(){
             //            // sort buffer, aru = last continous integer in the buffer, rtr = from aru (4) to input_buf last element (10)...
             // sort buffer, aru = last continous integer in the buffer, rtr = from aru (4) to input_buf last element (10)...
             update_rtr_aru(temp_seq);
-            std::cout << "After Processing this Message, My ARU is  " << aru << "My seq idx: " << seq << std::endl;
+            std::cout << "After Processing this Message, My ARU is  ";
             break;
         }
         case MSG_TYPE::TOKEN: {
