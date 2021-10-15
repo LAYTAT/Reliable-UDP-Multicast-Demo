@@ -387,7 +387,7 @@ void Processor::flush_input_buf() {
         int m_id = msg_received_map[i]->machine_id;
         int pkt = msg_received_map[i]->pkt_idx;
         int rand = msg_received_map[i]->random_num;
-        int bytes_written = fprintf(fp, "%2d, %8d, %8d\n", m_id, pkt, rand);
+        int bytes_written = fprintf(fp, "%2d, %8d, %8d\n", 1, 1, 1);
         std::cout << "Bytes Written to the File: " << bytes_written << std::endl;
         msg_received_map.erase(i);
         //find stack
