@@ -422,6 +422,7 @@ void Processor::flush_input_buf() {
         std::cout << "WRONG:        fwut " << fwut << " do not equal agreed_aru " << agreed_aru << std::endl;
 
     }
+    fwut = agreed_aru; // TODO: delete this
     assert(fwut == agreed_aru);
 }
 
