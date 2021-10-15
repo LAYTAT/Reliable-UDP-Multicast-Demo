@@ -340,6 +340,9 @@ void Processor::flush_input_buf() {
 
     int fwut_count = 0;
     for (int i = fwut; i <= agreed_aru; i++) {
+        if (agreed_aru == 0) {
+            break;
+        }
         // i is the sequence number we can write into, i.e. we can find it from the msg_recieved!
         assert(msg_received_map.count(i) == 1);
         fprintf(fp, "%2d, %8d, %8d\n", msg_received_map[i]->machine_id, msg_received_map[i]->pkt_idx, msg_received_map[i]->random_num);
