@@ -365,8 +365,6 @@ int Processor::retransmission(int n) {
                 std::cout << "token contains unexpected rtr" << std::endl;
             }
             assert(unresent_rtrs[i]!=0);
-            if(unresent_rtrs[i]!=0)
-                rtr.insert(unresent_rtrs[i]);
             continue;
         }
         std::cout << "Retransmission:       Sending requested message with seq " <<  token_buf->rtr[i] << std::endl;
