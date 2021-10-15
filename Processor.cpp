@@ -46,6 +46,8 @@ bool Processor::start_mcast(){
     recv_dbg_init( loss_rate, machine_id );
     std::cout << "Set machine" << machine_id << " recv loss rate to " << loss_rate << std::endl;
 
+    fprintf(fp, "%d\n", 2); //TODO::DEBUGGING
+
     for(;;)
     {
         read_mask = mask;
@@ -143,6 +145,8 @@ void Processor::update_rtr_aru(int msg_seq) {
 }
 
 bool Processor::data_tranfer(){
+
+    fprintf(fp, "%d\n", 3); //TODO::DEBUGGING
 
 
     switch (recv_buf->type) {
@@ -389,9 +393,6 @@ void Processor::flush_input_buf() {
         int m_id = msg_received_map[i]->machine_id;
         int pkt = msg_received_map[i]->pkt_idx;
         int rand = msg_received_map[i]->random_num;
-        if (fp == NULL) {
-            std::cout << "file pointer off" << std::endl;
-        }
         fprintf(fp, "%d\n", 1);
         //std::cout << "Bytes Written to the File: " << bytes_written << std::endl;
         msg_received_map.erase(i);
