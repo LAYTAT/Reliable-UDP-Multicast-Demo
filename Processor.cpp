@@ -194,6 +194,8 @@ bool Processor::data_tranfer(){
             std::cout << "Received token info: seq: " << token_buf->seq << "aru: " << token_buf->aru <<
                       "las: " << token_buf->last_aru_setter << "round: " << token_buf->round << "fcc: " << token_buf->fcc << std::endl;
 
+            int token_aru_received = token_buf->aru;
+
             std::cout << "When I Received a Token, My ARU is  " << aru << "My seq idx: " << seq << std::endl;
 
 
@@ -237,7 +239,7 @@ bool Processor::data_tranfer(){
             }
 
             //update token parameters
-            if (aru < token_buf->aru || machine_id == token_buf->last_aru_setter || last_token_aru == 0) {
+            if (aru < token_buf->aru || machine_id == token_buf->last_aru_setter || token_buf->last_aru_setter == 0) {
                 token_buf->aru = aru;
                 if (token_buf->aru == token_buf->seq) {
                     token_buf->last_aru_setter = 0;
@@ -261,6 +263,7 @@ bool Processor::data_tranfer(){
             std::cout << "Token Updated to seq: " << token_seq << "aru: " << token_aru <<
             "las: " << last_aru_setter << "round: " << round << "fcc: " << fcc << std::endl;
 
+            last_token_aru = token_aru_received;
 
             //update token_buf
             update_token_buf(token_seq, token_aru, last_aru_setter, rtr, round, fcc);
@@ -450,7 +453,7 @@ bool Processor::send_token_to_next() {
     }
     has_token = false;
     last_token_round = token_buf->round;
-    last_token_aru = token_buf->aru;
+    //last_token_aru = token_buf->aru;
     reset_token_timer();
     return true;
 }
@@ -577,20 +580,6 @@ bool Processor::form_ring() {
     return false;
 }
 
-    // TODO: Special TODOs for node 0
-    //  Whenever received a token with round number R, update the round number to (R+1);
-    //  Reset the fcc to 0 for every circle.
-
-    // TODO: TIMEOUT
-
-    // TODO: TERMINATION
-    //    Termination
-    //    Add a local variable for each process: last_token_aru which keep the last round of token aru
-    //    When last_token_aru == maximum_seq_num and last_token_aru == current token.aru, this will mean
-    //    that everybody can exit the ring for that no one is requesting for message retransmission anymore.
-
-
-    // TODO: ADD a big big while loop - End
 
 
 void Processor::start_chat(){
