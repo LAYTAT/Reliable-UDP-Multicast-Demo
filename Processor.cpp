@@ -338,7 +338,7 @@ Message * Processor::make_Message(MSG_TYPE type, int s, int pkt, int id, int ran
     return m;
 }
 
-void Processor::deleteMap(std::map<int, Message *> map) {
+void Processor::deleteMap(std::unordered_map<int, Message *> map) {
     for (int i = 0; i < map.size(); i++) {
         delete map[i];
     }
