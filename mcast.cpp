@@ -19,7 +19,6 @@ int main(int argc, char * argv[])
 
 
     Processor* p = new Processor(machine_index, loss_rate, num_of_packets, number_of_machines);
-
     p->open_file();
 
     p->socket_init();
