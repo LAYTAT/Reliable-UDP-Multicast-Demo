@@ -143,8 +143,13 @@ void Processor::update_rtr_aru(int msg_seq) {
 
 bool Processor::data_tranfer(){
 
+
     switch (recv_buf->type) {
         case MSG_TYPE::DATA: {
+
+
+
+
             reset_token_timer();
 
             //we recieved a multicast data
@@ -173,8 +178,14 @@ bool Processor::data_tranfer(){
         }
         case MSG_TYPE::TOKEN: {
 
-            memcpy(recv_buf->payload, token_buf, sizeof(Token));
+            memcpy(token_buf, recv_buf->payload, sizeof(Token));
 
+            //if round number is 50 break TODO: fix this ending condition
+            if (token_buf->round >= 50) {
+                return true;
+            }
+
+            std::cout << "Recieved Token of round" << token_buf->round << std::endl;
 
 
             if(token_buf -> round == last_token_round && machine_id != 1) break;
