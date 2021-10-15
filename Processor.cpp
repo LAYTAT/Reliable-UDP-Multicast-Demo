@@ -31,7 +31,7 @@ void checkIPbuffer(char *IPbuffer)
 
 bool Processor::start_mcast(){
     // get my address for later sending
-    open_file();
+
 
     set_my_info();
     std::cout << "My machine id: " << machine_id << std::endl;
@@ -389,8 +389,8 @@ void Processor::flush_input_buf() {
         int m_id = msg_received_map[i]->machine_id;
         int pkt = msg_received_map[i]->pkt_idx;
         int rand = msg_received_map[i]->random_num;
-        int bytes_written = fprintf(fp, "%2d, %8d, %8d\n", 1, 1, 1);
-        std::cout << "Bytes Written to the File: " << bytes_written << std::endl;
+        fprintf(fp, "%d\n", 1);
+        //std::cout << "Bytes Written to the File: " << bytes_written << std::endl;
         msg_received_map.erase(i);
         fwut_count++;
     }
