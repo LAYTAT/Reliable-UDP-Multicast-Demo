@@ -409,8 +409,8 @@ void Processor::flush_input_buf() {
             break;
         }
         // i is the sequence number we can write into, i.e. we can find it from the msg_recieved!
-        if(msg_received_map.count(i) == 0) {
-            std::cout << "WRONG: I do not have seq " << i << "in my input buffer" << std::endl;
+        if(msg_received_map.count(i) == 0) { // TODO: delet this after debugging is done
+            std::cout << "WRONG:        I do not have seq " << i << "in my input buffer" << std::endl;
         }
         assert(msg_received_map.count(i) == 1);
         std::cout << "About to write to file " << std::endl;
@@ -421,6 +421,10 @@ void Processor::flush_input_buf() {
         fwut_count++;
     }
     fwut = fwut + fwut_count;
+    if(fwut == agreed_aru) { // TODO: delet this after debugging is done
+        std::cout << "WRONG:        fwut " << fwut << " do not equal agreed_aru" << agreed_aru << std::endl;
+
+    }
     assert(fwut == agreed_aru);
 }
 
