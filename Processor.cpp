@@ -191,9 +191,7 @@ bool Processor::data_tranfer(){
             break;
         }
         case MSG_TYPE::TOKEN: {
-
             memcpy(token_buf, recv_buf->payload, sizeof(Token));
-
 
             //if round number is 50 break TODO: fix this ending condition
 
@@ -356,10 +354,13 @@ int Processor::retransmission(int n) {
     std::vector<int> unresent_rtrs;
 
     for (int i = 0; i < token_buf->rtr_size; i++) {
+        if(token_buf->rtr[i] == 0) {
+            std::cout << "Token_buf rtr["<< i <<">>>>]has a request for 0" << std::endl;
+        }
+        assert(token_buf->rtr[i] != 0);
         if (msg_received_map.count(token_buf->rtr[i]) == 0) {
             std::cout << "Retransmission:       I do not have request seq " <<  token_buf->rtr[i] << std::endl;
             unresent_rtrs.push_back(token_buf->rtr[i]);
-            assert(token_buf->rtr[i] != 0);
             if (rtr.find(token_buf->rtr[i]) == rtr.end()) {
                 std::cout << "token contains unexpected rtr" << std::endl;
             }
