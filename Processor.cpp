@@ -148,6 +148,24 @@ void Processor::update_rtr_aru_with_msg(int msg_seq) {
     }
 }
 
+void Processor::update_rtr_aru_with_new_broadcast(int brdcst_msg_seq) {
+    //update aru if this one connected
+    input_set.insert(brdcst_msg_seq);
+    for(auto itr = input_set.find(brdcst_msg_seq); itr != input_set.end(); itr++){
+        if(*itr == aru + 1) {
+            aru++;
+            assert(aru <= seq);
+        } else break;
+    }
+    // update rtr
+    for(int i = aru + 1; i < brdcst_msg_seq; ++i) {
+        if(input_set.count(i)==0) {
+            assert(i!=0);
+            rtr.insert(i);
+        }
+    }
+}
+
 bool Processor::data_tranfer(){
 
 
@@ -326,7 +344,7 @@ int Processor::broadcasting_new_messages(int m2) {
         update_msg_buf(MSG_TYPE::DATA);
         msg_received_map.insert(std::make_pair(msg_buf->seq,
                                                make_Message(msg_buf->type, msg_buf->seq, msg_buf->pkt_idx, msg_buf->machine_id, msg_buf->random_num)));
-        update_rtr_aru_with_msg(token_buf->seq);
+        update_rtr_aru_with_new_broadcast(token_buf->seq);
         assert(seq >= aru);
         assert(token_buf->seq >= token_buf->aru);
         std::cout << "Data Message Sent, SEQ: " << msg_buf->seq << "pkt idx: " << msg_buf->pkt_idx <<

@@ -139,4 +139,6 @@ private:
     int seq_equal_last_seq_and_aru_equal_seq_count = 0;
 
     void broadcast_exit_messages();
+
+    void update_rtr_aru_with_new_broadcast(int brdcst_msg_seq);
 };
