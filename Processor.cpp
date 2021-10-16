@@ -510,8 +510,8 @@ bool Processor::send_token_to_next() {
         return false;
     }
     has_token = false;
-//    last_token_round = token_buf->round; TODO: try this
-    last_sent_token_seq = token_buf->seq;
+    last_token_round = token_buf->round;
+//    last_sent_token_seq = token_buf->seq;  TODO: try this
 //    last_token_aru = std::min(token_buf->aru, last_token_aru); //TODO: this might be wrong, comment it out
     reset_token_timer();
     return true;
