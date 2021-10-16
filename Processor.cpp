@@ -77,9 +77,9 @@ bool Processor::start_mcast(){
                     std::cerr << "Received Message Corrupted. Bytes Received:" << bytes << std::endl;
                 } else if(bytes == 0) {
                     if (recv_buf->type == MSG_TYPE::TOKEN){
-                        std::cerr << "Lost Token machine id: " << recv_buf->machine_id << std::endl;
+                        std::cerr << "Lost Token msg: " << std::endl;
                     } else {
-                        std::cerr << "Lost Msg from machine id: " << recv_buf->machine_id << std::endl;
+                        std::cerr << "Lost mcast Msg "  << std::endl;
                     }
                     continue;
                 }
@@ -171,8 +171,6 @@ bool Processor::data_tranfer(){
 
     switch (recv_buf->type) {
         case MSG_TYPE::DATA: {
-            if(recv_buf->seq > seq) seq = recv_buf->seq;
-
             std::cout << "Data Message Recieved, SEQ: " << recv_buf->seq << "pkt idx: " << recv_buf->pkt_idx <<
                       "from machine: " << recv_buf->machine_id << "rand: " << recv_buf->random_num << std::endl;
 
