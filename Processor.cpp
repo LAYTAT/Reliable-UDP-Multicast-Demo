@@ -132,11 +132,12 @@ void Processor::update_rtr() {
 
 void Processor::update_rtr_aru(int msg_seq) {
     //update aru if this one connected
+    input_set.insert(msg_seq);
     rtr.erase(msg_seq);
-    for(auto itr = msg_received_map.find(msg_seq); itr != msg_received_map.end(); itr++){
-        if(itr->first == aru + 1) {
+    for(auto itr = input_set.find(msg_seq); itr != input_set.end(); itr++){
+        if(*itr == aru + 1) {
             aru++;
-        }
+        } else break;
     }
     // update rtr
     for(int i = aru + 1; i < msg_seq; ++i) {
