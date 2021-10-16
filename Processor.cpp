@@ -123,7 +123,7 @@ void Processor::store_to_input() {
 void Processor::update_rtr() {
     //update rtr by checking token_buf->seq
     for(int i = aru + 1; i <= token_buf->seq; ++i) {
-        if(msg_received_map.count(i)==0) {
+        if(input_set.count(i)==0) {
             assert(i!=0);
             rtr.insert(i);
         }
@@ -246,9 +246,14 @@ bool Processor::data_tranfer(){
                 b = broadcasting_new_messages(m2);
                 token_buf->last_aru_setter = 0;
             }
+<<<<<<< HEAD
 
+            token_buf -> aru += b;
+=======
+            
+>>>>>>> parent of 67cd000 (Update Processor.cpp)
             if (token_buf->seq - b == aru) {
-                token_buf->aru += b;
+//                token_buf->aru += b;
                 aru += b;
             }
 
@@ -412,7 +417,6 @@ void Processor::flush_input_buf() {
         // i is the sequence number we can write into, i.e. we can find it from the msg_recieved!
         if(msg_received_map.count(i) == 0) { // TODO: delet this after debugging is done
             std::cout << "WRONG:        I do not have seq " << i << " in my input buffer: agreed_aru = " << agreed_aru << ", token_buf->aru = "<< token_buf->aru << std::endl;
-            break;
         }
         assert(msg_received_map.count(i) == 1);
         std::cout << "About to write to file " << std::endl;
@@ -422,13 +426,12 @@ void Processor::flush_input_buf() {
         msg_received_map.erase(i);
         fwut++;
     }
-    aru = fwut;
-//    if(fwut != agreed_aru) { // TODO: delet this after debugging is done
-//        std::cout << "WRONG:        fwut " << fwut << " do not equal agreed_aru " << agreed_aru << std::endl;
-//
-//    }
-//    fwut = agreed_aru; // TODO: delete this
-//    assert(fwut == agreed_aru);
+    if(fwut != agreed_aru) { // TODO: delet this after debugging is done
+        std::cout << "WRONG:        fwut " << fwut << " do not equal agreed_aru " << agreed_aru << std::endl;
+
+    }
+    fwut = agreed_aru; // TODO: delete this
+    assert(fwut == agreed_aru);
 }
 
 
