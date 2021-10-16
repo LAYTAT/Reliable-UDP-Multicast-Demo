@@ -137,6 +137,7 @@ void Processor::update_rtr_aru_with_msg(int msg_seq) {
     for(auto itr = input_set.find(msg_seq); itr != input_set.end(); itr++){
         if(*itr == aru + 1) {
             aru++;
+            assert(aru <= seq);
         } else break;
     }
     // update rtr
