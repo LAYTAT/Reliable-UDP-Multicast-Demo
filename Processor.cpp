@@ -116,7 +116,7 @@ bool Processor::start_mcast(){
 void Processor::store_to_input() {
     Message * message = make_Message(MSG_TYPE::DATA, recv_buf->seq, recv_buf->pkt_idx, recv_buf->machine_id, recv_buf->random_num);
     input_buf.push_back(message);
-    input_set.insert(message->seq);
+//    input_set.insert(message->seq);
     std::cout << "I just stored to input_buf, and its content: seq: " << message->seq << " randnum: " << message->random_num << std::endl;
 }
 
@@ -137,7 +137,6 @@ void Processor::update_rtr_aru_with_msg(int msg_seq) {
     for(auto itr = input_set.find(msg_seq); itr != input_set.end(); itr++){
         if(*itr == aru + 1) {
             aru++;
-            assert(aru <= seq);
         } else break;
     }
     // update rtr
@@ -196,10 +195,13 @@ bool Processor::data_tranfer(){
             assert(token_buf->seq >= token_buf->aru);
             //if round number is 50 break TODO: fix this ending condition
 
+//            if(token_buf->seq == last_sent_token_seq) { TODO: try this
+//                std:: cout << "Discard Token: Alreay seen up to this seq" << std::endl;
+//            }
+
             std::cout << "Received token info: seq: " << token_buf->seq << "aru: " << token_buf->aru <<
                       "las: " << token_buf->last_aru_setter << "round: " << token_buf->round << "fcc: " << token_buf->fcc << std::endl;
 
-            int token_aru_received = token_buf->aru;
 
             std::cout << "Token Received:       My ARU is  " << aru << "My seq idx: " << seq << std::endl;
 
@@ -207,6 +209,8 @@ bool Processor::data_tranfer(){
                 std::cout << "Token Received:       with same last_token_round =" << last_token_round << std::endl;
                 break;
             }
+
+            int token_aru_received = token_buf->aru;
 
             if(check_if_everybody_ready_to_exit()) {
                 return true;
@@ -506,7 +510,8 @@ bool Processor::send_token_to_next() {
         return false;
     }
     has_token = false;
-    last_token_round = token_buf->round;
+//    last_token_round = token_buf->round; TODO: try this
+    last_sent_token_seq = token_buf->seq;
 //    last_token_aru = std::min(token_buf->aru, last_token_aru); //TODO: this might be wrong, comment it out
     reset_token_timer();
     return true;

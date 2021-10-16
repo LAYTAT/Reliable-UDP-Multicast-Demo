@@ -97,6 +97,7 @@ private:
     void cancel_token_timer();      // TODO:
     void check_timeout();
     int last_token_round = -1;
+//    int last_sent_token_seq = -1;  // TODO: try this
     void reset_token_timer();
 
     // ring multicast request
