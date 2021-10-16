@@ -123,7 +123,7 @@ void Processor::store_to_input() {
 void Processor::update_rtr() {
     //update rtr by checking token_buf->seq
     for(int i = aru + 1; i <= token_buf->seq; ++i) {
-        if(input_set.count(i)==0) {
+        if(msg_received_map.count(i)==0) {
             assert(i!=0);
             rtr.insert(i);
         }
@@ -247,7 +247,7 @@ bool Processor::data_tranfer(){
                 b = broadcasting_new_messages(m2);
                 token_buf->last_aru_setter = 0;
             }
-            
+
             if (token_buf->seq - b == aru) {
                 token_buf->aru += b;
                 aru += b;
