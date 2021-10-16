@@ -124,10 +124,10 @@ private:
     // token process
     void store_to_input();
     int find_max_messages();
-    void update_rtr_aru(int msg_seq);
+    void update_rtr_aru_with_msg(int msg_seq);
     void flush_input_buf();
     int retransmission(int n);
-    void update_rtr();
+    void update_rtr_with_token_seq();
     int broadcasting_new_messages(int m2);
     Message *make_Message(MSG_TYPE type, int s, int pkt, int id, int rand);
 

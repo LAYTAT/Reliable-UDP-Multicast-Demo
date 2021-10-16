@@ -120,7 +120,7 @@ void Processor::store_to_input() {
     std::cout << "I just stored to input_buf, and its content: seq: " << message->seq << " randnum: " << message->random_num << std::endl;
 }
 
-void Processor::update_rtr() {
+void Processor::update_rtr_with_token_seq() {
     //update rtr by checking token_buf->seq
     for(int i = aru + 1; i <= token_buf->seq; ++i) {
         if(input_set.count(i)==0) {
@@ -130,7 +130,7 @@ void Processor::update_rtr() {
     }
 }
 
-void Processor::update_rtr_aru(int msg_seq) {
+void Processor::update_rtr_aru_with_msg(int msg_seq) {
     //update aru if this one connected
     input_set.insert(msg_seq);
     rtr.erase(msg_seq);
@@ -176,16 +176,16 @@ bool Processor::data_tranfer(){
             //push new message into the input_buffer
             store_to_input();
 
-            //update_rtr_aru wanted action
+            //update_rtr_aru_with_msg wanted action
             // recieved 1, 2, 4, //3 will go to the rtr, aru = 2, 1,2,4 is in the input buffer
             // recieved 5, 6, 8 // aru = 2, rtr = 3,7, and 1,2,4,5,6,8 in input buffer
-            // recieved 3, 9 //aru = 6, rtr =,,,,//update_rtr_aru wanted action
+            // recieved 3, 9 //aru = 6, rtr =,,,,//update_rtr_aru_with_msg wanted action
             //            // recieved 1, 2, 4, //3 will go to the rtr, aru = 2, 1,2,4 is in the input buffer
             //            // recieved 5, 6, 8 // aru = 2, rtr = 3,4,7, and 1,2,4,5,6,8 in input buffer
             //            // recieved 3, 9 //aru = 6, rtr =,,,,
             //            // sort buffer, aru = last continous integer in the buffer, rtr = from aru (4) to input_buf last element (10)...
             // sort buffer, aru = last continous integer in the buffer, rtr = from aru (4) to input_buf last element (10)...
-            update_rtr_aru(temp_seq);
+            update_rtr_aru_with_msg(temp_seq);
 //            std::cout << "After Processing this Message, My ARU is " << aru << std::endl;
 //            std::cout << "Input Buffer has now Rand Num: " << input_buf.front()->random_num << std::endl;
             break;
@@ -230,7 +230,7 @@ bool Processor::data_tranfer(){
             int m = find_max_messages();
 
             //update retransmission request by looking at token seq
-            update_rtr();
+            update_rtr_with_token_seq();
 
             //find number of max retransmissions
             int num_retrans = std::min(m, (int)token_buf->rtr_size);
@@ -320,6 +320,7 @@ int Processor::broadcasting_new_messages(int m2) {
         update_msg_buf(MSG_TYPE::DATA);
         msg_received_map.insert(std::make_pair(msg_buf->seq,
                                                make_Message(msg_buf->type, msg_buf->seq, msg_buf->pkt_idx, msg_buf->machine_id, msg_buf->random_num)));
+        update_rtr_aru_with_msg(msg_buf->seq);
         std::cout << "Data Message Sent, SEQ: " << msg_buf->seq << "pkt idx: " << msg_buf->pkt_idx <<
                   "from machine: " << msg_buf->machine_id << "rand: " << msg_buf->random_num << std::endl;
 
