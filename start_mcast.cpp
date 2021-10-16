@@ -11,8 +11,7 @@ int main(){
     struct ip_mreq mreq;
     unsigned char ttl_val;
     int mcast_addr;
-
-    mcast_addr = 225 << 24 | 0 << 16 | 1 << 8 | 1; /* (225.0.1.1) mcast IP group*/
+    mcast_addr = 225 << 24 | 1 << 16 | 2 << 8 | 80; /* (225.0.1.1) mcast IP group*/
     mreq.imr_multiaddr.s_addr = htonl( mcast_addr );
 
     ssm = socket(AF_INET, SOCK_DGRAM, 0); /* Socket for sending */
