@@ -351,8 +351,8 @@ int Processor::broadcasting_new_messages(int m2) {
         update_rtr_aru_with_new_broadcast(token_buf->seq);
         assert(seq >= aru);
         assert(token_buf->seq >= token_buf->aru);
-        std::cout << "Data Message Sent, SEQ: " << msg_buf->seq << "pkt idx: " << msg_buf->pkt_idx <<
-                  "from machine: " << msg_buf->machine_id << "rand: " << msg_buf->random_num << std::endl;
+        std::cout << "Data Message Sent, SEQ: " << msg_buf->seq << ",pkt idx: " << msg_buf->pkt_idx <<
+                  ",from machine: " << msg_buf->machine_id << ",rand: " << msg_buf->random_num << std::endl;
 
         send_to_everyone();
         b++;
@@ -520,7 +520,7 @@ bool Processor::send_to_everyone(){
 bool Processor::send_token_to_next() {
     assert(has_next);
     long unsigned int bytes_sent = sendto(ssu, msg_buf, sizeof(Message), 0,(struct sockaddr *)&next_addr, sizeof(next_addr) );
-    std::cout << "Sending:        machine " << machine_id << " sent token with "<< "rtr_size = " << token_buf->rtr_size <<"round number " << token_buf->round << " to " << inet_ntoa(next_addr.sin_addr) << std::endl;
+    std::cout << "Sending:        machine " << machine_id << " sent token with "<< "rtr_size = " << token_buf->rtr_size <<" , round number " << token_buf->round << " to " << inet_ntoa(next_addr.sin_addr) << std::endl;
     /*std::cout << "Sent Token Info" << std::endl;
     for (int i = 0; i < DATA_SIZE; i++) {
         std::cout << msg_buf->payload[i] << std::endl;
@@ -600,6 +600,7 @@ void Processor::check_timeout(){
         if (timestamp.tv_sec - last_token_sent_time.tv_sec >= TOKEN_TIMEOUT_GAP_IN_SECONDS){
 //        if (timestamp.tv_usec - last_token_sent_time.tv_usec >= TOEKN_TIMEOUT_GAP_IN_USEC){
             /* resend token */
+            token_buf->round = last_token_round;
             update_msg_buf(MSG_TYPE::TOKEN);
             send_token_to_next();
             std::cout << "Timer:            Timeout! Token resend to machine "<< next_id <<" at " <<  inet_ntoa(next_addr.sin_addr) << std::endl;
