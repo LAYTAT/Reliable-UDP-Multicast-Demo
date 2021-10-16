@@ -132,16 +132,15 @@ void Processor::update_rtr() {
 
 void Processor::update_rtr_aru(int msg_seq) {
     //update aru if this one connected
-    input_set.insert(msg_seq);
     rtr.erase(msg_seq);
-    for(auto itr = input_set.find(msg_seq); itr != input_set.end(); itr++){
-        if(*itr == aru + 1) {
+    for(auto itr = msg_received_map.find(msg_seq); itr != msg_received_map.end(); itr++){
+        if(itr->first == aru + 1) {
             aru++;
         }
     }
     // update rtr
     for(int i = aru + 1; i < msg_seq; ++i) {
-        if(input_set.count(i)==0) {
+        if(msg_received_map.count(i)==0) {
             assert(i!=0);
             rtr.insert(i);
         }
@@ -340,7 +339,7 @@ Message * Processor::make_Message(MSG_TYPE type, int s, int pkt, int id, int ran
     return m;
 }
 
-void Processor::deleteMap(std::unordered_map<int, Message *> map) {
+void Processor::deleteMap(std::map<int, Message *> map) {
     for (int i = 0; i < map.size(); i++) {
         delete map[i];
     }

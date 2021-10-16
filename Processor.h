@@ -29,8 +29,8 @@ public:
     void close_sockets();
 
     void open_file();
-    void deleteMap(std::unordered_map<int, Message *> map);
-    std::unordered_map<int, Message *> msg_received_map; //keeps track of sequence numbers in msg_received, also cache
+    void deleteMap(std::map<int, Message *> map);
+    std::map<int, Message *> msg_received_map; //keeps track of sequence numbers in msg_received, also cache
     FILE * fp; //file pointer for writing into the file
 
 private:
