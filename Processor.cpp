@@ -248,10 +248,10 @@ bool Processor::data_tranfer(){
                 token_buf->last_aru_setter = 0;
             }
 
-            if (token_buf->seq - b == aru) {
+//            if (token_buf->seq - b == aru) {  already update_rtr_aru_with_msg inside broadcasting_new_messages
 //                token_buf->aru += b;
-                aru += b;
-            }
+//                aru += b;
+//            }
 
             //update token parameters
             if (aru < token_buf->aru || machine_id == token_buf->last_aru_setter || token_buf->last_aru_setter == 0) {
