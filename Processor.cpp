@@ -192,7 +192,7 @@ bool Processor::data_tranfer(){
         }
         case MSG_TYPE::TOKEN: {
             memcpy(token_buf, recv_buf->payload, sizeof(Token));
-
+            assert(token_buf->seq >= token_buf->aru);
             //if round number is 50 break TODO: fix this ending condition
 
             std::cout << "Received token info: seq: " << token_buf->seq << "aru: " << token_buf->aru <<
@@ -256,6 +256,7 @@ bool Processor::data_tranfer(){
             //update token parameters
             if (aru < token_buf->aru || machine_id == token_buf->last_aru_setter || token_buf->last_aru_setter == 0) {
                 token_buf->aru = aru;
+                assert(token_buf->seq >= token_buf->aru);
                 if (token_buf->aru == token_buf->seq) {
                     token_buf->last_aru_setter = 0;
                 } else {
@@ -321,6 +322,7 @@ int Processor::broadcasting_new_messages(int m2) {
         msg_received_map.insert(std::make_pair(msg_buf->seq,
                                                make_Message(msg_buf->type, msg_buf->seq, msg_buf->pkt_idx, msg_buf->machine_id, msg_buf->random_num)));
         update_rtr_aru_with_msg(msg_buf->seq);
+        assert(token_buf->seq >= token_buf->aru);
         std::cout << "Data Message Sent, SEQ: " << msg_buf->seq << "pkt idx: " << msg_buf->pkt_idx <<
                   "from machine: " << msg_buf->machine_id << "rand: " << msg_buf->random_num << std::endl;
 
