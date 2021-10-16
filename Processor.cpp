@@ -247,10 +247,9 @@ bool Processor::data_tranfer(){
                 b = broadcasting_new_messages(m2);
                 token_buf->last_aru_setter = 0;
             }
-            //case1:
-            token_buf->aru += b;
+            
             if (token_buf->seq - b == aru) {
-                //token_buf->aru += b;
+                token_buf->aru += b;
                 aru += b;
             }
 
