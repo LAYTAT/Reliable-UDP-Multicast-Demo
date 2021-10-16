@@ -77,9 +77,9 @@ bool Processor::start_mcast(){
                     std::cerr << "Received Message Corrupted. Bytes Received:" << bytes << std::endl;
                 } else if(bytes == 0) {
                     if (recv_buf->type == MSG_TYPE::TOKEN){
-                        std::cerr << "Lost Token msg: " << std::endl;
+                        std::cerr << "Discarded:    Lost Token msg: " << std::endl;
                     } else {
-                        std::cerr << "Lost mcast Msg "  << std::endl;
+                        std::cerr << "Discarded:    Lost mcast Msg "  << std::endl;
                     }
                     continue;
                 }
