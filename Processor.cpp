@@ -212,6 +212,7 @@ bool Processor::data_tranfer(){
         case MSG_TYPE::TOKEN: {
             memcpy(token_buf, recv_buf->payload, sizeof(Token));
             assert(token_buf->seq >= token_buf->aru);
+            assert(token_buf->seq >= seq);
             //if round number is 50 break TODO: fix this ending condition
 
 //            if(token_buf->seq == last_sent_token_seq) { TODO: try this
@@ -341,6 +342,7 @@ int Processor::broadcasting_new_messages(int m2) {
             break;
         }
         token_buf->seq++; pkt_idx++;
+        seq = token_buf->seq;
         update_msg_buf(MSG_TYPE::DATA);
         msg_received_map.insert(std::make_pair(msg_buf->seq,
                                                make_Message(msg_buf->type, msg_buf->seq, msg_buf->pkt_idx, msg_buf->machine_id, msg_buf->random_num)));
@@ -353,7 +355,6 @@ int Processor::broadcasting_new_messages(int m2) {
         send_to_everyone();
         b++;
     }
-    seq = token_buf->seq;
 
     return b;
 }
