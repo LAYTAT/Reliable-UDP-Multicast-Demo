@@ -306,7 +306,8 @@ bool Processor::data_tranfer(){
 
             last_token_aru = token_aru_received;
 
-            //update token_buf
+            //update token_bu
+            assert(token_seq >= seq);
             update_token_buf(token_seq, token_aru, last_aru_setter, rtr, round, fcc);
             update_msg_buf(MSG_TYPE::TOKEN);
             send_token_to_next(); //this will reset timer
@@ -652,7 +653,7 @@ bool Processor::form_ring() {
             }
             if(machine_id == 1 && has_next && !had_token) {
                 std::cout << "Sending:       machine 1 is sending token" << std::endl;
-                update_token_buf(0, 0, 0, rtr, 0, 0);
+                update_token_buf(1, 1, 0, rtr, 0, 0);
                 update_msg_buf(MSG_TYPE::TOKEN);
                 send_token_to_next();
                 had_token = true;
