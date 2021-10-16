@@ -55,10 +55,10 @@ private:
 
 
     //generate a new message and token for sending
-    // when sending token: update_token_buf, update_msg_buf, send token
+    // when sending token: update_sending_token_buf, update_msg_buf, send token
     void update_msg_buf(MSG_TYPE type); //always update msg_buf before sending anything
 
-    void update_token_buf(int seq, int aru, int last_aru_setter, std::set<int> &new_rtr, int round, int fcc);
+    void update_sending_token_buf(int s, int a, int last_aru_setter, std::set<int> &new_rtr, int round, int fcc);
     void set_my_info();
 
     //message sending and receiving
@@ -68,7 +68,8 @@ private:
     Message* recv_buf = new Message();
     //buffer for sending
     Message* msg_buf = new Message();
-    Token* token_buf = new Token();
+    Token* received_token_buf = new Token();
+    Token* sending_token_buf = new Token();
     std::set<int> rtr;
 
     //states
