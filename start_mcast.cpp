@@ -11,6 +11,8 @@ int main(){
     struct ip_mreq mreq;
     unsigned char ttl_val;
     int mcast_addr;
+    //225.1.1.40	10040		Chanha Kim
+    //225.1.2.80	10280		Junjie Lei
     mcast_addr = 225 << 24 | 1 << 16 | 2 << 8 | 80; /* (225.0.1.1) mcast IP group*/
     mreq.imr_multiaddr.s_addr = htonl( mcast_addr );
 
