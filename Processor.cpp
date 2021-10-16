@@ -392,7 +392,7 @@ void Processor::flush_input_buf() {
     std::cout << "flush_input: freeing Message Objects Sucess!" << std::endl;
     if (input_buf.size() > 0) {
         input_buf.clear();
-        assert(input_buf.size());
+        assert(input_buf.empty());
     }
     std::cout << "flush_input: Input Vector Clear Sucess!" << std::endl;
 
