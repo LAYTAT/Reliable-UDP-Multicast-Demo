@@ -204,6 +204,7 @@ bool Processor::data_tranfer(){
             //            // sort buffer, aru = last continous integer in the buffer, rtr = from aru (4) to input_buf last element (10)...
             // sort buffer, aru = last continous integer in the buffer, rtr = from aru (4) to input_buf last element (10)...
             update_rtr_aru_with_msg(temp_seq);
+            if(aru > seq) seq = aru;
 //            std::cout << "After Processing this Message, My ARU is " << aru << std::endl;
 //            std::cout << "Input Buffer has now Rand Num: " << input_buf.front()->random_num << std::endl;
             break;
