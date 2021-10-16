@@ -670,7 +670,9 @@ void Processor::start_chat(){
 }
 
 bool Processor::socket_init(){
-    mcast_addr = 225 << 24 | 0 << 16 | 1 << 8 | 1; /* (225.0.1.1) mcast IP group*/
+    //225.1.1.40	10040		Chanha Kim
+    //225.1.2.80	10280		Junjie Lei
+    mcast_addr = 225 << 24 | 1 << 16 | 2 << 8 | 80; /* (225.1.2.80) mcast IP group*/
 
     /*socket for sending unicast*/
     ssu = socket(AF_INET, SOCK_DGRAM, 0);
