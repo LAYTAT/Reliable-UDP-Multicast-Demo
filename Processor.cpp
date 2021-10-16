@@ -247,7 +247,7 @@ bool Processor::data_tranfer(){
                 b = broadcasting_new_messages(m2);
                 token_buf->last_aru_setter = 0;
             }
-            
+
             if (token_buf->seq - b == aru) {
                 token_buf->aru += b;
                 aru += b;
@@ -502,7 +502,7 @@ bool Processor::send_token_to_next() {
     }
     has_token = false;
     last_token_round = token_buf->round;
-    last_token_aru = std::min(token_buf->aru, last_token_aru); //TODO: this might be wrong, comment it out
+//    last_token_aru = std::min(token_buf->aru, last_token_aru); //TODO: this might be wrong, comment it out
     reset_token_timer();
     return true;
 }
