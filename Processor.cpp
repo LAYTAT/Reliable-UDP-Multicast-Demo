@@ -247,12 +247,7 @@ bool Processor::data_tranfer(){
                 b = broadcasting_new_messages(m2);
                 token_buf->last_aru_setter = 0;
             }
-<<<<<<< HEAD
 
-            token_buf -> aru += b;
-=======
-            
->>>>>>> parent of 67cd000 (Update Processor.cpp)
             if (token_buf->seq - b == aru) {
 //                token_buf->aru += b;
                 aru += b;
