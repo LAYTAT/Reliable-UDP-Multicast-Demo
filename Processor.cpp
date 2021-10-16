@@ -274,7 +274,7 @@ bool Processor::data_tranfer(){
                 fcc = 0;
             }
             fcc = fcc + r + b;
-
+            assert(token_seq >= token_aru);
             std::cout << "Token:        Updated to seq: " << token_seq << "aru: " << token_aru <<
             "las: " << last_aru_setter << "round: " << round << "fcc: " << fcc << std::endl;
 
@@ -525,6 +525,7 @@ void Processor::update_msg_buf(MSG_TYPE type) { //when broadcasting new messages
         return;
     }
     if(type == MSG_TYPE::TOKEN) {
+        assert(token_buf->aru <= token_buf->seq);
         memcpy(msg_buf->payload, token_buf, sizeof(Token));
         return;
     }
