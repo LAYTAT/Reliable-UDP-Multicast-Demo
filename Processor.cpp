@@ -174,6 +174,7 @@ bool Processor::data_tranfer(){
             }
 
             //push new message into the input_buffer
+            seq = token_buf->seq; //TODO: not sure about this
             store_to_input();
 
             //update_rtr_aru_with_msg wanted action
