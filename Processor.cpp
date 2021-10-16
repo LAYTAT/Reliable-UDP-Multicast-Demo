@@ -211,7 +211,7 @@ bool Processor::data_tranfer(){
         }
         case MSG_TYPE::TOKEN: {
             memcpy(token_buf, recv_buf->payload, sizeof(Token));
-            if(token_buf -> round == last_token_round && machine_id != 1) {
+            if(token_buf -> round <= last_token_round && machine_id != 1) {
                 std::cout << "Token Received:       with same last_token_round =" << last_token_round << std::endl;
                 break;
             }
