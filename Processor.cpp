@@ -355,11 +355,12 @@ int Processor::retransmission(int n) {
     for (int i = 0; i < token_buf->rtr_size; i++) {
         if (msg_received_map.count(token_buf->rtr[i]) == 0) {
             std::cout << "Retransmission:       I do not have request seq " <<  token_buf->rtr[i] << std::endl;
-            assert(token_buf->rtr[i] != 0);
+//            assert(token_buf->rtr[i] != 0);
             if (rtr.find(token_buf->rtr[i]) == rtr.end()) {
                 std::cout << "WRONG:        token contains unexpected rtr" << std::endl;
             }
-            rtr.insert(token_buf->rtr[i]);
+            if(token_buf->rtr[i] != 0)
+                rtr.insert(token_buf->rtr[i]);
             continue;
         }
         std::cout << "Retransmission:       Sending requested message with seq " <<  token_buf->rtr[i] << std::endl;
