@@ -211,6 +211,10 @@ bool Processor::data_tranfer(){
         }
         case MSG_TYPE::TOKEN: {
             memcpy(token_buf, recv_buf->payload, sizeof(Token));
+            if(token_buf -> round == last_token_round && machine_id != 1) {
+                std::cout << "Token Received:       with same last_token_round =" << last_token_round << std::endl;
+                break;
+            }
             assert(token_buf->seq >= token_buf->aru);
             assert(token_buf->seq >= seq || token_buf->seq == 0);
             //if round number is 50 break TODO: fix this ending condition
@@ -222,13 +226,8 @@ bool Processor::data_tranfer(){
             std::cout << "Received token info: seq: " << token_buf->seq << "aru: " << token_buf->aru <<
                       "las: " << token_buf->last_aru_setter << "round: " << token_buf->round << "fcc: " << token_buf->fcc << std::endl;
 
-
             std::cout << "Token Received:       My ARU is  " << aru << "My seq idx: " << seq << std::endl;
 
-            if(token_buf -> round == last_token_round && machine_id != 1) {
-                std::cout << "Token Received:       with same last_token_round =" << last_token_round << std::endl;
-                break;
-            }
 
             int token_aru_received = token_buf->aru;
 
