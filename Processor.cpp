@@ -212,7 +212,7 @@ bool Processor::data_tranfer(){
         case MSG_TYPE::TOKEN: {
             memcpy(token_buf, recv_buf->payload, sizeof(Token));
             assert(token_buf->seq >= token_buf->aru);
-            assert(token_buf->seq >= seq);
+            assert(token_buf->seq >= seq || token_buf->seq == 0);
             //if round number is 50 break TODO: fix this ending condition
 
 //            if(token_buf->seq == last_sent_token_seq) { TODO: try this
@@ -653,7 +653,7 @@ bool Processor::form_ring() {
             }
             if(machine_id == 1 && has_next && !had_token) {
                 std::cout << "Sending:       machine 1 is sending token" << std::endl;
-                update_token_buf(1, 1, 0, rtr, 0, 0);
+                update_token_buf(0, 0, 0, rtr, 0, 0);
                 update_msg_buf(MSG_TYPE::TOKEN);
                 send_token_to_next();
                 had_token = true;
