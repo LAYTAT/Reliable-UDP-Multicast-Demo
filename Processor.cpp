@@ -392,6 +392,7 @@ void Processor::flush_input_buf() {
     std::cout << "flush_input: freeing Message Objects Sucess!" << std::endl;
     if (input_buf.size() > 0) {
         input_buf.clear();
+        assert(input_buf.size());
     }
     std::cout << "flush_input: Input Vector Clear Sucess!" << std::endl;
 
@@ -484,7 +485,7 @@ bool Processor::send_to_everyone(){
 bool Processor::send_token_to_next() {
     assert(has_next);
     long unsigned int bytes_sent = sendto(ssu, msg_buf, sizeof(Message), 0,(struct sockaddr *)&next_addr, sizeof(next_addr) );
-    std::cout << "Sending:        machine " << machine_id << " sent token with "<< "rtr = " << token_buf->rtr_size <<"round number " << token_buf->round << " to " << inet_ntoa(next_addr.sin_addr) << std::endl;
+    std::cout << "Sending:        machine " << machine_id << " sent token with "<< "rtr_size = " << token_buf->rtr_size <<"round number " << token_buf->round << " to " << inet_ntoa(next_addr.sin_addr) << std::endl;
     /*std::cout << "Sent Token Info" << std::endl;
     for (int i = 0; i < DATA_SIZE; i++) {
         std::cout << msg_buf->payload[i] << std::endl;
