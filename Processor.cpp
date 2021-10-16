@@ -248,9 +248,8 @@ bool Processor::data_tranfer(){
                 token_buf->last_aru_setter = 0;
             }
 
-            token_buf -> aru += b;
             if (token_buf->seq - b == aru) {
-//                token_buf->aru += b;
+                token_buf->aru += b;
                 aru += b;
             }
 
@@ -414,6 +413,7 @@ void Processor::flush_input_buf() {
         // i is the sequence number we can write into, i.e. we can find it from the msg_recieved!
         if(msg_received_map.count(i) == 0) { // TODO: delet this after debugging is done
             std::cout << "WRONG:        I do not have seq " << i << " in my input buffer: agreed_aru = " << agreed_aru << ", token_buf->aru = "<< token_buf->aru << std::endl;
+            break;
         }
         assert(msg_received_map.count(i) == 1);
         std::cout << "About to write to file " << std::endl;
@@ -423,12 +423,13 @@ void Processor::flush_input_buf() {
         msg_received_map.erase(i);
         fwut++;
     }
-    if(fwut != agreed_aru) { // TODO: delet this after debugging is done
-        std::cout << "WRONG:        fwut " << fwut << " do not equal agreed_aru " << agreed_aru << std::endl;
-
-    }
-    fwut = agreed_aru; // TODO: delete this
-    assert(fwut == agreed_aru);
+    aru = fwut;
+//    if(fwut != agreed_aru) { // TODO: delet this after debugging is done
+//        std::cout << "WRONG:        fwut " << fwut << " do not equal agreed_aru " << agreed_aru << std::endl;
+//
+//    }
+//    fwut = agreed_aru; // TODO: delete this
+//    assert(fwut == agreed_aru);
 }
 
 
