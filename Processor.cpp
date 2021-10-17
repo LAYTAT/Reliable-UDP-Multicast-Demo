@@ -594,7 +594,7 @@ void Processor::update_sending_token_buf(int s, int a, int last_aru_setter, std:
     sending_token_buf->round = round;
     int c = 0;
     for(auto itr = new_rtr.begin(); itr != new_rtr.end() && c < MAX_RTR; ++itr){
-        assert(*itr != 0);
+//        assert(*itr != 0);
         sending_token_buf->rtr[c] = *itr;
         c++;
     }

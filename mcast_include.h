@@ -32,19 +32,15 @@
 #include <unordered_map>
 
 #define NUM_OF_TOTAL_PACKETS (16000)
-#define GLOBAL_MAX (3000)
-#define LOCAL_MAX (400)
+#define GLOBAL_MAX (10000)
+#define LOCAL_MAX (1000)
 #define NUM_OF_MACHINES (10)
 #define MAX_MESS_LEN 1400
-#define PORT (10040)
-//#define PORT (10280) 
-#define DATA_SIZE (1400)
-#define MAX_FLOW_FOR_ONE_PROCESS (500)
-#define MAX_FLOW_FOR_ONE_RING_CYCLE (5000)
+//#define PORT (10040)  // Chanha
+#define PORT (10280)  // Junjie
+#define DATA_SIZE (1400) // cannot be changed
 #define MAX_RTR (300)
 #define TOKEN_TIMEOUT_GAP_IN_SECONDS (1)
-#define TOEKN_TIMEOUT_GAP_IN_USEC  (100000) //1 / 10 sec
-#define NUM_OF_MEMBER (10)
 
 struct Token{
     int seq;                        // The largest sequence number for any message, an upper limit of sequemce number
