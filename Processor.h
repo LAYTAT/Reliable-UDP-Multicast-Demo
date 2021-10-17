@@ -4,8 +4,8 @@
 #include "mcast_include.h"
 
 #define NUM_OF_TOTAL_PACKETS (16000)
-#define GLOBAL_MAX (1000)
-#define LOCAL_MAX (200)
+#define GLOBAL_MAX (10000)
+#define LOCAL_MAX (2000)
 #define NUM_OF_MACHINES (10)
 
 class Processor{
