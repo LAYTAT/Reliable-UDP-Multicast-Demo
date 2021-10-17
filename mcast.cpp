@@ -30,7 +30,7 @@ int main(int argc, char * argv[])
     std::cout << "============================Performance========================== " << std::endl;
     std::cout << "Transmission time:  " << performance.msec << " ms." << std::endl;
     std::cout << "Total num of pcks:  " << performance.total_packet << "." << std::endl;
-    std::cout << "Transmission speed: " << static_cast<float>((performance.pakcet_size_in_bytes * performance.total_packet) * 8)  / static_cast<float>(1000000 * performance.msec)<< " Mbits per seconds. " << std::endl;
+    std::cout << "Transmission speed: " << static_cast<double>((performance.pakcet_size_in_bytes * performance.total_packet) * 8)  / static_cast<double>(1000000 * performance.msec)<< " Mbits per seconds. " << std::endl;
     p->close_file();
 
     p->close_sockets();

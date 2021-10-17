@@ -77,7 +77,7 @@ struct Message{                     // or called packet
 struct Performance{
     long long msec;
     long long total_packet;
-    unsigned int pakcet_size_in_bytes;
+    long long pakcet_size_in_bytes;
 };
 
 #endif

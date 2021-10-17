@@ -29,7 +29,7 @@ void checkIPbuffer(char *IPbuffer)
     }
 }
 
-int diff_ms(timeval t1, timeval t2)
+long long diff_ms(timeval t1, timeval t2)
 {
     int precision = 1000;
     struct timeval diff;
