@@ -31,8 +31,10 @@ void checkIPbuffer(char *IPbuffer)
 
 int diff_ms(timeval t1, timeval t2)
 {
-    return (((t1.tv_sec - t2.tv_sec) * 1000000) +
-            (t1.tv_usec - t2.tv_usec))/1000;
+    int precision = 1000;
+    struct timeval diff;
+    timersub(&t1, &t2, &diff);
+    return (diff.tv_sec * 1000 + diff.tv_usec / 1000);
 }
 
 Performance Processor::start_mcast(){
