@@ -31,6 +31,10 @@
 #include <map>
 #include <unordered_map>
 
+#define NUM_OF_TOTAL_PACKETS (16000)
+#define GLOBAL_MAX (3000)
+#define LOCAL_MAX (400)
+#define NUM_OF_MACHINES (10)
 #define MAX_MESS_LEN 1400
 #define PORT (10040)
 //#define PORT (10280) 

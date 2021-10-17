@@ -3,11 +3,6 @@
 //
 #include "mcast_include.h"
 
-#define NUM_OF_TOTAL_PACKETS (16000)
-#define GLOBAL_MAX (10000)
-#define LOCAL_MAX (2000)
-#define NUM_OF_MACHINES (10)
-
 class Processor{
 public:
     Processor(int m_id, int l, int n = NUM_OF_TOTAL_PACKETS, int nm = NUM_OF_MACHINES): machine_id(m_id), loss_rate(l), nums_packets(n), number_of_machines(nm),  input_buf(){
