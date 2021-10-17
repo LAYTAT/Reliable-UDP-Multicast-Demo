@@ -33,7 +33,10 @@ long long diff_ms(timeval t1, timeval t2)
 {
     int precision = 1000;
     struct timeval diff;
-    timersub(&t1, &t2, &diff);
+    if(t1.tv_sec>t2.tv_sec)
+        timersub(&t1, &t2, &diff);
+    else
+        timersub(&t2, &t1, &diff);
     return (diff.tv_sec * 1000 + diff.tv_usec / 1000);
 }
 
