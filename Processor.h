@@ -12,7 +12,7 @@ public:
     }
     Processor(Processor const &) = delete;
     Processor(Processor&&) = delete;
-    bool start_mcast();
+    Performance start_mcast();
     bool send_to_everyone();
     bool send_token_to_next();
     bool form_ring();

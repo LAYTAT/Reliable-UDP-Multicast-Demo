@@ -74,4 +74,10 @@ struct Message{                     // or called packet
     unsigned char payload[DATA_SIZE];  //1400 random payload or zero
 };
 
+struct Performance{
+    long long msec;
+    long long total_packet;
+    unsigned int pakcet_size_in_bytes;
+};
+
 #endif

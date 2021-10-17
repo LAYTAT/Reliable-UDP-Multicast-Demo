@@ -29,7 +29,13 @@ void checkIPbuffer(char *IPbuffer)
     }
 }
 
-bool Processor::start_mcast(){
+int diff_ms(timeval t1, timeval t2)
+{
+    return (((t1.tv_sec - t2.tv_sec) * 1000000) +
+            (t1.tv_usec - t2.tv_usec))/1000;
+}
+
+Performance Processor::start_mcast(){
     // get my address for later sending
 
     open_file();
@@ -47,6 +53,8 @@ bool Processor::start_mcast(){
     recv_dbg_init( loss_rate, machine_id );
     std::cout << "Set machine" << machine_id << " recv loss rate to " << loss_rate << std::endl;
 
+    struct timeval started_timestamp;
+    gettimeofday(&started_timestamp, nullptr);
 
     for(;;)
     {
@@ -110,7 +118,14 @@ bool Processor::start_mcast(){
         }
         check_timeout(); //timeout for token
     }
-    return false;
+
+    struct timeval ended_timestamp;
+    gettimeofday(&started_timestamp, nullptr);
+    Performance ret;
+    ret.msec = diff_ms(ended_timestamp, started_timestamp);
+    ret.total_packet = aru;
+    ret.pakcet_size_in_bytes = sizeof(Message);
+    return ret;
 }
 
 void Processor::store_to_input() {
