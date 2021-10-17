@@ -125,7 +125,7 @@ Performance Processor::start_mcast(){
     }
 
     struct timeval ended_timestamp;
-    gettimeofday(&started_timestamp, nullptr);
+    gettimeofday(&ended_timestamp, nullptr);
     Performance ret;
     ret.msec = diff_ms(ended_timestamp, started_timestamp);
     ret.total_packet = aru;
