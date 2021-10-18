@@ -333,7 +333,7 @@ bool Processor::data_tranfer(){
                 rtr_size = MAX_RTR;
             }
 
-
+f
             update_sending_token_buf(token_seq, token_aru, last_aru_setter, rtr_size, rtr, round, fcc);
             update_msg_buf(MSG_TYPE::TOKEN);
             send_token_to_next(); //this will reset timer
@@ -621,7 +621,7 @@ void Processor::cancel_token_timer(){
 void Processor::check_timeout(){
     if(token_flag){
         gettimeofday(&timestamp, NULL);
-        if (timestamp.tv_sec - last_token_sent_time.tv_sec >= TOKEN_TIMEOUT_GAP_IN_SECONDS){
+        if ( diff_ms(timestamp, last_token_sent_time) >= TOKEN_TIMEOUT_GAP_IN_MSECONDS){
 //        if (timestamp.tv_usec - last_token_sent_time.tv_usec >= TOEKN_TIMEOUT_GAP_IN_USEC){
             /* resend token */
             sending_token_buf->round = last_token_round;
