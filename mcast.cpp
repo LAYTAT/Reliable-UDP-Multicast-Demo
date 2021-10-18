@@ -24,6 +24,7 @@ int main(int argc, char * argv[])
     p->socket_init();
 //    p->start_chat();
 
+
     //p->open_file();
     auto performance = p->start_mcast(); // main loop
     std::cout << "============================Performance========================== " << std::endl;
