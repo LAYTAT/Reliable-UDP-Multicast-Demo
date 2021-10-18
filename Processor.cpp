@@ -524,7 +524,7 @@ int Processor::find_max_messages() {
 
 void Processor::ring_request_multicast(){
     //check if token recieved
-    count = ( count + 1 ) % RING_MCAST_FREQ;
+    count = ( count + 1 ) % RING_MCAST_FREQ_FACTOR;
 
     if(count != 0) return;
 
