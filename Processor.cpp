@@ -135,7 +135,8 @@ Performance Processor::start_mcast(){
 
 void Processor::store_to_input() {
     Message * message = make_Message(MSG_TYPE::DATA, recv_buf->seq, recv_buf->pkt_idx, recv_buf->machine_id, recv_buf->random_num);
-    input_buf.push_back(message);
+    msg_received_map.insert(std::make_pair(message->seq,
+                                           make_Message(message->type, message->seq, message->pkt_idx, message->machine_id, message->random_num)));
 //    input_set.insert(message->seq);
     //std::cout << "I just stored to input_buf, and its content: seq: " << message->seq << " randnum: " << message->random_num << std::endl;
 }
@@ -211,7 +212,7 @@ bool Processor::data_tranfer(){
                 break;
             }
 
-            //push new message into the input_buffer
+            //push new message into the received_map
             store_to_input();
 
             //update_rtr_aru_with_msg wanted action
@@ -226,6 +227,12 @@ bool Processor::data_tranfer(){
             update_rtr_aru_with_msg(temp_seq);
 //            std::cout << "After Processing this Message, My ARU is " << aru << std::endl;
 //            std::cout << "Input Buffer has now Rand Num: " << input_buf.front()->random_num << std::endl;
+
+            //write to file from last local aru to local aru
+            for (int i = last_local_aru + 1; i <= aru; i++) {
+                fprintf(fp, "%2d, %8d, %8d\n", msg_received_map[i]->machine_id, msg_received_map[i]->pkt_idx, msg_received_map[i]->random_num);
+            }
+
             break;
         }
         case MSG_TYPE::TOKEN: {
@@ -439,7 +446,7 @@ int Processor::retransmission(int n) {
 void Processor::flush_input_buf() {
 
 
-    //copy everything from input buf to msg_recieved
+/*    //copy everything from input buf to msg_recieved
     for (int i = 0; i < input_buf.size(); i++) {
         //msg_received.push(input_buf[i]);
         msg_received_map.insert(std::make_pair(input_buf[i]->seq,
@@ -462,6 +469,7 @@ void Processor::flush_input_buf() {
     //lower limit is fwut (file written up to), if it's n, then n sequence numbers have been written
     //so, look for n+1 and increment if yes
     //assert(fwut == last_agreed_aru);
+    */
     int agreed_aru = std::min(last_token_aru, received_token_buf->aru);
 
     for (int i = fwut + 1; i <= agreed_aru; i++) {
@@ -473,7 +481,7 @@ void Processor::flush_input_buf() {
 //        assert(msg_received_map.count(i) == 1);
 //        std::cout << "About to write to file " << std::endl;
 //        std::cout << "Message about to be written: id: " << msg_received_map[i]->machine_id << " pkt_idx: " << msg_received_map[i]->pkt_idx << " rand: " << msg_received_map[i]->random_num << std::endl;
-        fprintf(fp, "%2d, %8d, %8d\n", msg_received_map[i]->machine_id, msg_received_map[i]->pkt_idx, msg_received_map[i]->random_num);
+//        fprintf(fp, "%2d, %8d, %8d\n", msg_received_map[i]->machine_id, msg_received_map[i]->pkt_idx, msg_received_map[i]->random_num);
         //std::cout << "Bytes Written to the File: " << bytes_written << std::endl;
         msg_received_map.erase(i);
         fwut++;
@@ -608,7 +616,7 @@ void Processor::update_sending_token_buf(int s, int a, int last_aru_setter, int 
 }
 
 void Processor::reset_token_timer(){
-    std::cout << "Timer:            set for token with round number " << last_token_round << std::endl;
+//    std::cout << "Timer:            set for token with round number " << last_token_round << std::endl;
     token_flag = true;
     gettimeofday(&last_token_sent_time, nullptr);
 }

@@ -44,6 +44,7 @@ private:
     std::vector<Message *> input_buf;
     std::set<int> input_set;
     int fwut = 0; //file written up to.
+    int last_local_aru;
 
     int last_agreed_aru = 0;
     int agreed_aru_count = 0;
