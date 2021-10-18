@@ -329,7 +329,7 @@ bool Processor::data_tranfer(){
             //update token_bu
             assert(token_seq >= seq);
             int rtr_size = rtr.size();
-            if (rtr_size > rtr.size()) {
+            if (rtr_size >= MAX_RTR) {
                 rtr_size = MAX_RTR;
             }
 
