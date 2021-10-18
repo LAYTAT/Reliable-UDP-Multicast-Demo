@@ -237,7 +237,7 @@ bool Processor::data_tranfer(){
             if(machine_id == 1) {
                 if(received_token_buf -> round != last_token_round) break;
             } else if(received_token_buf -> round <= last_token_round) {
-                std::cout << "Token Received:       with same last_token_round =" << last_token_round << std::endl;
+//                std::cout << "Token Received:       with same last_token_round =" << last_token_round << std::endl;
                 break;
             }
             assert(received_token_buf->seq >= received_token_buf->aru);
