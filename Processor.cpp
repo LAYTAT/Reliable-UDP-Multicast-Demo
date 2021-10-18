@@ -69,27 +69,31 @@ Performance Processor::start_mcast(){
         if (num > 0) {
             if ( FD_ISSET(srm, &read_mask) ) {
                 if(!mcast_received){ // if not recv mcast start receive using recv
-                    bytes = recv(srm, (char*)recv_buf, sizeof(Message), 0);
+//                    bytes = recv(srm, (char*)recv_buf, sizeof(Message), 0);
+                    bytes = recv(srm, buf_generator(), sizeof(Message), 0); // TODO: buf_gen
                     if (bytes == -1) {
                         std::cerr << "Received Message Err" << std::endl;
                     } else if (bytes > 0 && bytes < sizeof(Message)) {
                         std::cerr << "Received Message Corrupted. Bytes Received:" << bytes << std::endl;
                     }
                     //Start_Mcast Message Received, start ring formation
-                    if(recv_buf->type == MSG_TYPE::START_MCAST ) {
+//                    if(recv_buf->type == MSG_TYPE::START_MCAST ) {  // TODO: buf_gen
+                    if(buf_vec.back()->type == MSG_TYPE::START_MCAST ) {
                         std::cout << "mcast_start msg received" << std::endl;
                         mcast_received = true;
                     }
                     continue;
                 }
 
-                bytes = recv_dbg(srm, (char*)recv_buf, sizeof(Message), 0);
+//                bytes = recv_dbg(srm, (char*)recv_buf, sizeof(Message), 0); //TODO:buf_gen
+                bytes = recv_dbg(srm, buf_generator(), sizeof(Message), 0);
                 if (bytes == -1) {
                     std::cerr << "Received Message Err" << std::endl;
                 } else if (bytes > 0 && bytes < sizeof(Message)) {
                     std::cerr << "Received Message Corrupted. Bytes Received:" << bytes << std::endl;
                 } else if(bytes == 0) {
-                    if (recv_buf->type == MSG_TYPE::TOKEN){
+//                    if (recv_buf->type == MSG_TYPE::TOKEN){ //TODO:buf_gen
+                    if (buf_vec.back()->type == MSG_TYPE::TOKEN){
                         std::cerr << "Discarded:    Lost Token msg: " << std::endl;
                     } else {
                         std::cerr << "Discarded:    Lost mcast Msg "  << std::endl;
@@ -134,9 +138,11 @@ Performance Processor::start_mcast(){
 }
 
 void Processor::store_to_input() {
-    Message * message = make_Message(MSG_TYPE::DATA, recv_buf->seq, recv_buf->pkt_idx, recv_buf->machine_id, recv_buf->random_num);
-    msg_received_map.insert(std::make_pair(message->seq,
-                                           make_Message(message->type, message->seq, message->pkt_idx, message->machine_id, message->random_num)));
+//    Message * message = make_Message(MSG_TYPE::DATA, recv_buf->seq, recv_buf->pkt_idx, recv_buf->machine_id, recv_buf->random_num); //TODO:buf_gen
+    Message * message = make_Message(MSG_TYPE::DATA, buf_vec.back()->seq, buf_vec.back()->pkt_idx, buf_vec.back()->machine_id, buf_vec.back()->random_num);
+//    msg_received_map.insert(std::make_pair(message->seq,//TODO:buf_gen
+//                                           make_Message(message->type, message->seq, message->pkt_idx, message->machine_id, message->random_num)));//TODO:buf_gen
+    msg_received_map.insert(std::make_pair(buf_vec.back()->seq, buf_vec.back()));
 //    input_set.insert(message->seq);
     //std::cout << "I just stored to input_buf, and its content: seq: " << message->seq << " randnum: " << message->random_num << std::endl;
 }
@@ -191,7 +197,8 @@ void Processor::update_rtr_aru_with_new_broadcast(int brdcst_msg_seq) {
 bool Processor::data_tranfer(){
 
 
-    switch (recv_buf->type) {
+//    switch (recv_buf->type) {
+    switch (buf_vec.back()->type) { //TODO:buf_gen
         case MSG_TYPE::DATA: {
             //std::cout << "Data Message Recieved, SEQ: " << recv_buf->seq << "pkt idx: " << recv_buf->pkt_idx <<
             //"from machine: " << recv_buf->machine_id << "rand: " << recv_buf->random_num << std::endl;
@@ -204,7 +211,9 @@ bool Processor::data_tranfer(){
             //we recieved a multicast data
             //temp seq is the message seq
             int temp_seq = 0;
-            temp_seq = recv_buf->seq ;
+//            temp_seq = recv_buf->seq ; //TODO:buf_gen
+            temp_seq = buf_vec.back()->seq ;
+
 
             //ignore data you already have
             if (temp_seq <= aru) {
@@ -238,15 +247,16 @@ bool Processor::data_tranfer(){
             break;
         }
         case MSG_TYPE::TOKEN: {
-            memcpy(received_token_buf, recv_buf->payload, sizeof(Token));
+//            memcpy(received_token_buf, recv_buf->payload, sizeof(Token)); TODO: buf_gen
+            received_token_buf = (Token*)(buf_vec.back()->payload);
             if(machine_id == 1) {
                 if(received_token_buf -> round != last_token_round) break;
             } else if(received_token_buf -> round <= last_token_round) {
                 std::cout << "Token Received:       with same last_token_round =" << last_token_round << std::endl;
                 break;
             }
-            assert(received_token_buf->seq >= received_token_buf->aru);
-            assert(received_token_buf->seq >= seq || received_token_buf->seq == 0);
+//            assert(received_token_buf->seq >= received_token_buf->aru);
+//            assert(received_token_buf->seq >= seq || received_token_buf->seq == 0);
             //if round number is 50 break TODO: fix this ending condition
 
 //            if(received_token_buf->seq == last_sent_token_seq) { TODO: try this
@@ -643,9 +653,11 @@ void Processor::check_timeout(){
 }
 
 bool Processor::form_ring() {
-    switch (recv_buf->type) {
+//    switch (recv_buf->type) { //TODO:buf_gen
+    switch (buf_vec.back()->type) {
         case MSG_TYPE::TOKEN:
-            memcpy(recv_buf->payload, received_token_buf, sizeof(Token));
+//            memcpy(recv_buf->payload, received_token_buf, sizeof(Token)); //TODO:buf_gen
+            received_token_buf = (Token*)buf_vec.back()->payload;
             if(received_token_buf->round == 1) {
                 std::cout << "Ring:             Ring is formed!" << std::endl;
                 return true;
@@ -675,11 +687,15 @@ bool Processor::form_ring() {
             }
             break;
         case MSG_TYPE::REQUEST_RING:
-            if (next_id != recv_buf->machine_id) break;
+//            if (next_id != recv_buf->machine_id) break; //TODO:buf_gen
+            if (next_id != buf_vec.back()->machine_id) break;
             if (!has_next ) {
-                std::cout << "Ring:             From machine_id : " << recv_buf->machine_id << std::endl;
-                char next_ip[strlen((const char *) recv_buf->payload)];
-                memcpy(next_ip, recv_buf->payload, strlen((char *) recv_buf->payload));
+//                std::cout << "Ring:             From machine_id : " << recv_buf->machine_id << std::endl; //TODO:buf_gen
+                std::cout << "Ring:             From machine_id : " << buf_vec.back()->machine_id << std::endl;
+//                char next_ip[strlen((const char *) recv_buf->payload)]; //TODO:buf_gen
+                char next_ip[strlen((const char *) buf_vec.back()->payload)];
+//                memcpy(next_ip, recv_buf->payload, strlen((char *) recv_buf->payload)); //TODO:buf_gen
+                memcpy(next_ip, buf_vec.back()->payload, strlen((char *) buf_vec.back()->payload));
                 next_addr.sin_family = AF_INET;
                 next_addr.sin_addr.s_addr = inet_addr(next_ip);// htonl(addr_binary);  /* ucast address */
                 next_addr.sin_port = htons(PORT);
@@ -699,7 +715,7 @@ bool Processor::form_ring() {
             }
             break;
         case MSG_TYPE::DATA:
-            std::cout << "Received:      machine " << machine_id << " received data message with from machine " << recv_buf->machine_id << "." << std::endl;
+//            std::cout << "Received:      machine " << machine_id << " received data message with from machine " << recv_buf->machine_id << "." << std::endl; //TODO:buf_gen
             std::cout << "Ring:             Ring is formed!" << std::endl;
             return true;
             break;
@@ -847,4 +863,11 @@ bool Processor::check_if_everybody_ready_to_exit(){
         return true;
     }
     return false;
+}
+
+char* Processor::buf_generator() {
+    // buf generator
+    Message* new_buf = new Message();
+    buf_vec.push_back(new_buf);
+    return (char*)new_buf;
 }
