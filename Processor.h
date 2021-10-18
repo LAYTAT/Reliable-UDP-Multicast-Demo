@@ -129,4 +129,5 @@ private:
 
     // checking
     int total_rtr_count = 0;
+    int total_fcc_count = 0; //TODO: monitor fcc count
 };
