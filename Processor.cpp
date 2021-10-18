@@ -144,6 +144,15 @@ void Processor::update_rtr_with_token_seq() {
     }
 }
 
+//update_rtr_aru_with_msg wanted action
+// recieved 1, 2, 4, //3 will go to the rtr, aru = 2, 1,2,4 is in the input buffer
+// recieved 5, 6, 8 // aru = 2, rtr = 3,7, and 1,2,4,5,6,8 in input buffer
+// recieved 3, 9 //aru = 6, rtr =,,,,//update_rtr_aru_with_msg wanted action
+//            // recieved 1, 2, 4, //3 will go to the rtr, aru = 2, 1,2,4 is in the input buffer
+//            // recieved 5, 6, 8 // aru = 2, rtr = 3,4,7, and 1,2,4,5,6,8 in input buffer
+//            // recieved 3, 9 //aru = 6, rtr =,,,,
+//            // sort buffer, aru = last continous integer in the buffer, rtr = from aru (4) to input_buf last element (10)...
+// sort buffer, aru = last continous integer in the buffer, rtr = from aru (4) to input_buf last element (10)...
 void Processor::update_rtr_aru_with_msg(int msg_seq) {
     //update aru if this one connected
     assert(msg_seq != 0);
@@ -186,10 +195,6 @@ bool Processor::data_tranfer(){
 
     switch (recv_buf->type) {
         case MSG_TYPE::DATA: {
-            //std::cout << "Data Message Recieved, SEQ: " << recv_buf->seq << "pkt idx: " << recv_buf->pkt_idx <<
-            //"from machine: " << recv_buf->machine_id << "rand: " << recv_buf->random_num << std::endl;
-            //std::cout << "My ARU is: " << aru << std::endl;
-
             //we recieved a multicast data
             //temp seq is the message seq
             int temp_seq = 0;
@@ -197,7 +202,6 @@ bool Processor::data_tranfer(){
 
             //ignore data you already have
             if (temp_seq <= aru) {
-                //std::cout << "I already received this seq number" << std::endl;
                 break;
             }
             cancel_token_timer();
@@ -205,20 +209,10 @@ bool Processor::data_tranfer(){
             //push new message into the received_map
             store_to_input();
 
-            //update_rtr_aru_with_msg wanted action
-            // recieved 1, 2, 4, //3 will go to the rtr, aru = 2, 1,2,4 is in the input buffer
-            // recieved 5, 6, 8 // aru = 2, rtr = 3,7, and 1,2,4,5,6,8 in input buffer
-            // recieved 3, 9 //aru = 6, rtr =,,,,//update_rtr_aru_with_msg wanted action
-            //            // recieved 1, 2, 4, //3 will go to the rtr, aru = 2, 1,2,4 is in the input buffer
-            //            // recieved 5, 6, 8 // aru = 2, rtr = 3,4,7, and 1,2,4,5,6,8 in input buffer
-            //            // recieved 3, 9 //aru = 6, rtr =,,,,
-            //            // sort buffer, aru = last continous integer in the buffer, rtr = from aru (4) to input_buf last element (10)...
-            // sort buffer, aru = last continous integer in the buffer, rtr = from aru (4) to input_buf last element (10)...
-            update_rtr_aru_with_msg(temp_seq);
-//            std::cout << "After Processing this Message, My ARU is " << aru << std::endl;
-//            std::cout << "Input Buffer has now Rand Num: " << input_buf.front()->random_num << std::endl;
-            write_to_file();
 
+            update_rtr_aru_with_msg(temp_seq);
+            write_to_file();
+            reset_token_timer();
             break;
         }
         case MSG_TYPE::TOKEN: {
@@ -226,7 +220,6 @@ bool Processor::data_tranfer(){
             if(machine_id == 1) {
                 if(received_token_buf -> round != last_token_round) break;
             } else if(received_token_buf -> round <= last_token_round) {
-//                std::cout << "Token Received:       with same last_token_round =" << last_token_round << std::endl;
                 break;
             }
 
@@ -376,7 +369,6 @@ int Processor::retransmission(int m) {
         count_resend++;
     }
 
-//    return resent_rtrs.size();
     return count_resend;
 }
 
