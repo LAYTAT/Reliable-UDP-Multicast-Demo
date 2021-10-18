@@ -233,6 +233,8 @@ bool Processor::data_tranfer(){
                 fprintf(fp, "%2d, %8d, %8d\n", msg_received_map[i]->machine_id, msg_received_map[i]->pkt_idx, msg_received_map[i]->random_num);
             }
 
+            last_local_aru = aru;
+
             break;
         }
         case MSG_TYPE::TOKEN: {
