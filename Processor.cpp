@@ -59,7 +59,7 @@ Performance Processor::start_mcast(){
     std::cout << "Set machine" << machine_id << " recv loss rate to " << loss_rate << std::endl;
 
     struct timeval started_timestamp;
-    gettimeofday(&started_timestamp, nullptr);
+
 
     for(;;)
     {
@@ -80,6 +80,7 @@ Performance Processor::start_mcast(){
                         std::cout << "mcast_start msg received" << std::endl;
                         mcast_received = true;
                     }
+                    gettimeofday(&started_timestamp, nullptr);
                     continue;
                 }
 
