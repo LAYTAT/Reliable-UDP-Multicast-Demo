@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++11 -c -Ofast -march=native -flto -Wall
+CFLAGS = -std=c++11 -c -Ofast -march=native -flto -Wall -DNDEBUG
 #CFLAGS = -ansi -c -Wall -pedantic
 #TODO: delete -g after debugging is done
 
