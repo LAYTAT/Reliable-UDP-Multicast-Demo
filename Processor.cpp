@@ -152,6 +152,7 @@ void Processor::update_rtr_with_token_seq() {
 
 void Processor::update_rtr_aru_with_msg(int msg_seq) {
     //update aru if this one connected
+    assert(msg_seq != 0);
     input_set.insert(msg_seq);
     rtr.erase(msg_seq);
     for(auto itr = input_set.find(msg_seq); itr != input_set.end(); itr++){
@@ -327,6 +328,12 @@ bool Processor::data_tranfer(){
 
             //update token_bu
             assert(token_seq >= seq);
+            int rtr_size = rtr.size();
+            if (rtr_size > rtr.size()) {
+                rtr_size = MAX_RTR;
+            }
+
+
             update_sending_token_buf(token_seq, token_aru, last_aru_setter, rtr, round, fcc);
             update_msg_buf(MSG_TYPE::TOKEN);
             send_token_to_next(); //this will reset timer
@@ -583,17 +590,17 @@ void Processor::update_msg_buf(MSG_TYPE type) { //when broadcasting new messages
     }
 }
 
-void Processor::update_sending_token_buf(int s, int a, int last_aru_setter, std::set<int>& new_rtr, int round, int fcc){
+void Processor::update_sending_token_buf(int s, int a, int last_aru_setter, int rtr_size, std::set<int>& new_rtr, int round, int fcc){
     assert(new_rtr.count(0) == 0);
     memset(sending_token_buf, 0 , sizeof(Token));
     sending_token_buf->seq = s;
     sending_token_buf->fcc = fcc;
-    sending_token_buf->rtr_size = new_rtr.size();
+    sending_token_buf->rtr_size = rtr_size;
     sending_token_buf->last_aru_setter = last_aru_setter;
     sending_token_buf->aru = a;
     sending_token_buf->round = round;
     int c = 0;
-    for(auto itr = new_rtr.begin(); itr != new_rtr.end() && c < MAX_RTR; ++itr){
+    for(auto itr = new_rtr.begin(); itr != new_rtr.end() && c < rtr_size; ++itr){
 //        assert(*itr != 0);
         sending_token_buf->rtr[c] = *itr;
         c++;

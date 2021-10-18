@@ -53,7 +53,6 @@ private:
     // when sending token: update_sending_token_buf, update_msg_buf, send token
     void update_msg_buf(MSG_TYPE type); //always update msg_buf before sending anything
 
-    void update_sending_token_buf(int s, int a, int last_aru_setter, std::set<int> &new_rtr, int round, int fcc);
     void set_my_info();
 
     //message sending and receiving
@@ -137,4 +136,8 @@ private:
     void broadcast_exit_messages();
 
     void update_rtr_aru_with_new_broadcast(int brdcst_msg_seq);
+
+    void
+    update_sending_token_buf(int s, int a, int last_aru_setter, int rtr_size, std::set<int> &new_rtr, int round,
+                             int fcc);
 };
