@@ -94,6 +94,7 @@ private:
     int last_token_round = -1;
 //    int last_sent_token_seq = -1;  // TODO: try this
     void reset_token_timer();
+    struct timeval last_round_time;
 
     // ring multicast request
     int RING_MCAST_FREQ = 500000;  //test shows 500000 is a usable baseline

@@ -317,6 +317,9 @@ bool Processor::data_tranfer(){
             if (machine_id == 1) { //handles the machine id = 1, round update and fcc update
                 std::cout << "Token:        increment round to " << round + 1 << std::endl;
                 round = received_token_buf->round + 1;
+                auto this_round_time = last_round_time;
+                gettimeofday(&last_round_time, nullptr);
+                std::cout << "!!!!!!!!!!!!!!!!ROUND TIME: " <<  diff_ms(this_round_time,last_round_time)<< std::endl;
                 fcc = 0;
             }
             fcc = fcc + r + b;
