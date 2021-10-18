@@ -205,6 +205,7 @@ bool Processor::data_tranfer(){
                 break;
             }
             //get message means someone already have the token
+            reset_token_timer();
             if(recv_buf->machine_id!=machine_id) {
                 cancel_token_timer();
             }
