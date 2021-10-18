@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++11 -c -g -Wall
+CFLAGS = -std=c++11 -c -Wall
 #CFLAGS = -ansi -c -Wall -pedantic
 #TODO: delete -g after debugging is done
 

@@ -137,7 +137,7 @@ void Processor::store_to_input() {
     Message * message = make_Message(MSG_TYPE::DATA, recv_buf->seq, recv_buf->pkt_idx, recv_buf->machine_id, recv_buf->random_num);
     input_buf.push_back(message);
 //    input_set.insert(message->seq);
-    std::cout << "I just stored to input_buf, and its content: seq: " << message->seq << " randnum: " << message->random_num << std::endl;
+    //std::cout << "I just stored to input_buf, and its content: seq: " << message->seq << " randnum: " << message->random_num << std::endl;
 }
 
 void Processor::update_rtr_with_token_seq() {
@@ -192,10 +192,10 @@ bool Processor::data_tranfer(){
 
     switch (recv_buf->type) {
         case MSG_TYPE::DATA: {
-            std::cout << "Data Message Recieved, SEQ: " << recv_buf->seq << "pkt idx: " << recv_buf->pkt_idx <<
-                      "from machine: " << recv_buf->machine_id << "rand: " << recv_buf->random_num << std::endl;
+            //std::cout << "Data Message Recieved, SEQ: " << recv_buf->seq << "pkt idx: " << recv_buf->pkt_idx <<
+            //"from machine: " << recv_buf->machine_id << "rand: " << recv_buf->random_num << std::endl;
 
-            std::cout << "My ARU is: " << aru << std::endl;
+            //std::cout << "My ARU is: " << aru << std::endl;
 
 
             reset_token_timer();
@@ -207,7 +207,7 @@ bool Processor::data_tranfer(){
 
             //ignore data you already have
             if (temp_seq <= aru) {
-                std::cout << "I already received this seq number" << std::endl;
+                //std::cout << "I already received this seq number" << std::endl;
                 break;
             }
 
@@ -262,14 +262,14 @@ bool Processor::data_tranfer(){
             //we recieved a token
             //copy token data into our local received_token_buf
 
-            std::cout << "Token Recieved with Round Number: " << received_token_buf->round << std::endl;
+            //std::cout << "Token Recieved with Round Number: " << received_token_buf->round << std::endl;
 
             //flush our input buffer by writing them or retain them.
             /*
              * Updating data structures
              */
             flush_input_buf(); // writes to a file, updates msg_received, input empty
-            std::cout << "input flush success!" <<std::endl;
+            //std::cout << "input flush success!" <<std::endl;
 
             //find max number of messages that can be sent by this processor
             int m = find_max_messages();
@@ -377,8 +377,8 @@ int Processor::broadcasting_new_messages(int m2) {
         update_rtr_aru_with_new_broadcast(received_token_buf->seq);
         assert(seq >= aru);
         assert(received_token_buf->seq >= received_token_buf->aru);
-        std::cout << "Data Message Sent, SEQ: " << msg_buf->seq << ",pkt idx: " << msg_buf->pkt_idx <<
-                  ",from machine: " << msg_buf->machine_id << ",rand: " << msg_buf->random_num << std::endl;
+        //std::cout << "Data Message Sent, SEQ: " << msg_buf->seq << ",pkt idx: " << msg_buf->pkt_idx <<
+         //         ",from machine: " << msg_buf->machine_id << ",rand: " << msg_buf->random_num << std::endl;
 
         send_to_everyone();
         b++;
@@ -414,16 +414,16 @@ int Processor::retransmission(int n) {
 
     for (int i = 0; i < received_token_buf->rtr_size; i++) {
         if (msg_received_map.count(received_token_buf->rtr[i]) == 0) {
-            std::cout << "Retransmission:       I do not have request seq " << received_token_buf->rtr[i] << std::endl;
+//            std::cout << "Retransmission:       I do not have request seq " << received_token_buf->rtr[i] << std::endl;
 //            assert(received_token_buf->rtr[i] != 0);
-            if (rtr.find(received_token_buf->rtr[i]) == rtr.end()) {
-                std::cout << "WRONG:        token contains unexpected rtr" << std::endl;
-            }
-            if(received_token_buf->rtr[i] != 0)
+//            if (rtr.find(received_token_buf->rtr[i]) == rtr.end()) {
+//                std::cout << "WRONG:        token contains unexpected rtr" << std::endl;
+//            }
+//            if(received_token_buf->rtr[i] != 0)
                 rtr.insert(received_token_buf->rtr[i]);
             continue;
         }
-        std::cout << "Retransmission:       Sending requested message with seq " << received_token_buf->rtr[i] << std::endl;
+//        std::cout << "Retransmission:       Sending requested message with seq " << received_token_buf->rtr[i] << std::endl;
         sendto(ssm, msg_received_map[received_token_buf->rtr[i]], sizeof(Message), 0, (struct sockaddr *)&send_addr, sizeof(send_addr));
 //        resent_rtrs.push_back(received_token_buf->rtr[i]);
         count_resend++;
@@ -445,17 +445,17 @@ void Processor::flush_input_buf() {
         msg_received_map.insert(std::make_pair(input_buf[i]->seq,
                                                make_Message(input_buf[i]->type, input_buf[i]->seq, input_buf[i]->pkt_idx, input_buf[i]->machine_id, input_buf[i]->random_num)));
     }
-    std::cout << "flush_input: Copy Success!" << std::endl;
+//    std::cout << "flush_input: Copy Success!" << std::endl;
     //empty the input buffer
     for (int i = 0; i < input_buf.size(); i++) {
         delete input_buf[i];
     }
-    std::cout << "flush_input: freeing Message Objects Sucess!" << std::endl;
+//    std::cout << "flush_input: freeing Message Objects Sucess!" << std::endl;
     if (input_buf.size() > 0) {
         input_buf.clear();
         assert(input_buf.empty());
     }
-    std::cout << "flush_input: Input Vector Clear Sucess!" << std::endl;
+//    std::cout << "flush_input: Input Vector Clear Sucess!" << std::endl;
 
     //write to file as much as we can from the msg_recieved
     //upper limit is upto agreed_aru
@@ -469,23 +469,20 @@ void Processor::flush_input_buf() {
             break;
         }
         // i is the sequence number we can write into, i.e. we can find it from the msg_recieved!
-        if(msg_received_map.count(i) == 0) { // TODO: delet this after debugging is done
-            std::cout << "WRONG:        I do not have seq " << i << " in my input buffer: agreed_aru = " << agreed_aru << ", received_token_buf->aru = " << received_token_buf->aru << std::endl;
-        }
-        assert(msg_received_map.count(i) == 1);
-        std::cout << "About to write to file " << std::endl;
-        std::cout << "Message about to be written: id: " << msg_received_map[i]->machine_id << " pkt_idx: " << msg_received_map[i]->pkt_idx << " rand: " << msg_received_map[i]->random_num << std::endl;
+
+//        assert(msg_received_map.count(i) == 1);
+//        std::cout << "About to write to file " << std::endl;
+//        std::cout << "Message about to be written: id: " << msg_received_map[i]->machine_id << " pkt_idx: " << msg_received_map[i]->pkt_idx << " rand: " << msg_received_map[i]->random_num << std::endl;
         fprintf(fp, "%2d, %8d, %8d\n", msg_received_map[i]->machine_id, msg_received_map[i]->pkt_idx, msg_received_map[i]->random_num);
         //std::cout << "Bytes Written to the File: " << bytes_written << std::endl;
         msg_received_map.erase(i);
         fwut++;
     }
-    if(fwut != agreed_aru) { // TODO: delet this after debugging is done
+/*    if(fwut != agreed_aru) { // TODO: delet this after debugging is done
         std::cout << "WRONG:        fwut " << fwut << " do not equal agreed_aru " << agreed_aru << std::endl;
 
-    }
-    fwut = agreed_aru; // TODO: delete this
-    assert(fwut == agreed_aru);
+    }*/
+    fwut = agreed_aru;
 }
 
 
