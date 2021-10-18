@@ -40,7 +40,7 @@
 #define PORT (10280)  // Junjie
 #define DATA_SIZE (1400) // cannot be changed
 #define MAX_RTR (300)
-#define TOKEN_TIMEOUT_GAP_IN_MSECONDS (100)
+#define TOKEN_TIMEOUT_GAP_IN_MSECONDS (10)
 
 struct Token{
     int seq;                        // The largest sequence number for any message, an upper limit of sequemce number
