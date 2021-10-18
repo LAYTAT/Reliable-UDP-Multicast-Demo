@@ -31,10 +31,16 @@ void checkIPbuffer(char *IPbuffer)
 
 long long diff_ms(timeval t1, timeval t2)
 {
-    int precision = 1000;
     struct timeval diff;
     timersub(&t1, &t2, &diff);
     return (diff.tv_sec * 1000 + diff.tv_usec / 1000);
+}
+
+long long diff_us(timeval t1, timeval t2)
+{
+    struct timeval diff;
+    timersub(&t1, &t2, &diff);
+    return (diff.tv_sec * 1000000 + diff.tv_usec);
 }
 
 Performance Processor::start_mcast(){
@@ -621,7 +627,7 @@ void Processor::cancel_token_timer(){
 void Processor::check_timeout(){
     if(token_flag){
         gettimeofday(&timestamp, NULL);
-        if ( diff_ms(timestamp, last_token_sent_time) >= TOKEN_TIMEOUT_GAP_IN_MSECONDS){
+        if ( diff_us(timestamp, last_token_sent_time) >= TOKEN_TIMEOUT_GAP_IN_USECONDS){
 //        if (timestamp.tv_usec - last_token_sent_time.tv_usec >= TOEKN_TIMEOUT_GAP_IN_USEC){
             /* resend token */
             sending_token_buf->round = last_token_round;
