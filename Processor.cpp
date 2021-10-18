@@ -43,9 +43,9 @@ Performance Processor::start_mcast(){
     open_file();
 
     set_my_info();
-    std::cout << "My machine id: " << machine_id << std::endl;
-    std::cout << "My Host Name: " << my_hostname << std::endl;
-    std::cout << "My Host IP: " << my_ip << std::endl;
+//    std::cout << "My machine id: " << machine_id << std::endl;
+//    std::cout << "My Host Name: " << my_hostname << std::endl;
+//    std::cout << "My Host IP: " << my_ip << std::endl;
 
     struct timeval select_timeout;
     select_timeout.tv_sec = 0;
@@ -53,7 +53,7 @@ Performance Processor::start_mcast(){
 
     // initialize recv debug mode
     recv_dbg_init( loss_rate, machine_id );
-    std::cout << "Set machine" << machine_id << " recv loss rate to " << loss_rate << std::endl;
+//    std::cout << "Set machine" << machine_id << " recv loss rate to " << loss_rate << std::endl;
 
     struct timeval started_timestamp;
 
@@ -74,7 +74,7 @@ Performance Processor::start_mcast(){
                     }
                     //Start_Mcast Message Received, start ring formation
                     if(recv_buf->type == MSG_TYPE::START_MCAST ) {
-                        std::cout << "mcast_start msg received" << std::endl;
+//                        std::cout << "mcast_start msg received" << std::endl;
                         mcast_received = true;
                     }
                     gettimeofday(&started_timestamp, nullptr);
@@ -101,14 +101,14 @@ Performance Processor::start_mcast(){
                 }
 
                 if(is_all_data_received){
-                    std::cout << "congratulation: everything is received" << std::endl;
+//                    std::cout << "congratulation: everything is received" << std::endl;
                     break;
                 }
             } else if (FD_ISSET( srm, &excep_mask) ){
-                std::cout << "exception for srm " << std::endl;
+//                std::cout << "exception for srm " << std::endl;
             }
             else {
-                std::cout << "msg for non-srm " << std::endl;
+//                std::cout << "msg for non-srm " << std::endl;
             }
         }
         if(mcast_received && !ring_formed ){
@@ -120,8 +120,9 @@ Performance Processor::start_mcast(){
     struct timeval ended_timestamp;
     gettimeofday(&ended_timestamp, nullptr);
     Performance ret;
-    std::cout << "Total Retransmission :    " << total_rtr_count << std::endl;
-    std::cout << "Acutal loss rate:         " << total_rtr_count * 100 / aru << std::endl;
+    std::cout << "Total Retransmission :    " << total_rtr_count << " times."<< std::endl;
+    std::cout << "Acutal loss rate:         " << total_rtr_count * 100 / aru << "%." << std::endl;
+    std::cout << "Set loss rate             " << loss_rate << std::endl;
     ret.msec = diff_ms(ended_timestamp, started_timestamp);
     ret.total_packet = aru;
     ret.pakcet_size_in_bytes = sizeof(Message);
@@ -231,7 +232,7 @@ bool Processor::data_tranfer(){
             if(machine_id == 1) {
                 if(received_token_buf -> round != last_token_round) break;
             } else if(received_token_buf -> round <= last_token_round) {
-                std::cout << "Token Received:       with same last_token_round =" << last_token_round << std::endl;
+//                std::cout << "Token Received:       with same last_token_round =" << last_token_round << std::endl;
                 break;
             }
             assert(received_token_buf->seq >= received_token_buf->aru);
@@ -242,10 +243,10 @@ bool Processor::data_tranfer(){
 //                std:: cout << "Discard Token: Alreay seen up to this seq" << std::endl;
 //            }
 
-            std::cout << "Received token info: seq: " << received_token_buf->seq << "aru: " << received_token_buf->aru <<
-                      "las: " << received_token_buf->last_aru_setter << "round: " << received_token_buf->round << "fcc: " << received_token_buf->fcc << std::endl;
+//            std::cout << "Received token info: seq: " << received_token_buf->seq << "aru: " << received_token_buf->aru <<
+//                      "las: " << received_token_buf->last_aru_setter << "round: " << received_token_buf->round << "fcc: " << received_token_buf->fcc << std::endl;
 
-            std::cout << "Token Received:       My ARU is  " << aru << "My seq idx: " << seq << std::endl;
+//            std::cout << "Token Received:       My ARU is  " << aru << "My seq idx: " << seq << std::endl;
 
 
             int token_aru_received = received_token_buf->aru;
@@ -278,7 +279,7 @@ bool Processor::data_tranfer(){
             //r is the number of retranmission happened
             int r = retransmission(m);
             total_rtr_count += r;
-            std::cout << "Retransmission success! number of retransmission was: " << r << std::endl;
+//            std::cout << "Retransmission success! number of retransmission was: " << r << std::endl;
             //subtract number of retransmissions from m, call it m2
             int m2 = m - r;
             int b = 0;
@@ -289,7 +290,7 @@ bool Processor::data_tranfer(){
                 received_token_buf->last_aru_setter = 0;
             }
 
-            std::cout << "Numbers of broadcasting_new_messages = " << b << std::endl;
+//            std::cout << "Numbers of broadcasting_new_messages = " << b << std::endl;
 
 //            if (received_token_buf->seq - b == aru) {  already update_rtr_aru_with_msg inside broadcasting_new_messages
 //                received_token_buf->aru += b;
@@ -312,18 +313,18 @@ bool Processor::data_tranfer(){
             int token_seq = received_token_buf->seq; int token_aru = received_token_buf->aru; int last_aru_setter = received_token_buf->last_aru_setter;
             int round = received_token_buf->round;
             int fcc = received_token_buf->fcc;
-            std::cout << "Token received:       token->fcc = " << fcc << std::endl;
+//            std::cout << "Token received:       token->fcc = " << fcc << std::endl;
             if (machine_id == 1) { //handles the machine id = 1, round update and fcc update
-                std::cout << "Token updated:        increment round to " << round + 1 << std::endl;
+//                std::cout << "Token updated:        increment round to " << round + 1 << std::endl;
                 round = received_token_buf->round + 1;
                 auto this_round_time = last_round_time;
                 gettimeofday(&last_round_time, nullptr);
-                std::cout << "LAST ROUND TIME SPENT:    " <<  diff_ms(this_round_time,last_round_time)<< "ms." <<std::endl;
+//                std::cout << "LAST ROUND TIME SPENT:    " <<  diff_ms(this_round_time,last_round_time)<< "ms." <<std::endl;
                 fcc = 0;
             }
             fcc = fcc + r + b;
             assert(token_seq >= token_aru);
-            std::cout << "Token:        Updated to seq: " << token_seq << "aru: " << token_aru <<
+//            std::cout << "Token:        Updated to seq: " << token_seq << "aru: " << token_aru <<
             "las: " << last_aru_setter << "round: " << round << "fcc: " << fcc << std::endl;
 
             last_token_aru = token_aru_received;
@@ -353,7 +354,7 @@ bool Processor::data_tranfer(){
 void Processor::broadcast_exit_messages() {
     for (int i = 0; i < BROADCASTING_TIMES; i++) {
         update_msg_buf(MSG_TYPE::EXIT);
-        std::cout << "EXIT:         Machine " << machine_id << " is broadcasting exit messages !" << std::endl;
+//        std::cout << "EXIT:         Machine " << machine_id << " is broadcasting exit messages !" << std::endl;
         send_to_everyone();
     }
 }
@@ -522,7 +523,7 @@ void Processor::ring_request_multicast(){
     if((!had_token && machine_id != 1) || (machine_id == 1)) {
         // multicast in order let previous neighbor know your address in order to form the ring
         update_msg_buf(MSG_TYPE::REQUEST_RING);
-        std::cout << "Ring:             my ip sent "<< my_ip_ << std::endl;
+//        std::cout << "Ring:             my ip sent "<< my_ip_ << std::endl;
         if(!send_to_everyone()){
             std::cerr << "send to everyone err" << std::endl;
         }
@@ -544,7 +545,7 @@ bool Processor::send_to_everyone(){
 bool Processor::send_token_to_next() {
     assert(has_next);
     long unsigned int bytes_sent = sendto(ssu, msg_buf, sizeof(Message), 0,(struct sockaddr *)&next_addr, sizeof(next_addr) );
-    std::cout << "Sending:        machine " << machine_id << " sent token with " << "rtr_size = " << received_token_buf->rtr_size << " , round number " << received_token_buf->round << " to " << inet_ntoa(next_addr.sin_addr) << std::endl;
+//    std::cout << "Sending:        machine " << machine_id << " sent token with " << "rtr_size = " << received_token_buf->rtr_size << " , round number " << received_token_buf->round << " to " << inet_ntoa(next_addr.sin_addr) << std::endl;
     /*std::cout << "Sent Token Info" << std::endl;
     for (int i = 0; i < DATA_SIZE; i++) {
         std::cout << msg_buf->payload[i] << std::endl;
@@ -637,16 +638,16 @@ bool Processor::form_ring() {
         case MSG_TYPE::TOKEN:
             received_token_buf = (Token*)recv_buf->payload;
             if(received_token_buf->round == 1) {
-                std::cout << "Ring:             Ring is formed!" << std::endl;
+//                std::cout << "Ring:             Ring is formed!" << std::endl;
                 return true;
             }
-            std::cout << "Received:       machine " << machine_id << " received token with round number " << received_token_buf->round << "." << std::endl;
+//            std::cout << "Received:       machine " << machine_id << " received token with round number " << received_token_buf->round << "." << std::endl;
             if(received_token_buf->round == last_token_round) {
                 if(machine_id == 1) {
-                    std::cout << "Ring:              Ring is formed!" << std::endl;
+//                    std::cout << "Ring:              Ring is formed!" << std::endl;
                     return true;
                 } else {
-                    std::cout << "Token:           Already sent token round number"<< last_token_round << std::endl;
+//                    std::cout << "Token:           Already sent token round number"<< last_token_round << std::endl;
                     break;
                 }
             }
@@ -657,7 +658,7 @@ bool Processor::form_ring() {
                 had_token = true;
                 //send token to next
             } else {
-                std::cout << "Token:           But machine " << machine_id << " does not have next address" << std::endl;
+//                std::cout << "Token:           But machine " << machine_id << " does not have next address" << std::endl;
             }
             if(!has_next && !had_token){
                 has_token = true;
@@ -667,30 +668,30 @@ bool Processor::form_ring() {
         case MSG_TYPE::REQUEST_RING:
             if (next_id != recv_buf->machine_id) break;
             if (!has_next ) {
-                std::cout << "Ring:             From machine_id : " << recv_buf->machine_id << std::endl;
+//                std::cout << "Ring:             From machine_id : " << recv_buf->machine_id << std::endl;
                 char next_ip[strlen((const char *) recv_buf->payload)];
                 memcpy(next_ip, recv_buf->payload, strlen((char *) recv_buf->payload));
                 next_addr.sin_family = AF_INET;
                 next_addr.sin_addr.s_addr = inet_addr(next_ip);// htonl(addr_binary);  /* ucast address */
                 next_addr.sin_port = htons(PORT);
-                std::cout << "Set next: " << next_ip << std::endl;
+//                std::cout << "Set next: " << next_ip << std::endl;
                 has_next = true;
             }
             if(machine_id == 1 && has_next && !had_token) {
-                std::cout << "Sending:       machine 1 is sending token" << std::endl;
+//                std::cout << "Sending:       machine 1 is sending token" << std::endl;
                 update_sending_token_buf(0, 0, 0, 0, rtr, 0, 0);
                 update_msg_buf(MSG_TYPE::TOKEN);
                 send_token_to_next();
                 had_token = true;
             }else if (has_token && has_next) {
-                std::cout << "Sending:       machine " << machine_id << " is sending token" << std::endl;
+//                std::cout << "Sending:       machine " << machine_id << " is sending token" << std::endl;
                 update_msg_buf(MSG_TYPE::TOKEN);
                 send_token_to_next();
             }
             break;
         case MSG_TYPE::DATA:
-            std::cout << "Received:      machine " << machine_id << " received data message with from machine " << recv_buf->machine_id << "." << std::endl;
-            std::cout << "Ring:             Ring is formed!" << std::endl;
+//            std::cout << "Received:      machine " << machine_id << " received data message with from machine " << recv_buf->machine_id << "." << std::endl;
+//            std::cout << "Ring:             Ring is formed!" << std::endl;
             return true;
             break;
         default:
