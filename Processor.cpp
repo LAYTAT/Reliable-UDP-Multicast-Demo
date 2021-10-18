@@ -314,12 +314,13 @@ bool Processor::data_tranfer(){
             int token_seq = received_token_buf->seq; int token_aru = received_token_buf->aru; int last_aru_setter = received_token_buf->last_aru_setter;
             int round = received_token_buf->round;
             int fcc = received_token_buf->fcc;
+            std::cout << "Token received:       token->fcc = " << fcc << std::endl;
             if (machine_id == 1) { //handles the machine id = 1, round update and fcc update
-                std::cout << "Token:        increment round to " << round + 1 << std::endl;
+                std::cout << "Token updated:        increment round to " << round + 1 << std::endl;
                 round = received_token_buf->round + 1;
                 auto this_round_time = last_round_time;
                 gettimeofday(&last_round_time, nullptr);
-                std::cout << "!!!!!!!!!!!!!!!!ROUND TIME: " <<  diff_ms(this_round_time,last_round_time)<< std::endl;
+                std::cout << "LAST ROUND TIME SPENT:    " <<  diff_ms(this_round_time,last_round_time)<< "ms." <<std::endl;
                 fcc = 0;
             }
             fcc = fcc + r + b;
