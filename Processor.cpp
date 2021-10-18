@@ -120,8 +120,8 @@ Performance Processor::start_mcast(){
     struct timeval ended_timestamp;
     gettimeofday(&ended_timestamp, nullptr);
     Performance ret;
-    std::cout << "Start time : " << started_timestamp.tv_sec << std::endl;
-    std::cout << "Ended time : " << ended_timestamp.tv_sec << std::endl;
+    std::cout << "Total Retransmission :    " << total_rtr_count << std::endl;
+    std::cout << "Acutal loss rate:         " << total_rtr_count * 100 / aru << std::endl;
     ret.msec = diff_ms(ended_timestamp, started_timestamp);
     ret.total_packet = aru;
     ret.pakcet_size_in_bytes = sizeof(Message);
@@ -277,6 +277,7 @@ bool Processor::data_tranfer(){
 
             //r is the number of retranmission happened
             int r = retransmission(m);
+            total_rtr_count += r;
             std::cout << "Retransmission success! number of retransmission was: " << r << std::endl;
             //subtract number of retransmissions from m, call it m2
             int m2 = m - r;

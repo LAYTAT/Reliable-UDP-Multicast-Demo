@@ -126,4 +126,7 @@ private:
     int seq_equal_last_seq_and_aru_equal_seq_count = 0;
     bool check_if_everybody_ready_to_exit();
     void broadcast_exit_messages();
+
+    // checking
+    int total_rtr_count = 0;
 };
