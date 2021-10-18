@@ -117,10 +117,11 @@ private:
     void flush_input_buf();
     int retransmission(int n);
     int broadcasting_new_messages(int m2);
+    void write_to_file();
     Message *make_Message(MSG_TYPE type, int s, int pkt, int id, int rand);
 
     // termination
-    int ENDING_COUNT = 10;
+    int ENDING_COUNT = 2;
     int BROADCASTING_TIMES = 50;
     int seq_equal_last_seq_and_aru_equal_seq_count = 0;
     bool check_if_everybody_ready_to_exit();

@@ -227,12 +227,7 @@ bool Processor::data_tranfer(){
 //            std::cout << "After Processing this Message, My ARU is " << aru << std::endl;
 //            std::cout << "Input Buffer has now Rand Num: " << input_buf.front()->random_num << std::endl;
 
-            //write to file from last local aru to local aru
-            for (int i = last_local_aru + 1; i <= aru; i++) {
-                fprintf(fp, "%2d, %8d, %8d\n", msg_received_map[i]->machine_id, msg_received_map[i]->pkt_idx, msg_received_map[i]->random_num);
-            }
-
-            last_local_aru = aru;
+            write_to_file();
 
             break;
         }
@@ -387,7 +382,7 @@ int Processor::broadcasting_new_messages(int m2) {
         assert(received_token_buf->seq >= received_token_buf->aru);
         //std::cout << "Data Message Sent, SEQ: " << msg_buf->seq << ",pkt idx: " << msg_buf->pkt_idx <<
          //         ",from machine: " << msg_buf->machine_id << ",rand: " << msg_buf->random_num << std::endl;
-
+        write_to_file();
         send_to_everyone();
         b++;
     }
@@ -508,6 +503,7 @@ void Processor::open_file() {
 }
 //close file
 void Processor::close_file() {
+    fflush(fp);
     fclose(fp);
 }
 
@@ -846,4 +842,12 @@ bool Processor::check_if_everybody_ready_to_exit(){
         return true;
     }
     return false;
+}
+
+void Processor::write_to_file(){
+    //write to file from last local aru to local aru
+    for (int i = last_local_aru + 1; i <= aru; i++) {
+        fprintf(fp, "%2d, %8d, %8d\n", msg_received_map[i]->machine_id, msg_received_map[i]->pkt_idx, msg_received_map[i]->random_num);
+    }
+    last_local_aru = aru;
 }
