@@ -333,7 +333,6 @@ bool Processor::data_tranfer(){
                 rtr_size = MAX_RTR;
             }
 
-f
             update_sending_token_buf(token_seq, token_aru, last_aru_setter, rtr_size, rtr, round, fcc);
             update_msg_buf(MSG_TYPE::TOKEN);
             send_token_to_next(); //this will reset timer
