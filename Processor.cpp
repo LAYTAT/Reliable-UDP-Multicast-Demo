@@ -287,11 +287,13 @@ bool Processor::data_tranfer(){
             int m2 = m - r;
             int b = 0;
 
-            if (received_token_buf->seq == received_token_buf->aru) {
+            if (received_token_buf->seq == received_token_buf->aru) {//TODO: new message sending problem
                 //updates token_aru, local_aru, and token_seq as broadcasting messages
                 b = broadcasting_new_messages(m2);
                 received_token_buf->last_aru_setter = 0;
             }
+
+            std::cout << "Numbers of broadcasting_new_messages = " << b << std::endl;
 
 //            if (received_token_buf->seq - b == aru) {  already update_rtr_aru_with_msg inside broadcasting_new_messages
 //                received_token_buf->aru += b;
