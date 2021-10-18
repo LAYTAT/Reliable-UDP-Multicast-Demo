@@ -204,15 +204,14 @@ bool Processor::data_tranfer(){
             if (temp_seq <= aru) {
                 break;
             }
+            //get message means someone already have the token
             cancel_token_timer();
 
             //push new message into the received_map
             store_to_input();
 
-
             update_rtr_aru_with_msg(temp_seq);
             write_to_file();
-            reset_token_timer();
             break;
         }
         case MSG_TYPE::TOKEN: {
