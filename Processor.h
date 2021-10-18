@@ -33,8 +33,6 @@ private:
     std::set<int> input_set;
     int fwut = 0; //file written up to.
     int last_local_aru;
-    int last_agreed_aru = 0;
-    int agreed_aru_count = 0;
 
     //message sending and receiving
     int bytes;
@@ -72,7 +70,6 @@ private:
     char my_hostname[256];
     char *my_ip;
     char my_ip_[13];
-    size_t ip_len;
 
     // token timeout
     struct timeval timestamp;
@@ -129,5 +126,4 @@ private:
 
     // checking
     int total_rtr_count = 0;
-    int total_fcc_count = 0; //TODO: monitor fcc count
 };

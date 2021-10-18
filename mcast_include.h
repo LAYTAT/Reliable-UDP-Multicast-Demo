@@ -41,7 +41,7 @@
 #define DATA_SIZE (1400) // cannot be changed
 #define MAX_RTR (340)
 #define TOKEN_TIMEOUT_GAP_IN_MSECONDS (1)
-#define TOKEN_TIMEOUT_GAP_IN_USECONDS (250) //20: 250
+#define TOKEN_TIMEOUT_GAP_IN_USECONDS (250) //20:250
 
 struct Token{
     int seq;                        // The largest sequence number for any message, an upper limit of sequemce number
@@ -62,7 +62,7 @@ enum class MSG_TYPE{
 };
 
 struct Message{                     // or called packet
-    MSG_TYPE type;                       // indicate different types of message, or token for example
+    MSG_TYPE type;                  // indicate different types of message, or token for example
     int seq;                        // global packet_index
     int pkt_idx;                    // packet index for each machine
     int machine_id;

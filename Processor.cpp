@@ -45,9 +45,7 @@ long long diff_us(timeval t1, timeval t2)
 
 Performance Processor::start_mcast(){
     // get my address for later sending
-
     open_file();
-
     set_my_info();
     std::cout << "My machine id: " << machine_id << std::endl;
     std::cout << "My Host Name: " << my_hostname << std::endl;
@@ -60,9 +58,7 @@ Performance Processor::start_mcast(){
     // initialize recv debug mode
     recv_dbg_init( loss_rate, machine_id );
     std::cout << "Set machine" << machine_id << " recv loss rate to " << loss_rate << std::endl;
-
     struct timeval started_timestamp;
-
 
     for(;;)
     {
@@ -195,9 +191,7 @@ bool Processor::data_tranfer(){
         case MSG_TYPE::DATA: {
             //std::cout << "Data Message Recieved, SEQ: " << recv_buf->seq << "pkt idx: " << recv_buf->pkt_idx <<
             //"from machine: " << recv_buf->machine_id << "rand: " << recv_buf->random_num << std::endl;
-
             //std::cout << "My ARU is: " << aru << std::endl;
-
 
             reset_token_timer();
 
@@ -227,7 +221,6 @@ bool Processor::data_tranfer(){
             update_rtr_aru_with_msg(temp_seq);
 //            std::cout << "After Processing this Message, My ARU is " << aru << std::endl;
 //            std::cout << "Input Buffer has now Rand Num: " << input_buf.front()->random_num << std::endl;
-
             write_to_file();
 
             break;
@@ -240,19 +233,6 @@ bool Processor::data_tranfer(){
 //                std::cout << "Token Received:       with same last_token_round =" << last_token_round << std::endl;
                 break;
             }
-            assert(received_token_buf->seq >= received_token_buf->aru);
-            assert(received_token_buf->seq >= seq || received_token_buf->seq == 0);
-            //if round number is 50 break TODO: fix this ending condition
-
-//            if(received_token_buf->seq == last_sent_token_seq) { TODO: try this
-//                std:: cout << "Discard Token: Alreay seen up to this seq" << std::endl;
-//            }
-
-//            std::cout << "Received token info: seq: " << received_token_buf->seq << "aru: " << received_token_buf->aru <<
-//                      "las: " << received_token_buf->last_aru_setter << "round: " << received_token_buf->round << "fcc: " << received_token_buf->fcc << std::endl;
-
-//            std::cout << "Token Received:       My ARU is  " << aru << "My seq idx: " << seq << std::endl;
-
 
             int token_aru_received = received_token_buf->aru;
 
@@ -263,12 +243,6 @@ bool Processor::data_tranfer(){
             //cancel timer before send token
             cancel_token_timer();
 
-            //we recieved a token
-            //copy token data into our local received_token_buf
-
-            //std::cout << "Token Recieved with Round Number: " << received_token_buf->round << std::endl;
-
-            //flush our input buffer by writing them or retain them.
             /*
              * Updating data structures
              */
@@ -295,13 +269,6 @@ bool Processor::data_tranfer(){
                 received_token_buf->last_aru_setter = 0;
             }
 
-//            std::cout << "Numbers of broadcasting_new_messages = " << b << std::endl;
-
-//            if (received_token_buf->seq - b == aru) {  already update_rtr_aru_with_msg inside broadcasting_new_messages
-//                received_token_buf->aru += b;
-//                aru += b;
-//            }
-
             //update token parameters
             if (aru < received_token_buf->aru || machine_id == received_token_buf->last_aru_setter || received_token_buf->last_aru_setter == 0) {
                 received_token_buf->aru = aru;
@@ -318,24 +285,16 @@ bool Processor::data_tranfer(){
             int token_seq = received_token_buf->seq; int token_aru = received_token_buf->aru; int last_aru_setter = received_token_buf->last_aru_setter;
             int round = received_token_buf->round;
             int fcc = received_token_buf->fcc;
-//            std::cout << "Token received:       token->fcc = " << fcc << std::endl;
             if (machine_id == 1) { //handles the machine id = 1, round update and fcc update
-//                std::cout << "Token updated:        increment round to " << round + 1 << std::endl;
                 round = received_token_buf->round + 1;
                 auto this_round_time = last_round_time;
                 gettimeofday(&last_round_time, nullptr);
-//                std::cout << "LAST ROUND TIME SPENT:    " <<  diff_ms(this_round_time,last_round_time)<< "ms." <<std::endl;
                 fcc = 0;
             }
             fcc = fcc + r + b;
-            assert(token_seq >= token_aru);
-//            std::cout << "Token:        Updated to seq: " << token_seq << "aru: " << token_aru <<
-//            "las: " << last_aru_setter << "round: " << round << "fcc: " << fcc << std::endl;
-
             last_token_aru = token_aru_received;
 
             //update token_bu
-            assert(token_seq >= seq);
             int rtr_size = rtr.size();
             if (rtr_size >= MAX_RTR) {
                 rtr_size = MAX_RTR;
@@ -359,7 +318,6 @@ bool Processor::data_tranfer(){
 void Processor::broadcast_exit_messages() {
     for (int i = 0; i < BROADCASTING_TIMES; i++) {
         update_msg_buf(MSG_TYPE::EXIT);
-//        std::cout << "EXIT:         Machine " << machine_id << " is broadcasting exit messages !" << std::endl;
         send_to_everyone();
     }
 }
@@ -380,10 +338,6 @@ int Processor::broadcasting_new_messages(int m2) {
         msg_received_map.insert(std::make_pair(msg_buf->seq,
                                                make_Message(msg_buf->type, msg_buf->seq, msg_buf->pkt_idx, msg_buf->machine_id, msg_buf->random_num)));
         update_rtr_aru_with_new_broadcast(received_token_buf->seq);
-        assert(seq >= aru);
-        assert(received_token_buf->seq >= received_token_buf->aru);
-        //std::cout << "Data Message Sent, SEQ: " << msg_buf->seq << ",pkt idx: " << msg_buf->pkt_idx <<
-         //         ",from machine: " << msg_buf->machine_id << ",rand: " << msg_buf->random_num << std::endl;
         write_to_file();
         send_to_everyone();
         b++;
@@ -419,18 +373,10 @@ int Processor::retransmission(int m) {
 
     for (int i = 0; i < num_retrans; i++) {
         if (msg_received_map.count(received_token_buf->rtr[i]) == 0) {
-//            std::cout << "Retransmission:       I do not have request seq " << received_token_buf->rtr[i] << std::endl;
-//            assert(received_token_buf->rtr[i] != 0);
-//            if (rtr.find(received_token_buf->rtr[i]) == rtr.end()) {
-//                std::cout << "WRONG:        token contains unexpected rtr" << std::endl;
-//            }
-//            if(received_token_buf->rtr[i] != 0)
                 rtr.insert(received_token_buf->rtr[i]);
             continue;
         }
-//        std::cout << "Retransmission:       Sending requested message with seq " << received_token_buf->rtr[i] << std::endl;
         sendto(ssm, msg_received_map[received_token_buf->rtr[i]], sizeof(Message), 0, (struct sockaddr *)&send_addr, sizeof(send_addr));
-//        resent_rtrs.push_back(received_token_buf->rtr[i]);
         count_resend++;
     }
 
@@ -438,59 +384,18 @@ int Processor::retransmission(int m) {
     return count_resend;
 }
 
-//for the rest of the input buffer gets copied into the msg_recieved data structure
-// purpose 1) wait for to be written, 2) for retransmission cache
-//for each round, put it into the queue in the seq order
 void Processor::flush_input_buf() {
-
-
-/*    //copy everything from input buf to msg_recieved
-    for (int i = 0; i < input_buf.size(); i++) {
-        //msg_received.push(input_buf[i]);
-        msg_received_map.insert(std::make_pair(input_buf[i]->seq,
-                                               make_Message(input_buf[i]->type, input_buf[i]->seq, input_buf[i]->pkt_idx, input_buf[i]->machine_id, input_buf[i]->random_num)));
-    }
-//    std::cout << "flush_input: Copy Success!" << std::endl;
-    //empty the input buffer
-    for (int i = 0; i < input_buf.size(); i++) {
-        delete input_buf[i];
-    }
-//    std::cout << "flush_input: freeing Message Objects Sucess!" << std::endl;
-    if (input_buf.size() > 0) {
-        input_buf.clear();
-        assert(input_buf.empty());
-    }
-//    std::cout << "flush_input: Input Vector Clear Sucess!" << std::endl;
-
-    //write to file as much as we can from the msg_recieved
-    //upper limit is upto agreed_aru
-    //lower limit is fwut (file written up to), if it's n, then n sequence numbers have been written
-    //so, look for n+1 and increment if yes
-    //assert(fwut == last_agreed_aru);
-    */
     int agreed_aru = std::min(last_token_aru, received_token_buf->aru);
 
     for (int i = fwut + 1; i <= agreed_aru; i++) {
         if (agreed_aru == 0) {
             break;
         }
-        // i is the sequence number we can write into, i.e. we can find it from the msg_recieved!
-
-//        assert(msg_received_map.count(i) == 1);
-//        std::cout << "About to write to file " << std::endl;
-//        std::cout << "Message about to be written: id: " << msg_received_map[i]->machine_id << " pkt_idx: " << msg_received_map[i]->pkt_idx << " rand: " << msg_received_map[i]->random_num << std::endl;
-//        fprintf(fp, "%2d, %8d, %8d\n", msg_received_map[i]->machine_id, msg_received_map[i]->pkt_idx, msg_received_map[i]->random_num);
-        //std::cout << "Bytes Written to the File: " << bytes_written << std::endl;
         msg_received_map.erase(i);
         fwut++;
     }
-/*    if(fwut != agreed_aru) { // TODO: delet this after debugging is done
-        std::cout << "WRONG:        fwut " << fwut << " do not equal agreed_aru " << agreed_aru << std::endl;
-
-    }*/
     fwut = agreed_aru;
 }
-
 
 //initialize file pointer
 void Processor::open_file() {
@@ -519,14 +424,13 @@ int Processor::find_max_messages() {
 }
 
 
+// multicast in order let previous neighbor know your address in order to form the ring
 void Processor::ring_request_multicast(){
     //check if token recieved
     count = ( count + 1 ) % RING_MCAST_FREQ_FACTOR;
-
     if(count != 0) return;
 
     if((!had_token && machine_id != 1) || (machine_id == 1)) {
-        // multicast in order let previous neighbor know your address in order to form the ring
         update_msg_buf(MSG_TYPE::REQUEST_RING);
         std::cout << "Ring:             my ip sent "<< my_ip_ << std::endl;
         if(!send_to_everyone()){
@@ -550,11 +454,6 @@ bool Processor::send_to_everyone(){
 bool Processor::send_token_to_next() {
     assert(has_next);
     long unsigned int bytes_sent = sendto(ssu, msg_buf, sizeof(Message), 0,(struct sockaddr *)&next_addr, sizeof(next_addr) );
-//    std::cout << "Sending:        machine " << machine_id << " sent token with " << "rtr_size = " << received_token_buf->rtr_size << " , round number " << received_token_buf->round << " to " << inet_ntoa(next_addr.sin_addr) << std::endl;
-    /*std::cout << "Sent Token Info" << std::endl;
-    for (int i = 0; i < DATA_SIZE; i++) {
-        std::cout << msg_buf->payload[i] << std::endl;
-    }*/
     if(bytes_sent == -1) {
         std::cerr << "Unicast Message Error." << std::endl;
         exit(1);
@@ -564,8 +463,6 @@ bool Processor::send_token_to_next() {
     }
     has_token = false;
     last_token_round = sending_token_buf->round;
-//    last_sent_token_seq = received_token_buf->seq;  TODO: try this
-//    last_token_aru = std::min(received_token_buf->aru, last_token_aru); //TODO: this might be wrong, comment it out
     reset_token_timer();
     return true;
 }
@@ -628,8 +525,6 @@ void Processor::check_timeout(){
     if(token_flag){
         gettimeofday(&timestamp, NULL);
         if ( diff_us(timestamp, last_token_sent_time) >= TOKEN_TIMEOUT_GAP_IN_USECONDS){
-//        if (timestamp.tv_usec - last_token_sent_time.tv_usec >= TOEKN_TIMEOUT_GAP_IN_USEC){
-            /* resend token */
             sending_token_buf->round = last_token_round;
             update_msg_buf(MSG_TYPE::TOKEN);
             send_token_to_next();
@@ -646,13 +541,11 @@ bool Processor::form_ring() {
                 std::cout << "Ring:             Ring is formed!" << std::endl;
                 return true;
             }
-//            std::cout << "Received:       machine " << machine_id << " received token with round number " << received_token_buf->round << "." << std::endl;
             if(received_token_buf->round == last_token_round) {
                 if(machine_id == 1) {
                     std::cout << "Ring:              Ring is formed!" << std::endl;
                     return true;
                 } else {
-//                    std::cout << "Token:           Already sent token round number"<< last_token_round << std::endl;
                     break;
                 }
             }
@@ -705,8 +598,6 @@ bool Processor::form_ring() {
     return false;
 }
 
-
-
 void Processor::start_chat(){
     int                bytes;
     int                num;
@@ -754,13 +645,6 @@ bool Processor::socket_init(){
         exit(1);
     }
 
-    // TODO: for reuse of address. delete this setsockopt after debugging is done
-//    int set_resue = 1;
-//    if (setsockopt(srm, SOL_SOCKET, SO_REUSEADDR, &set_resue, sizeof(int)) < 0){ //SO_REUSEPORT
-//        perror("Mcast: set reuse failed");
-//        exit(1);
-//    }
-
     /* socket for receiving multicast */
     name.sin_family = AF_INET;
     name.sin_addr.s_addr = INADDR_ANY;
@@ -801,24 +685,19 @@ bool Processor::socket_init(){
     FD_ZERO( &mask );
     FD_ZERO( &write_mask );
     FD_ZERO( &excep_mask );
-    FD_SET(srm, &mask );
-//    FD_SET(sru, &mask);
-//    FD_SET( (long)0, &mask );    /* stdin */
+    FD_SET( srm, &mask );
     return true;
 }
 
 void Processor::set_my_info() {
     struct hostent *host_entry;
     int hostname;
-
     // To retrieve hostname
     hostname = gethostname(my_hostname, sizeof(my_hostname));
     checkHostName(hostname);
-
     // To retrieve host information
     host_entry = gethostbyname(my_hostname);
     checkHostEntry(host_entry);
-
     // To convert an Internet network
     // address into ASCII string
     my_ip = inet_ntoa(*((struct in_addr*)
