@@ -248,10 +248,10 @@ bool Processor::data_tranfer(){
 //                std:: cout << "Discard Token: Alreay seen up to this seq" << std::endl;
 //            }
 
-            std::cout << "Received token info: seq: " << received_token_buf->seq << "aru: " << received_token_buf->aru <<
-                      "las: " << received_token_buf->last_aru_setter << "round: " << received_token_buf->round << "fcc: " << received_token_buf->fcc << std::endl;
+//            std::cout << "Received token info: seq: " << received_token_buf->seq << "aru: " << received_token_buf->aru <<
+//                      "las: " << received_token_buf->last_aru_setter << "round: " << received_token_buf->round << "fcc: " << received_token_buf->fcc << std::endl;
 
-            std::cout << "Token Received:       My ARU is  " << aru << "My seq idx: " << seq << std::endl;
+//            std::cout << "Token Received:       My ARU is  " << aru << "My seq idx: " << seq << std::endl;
 
 
             int token_aru_received = received_token_buf->aru;
@@ -284,7 +284,7 @@ bool Processor::data_tranfer(){
             //r is the number of retranmission happened
             int r = retransmission(m);
             total_rtr_count += r;
-            std::cout << "Retransmission success! number of retransmission was: " << r << std::endl;
+//            std::cout << "Retransmission success! number of retransmission was: " << r << std::endl;
             //subtract number of retransmissions from m, call it m2
             int m2 = m - r;
             int b = 0;
@@ -295,7 +295,7 @@ bool Processor::data_tranfer(){
                 received_token_buf->last_aru_setter = 0;
             }
 
-            std::cout << "Numbers of broadcasting_new_messages = " << b << std::endl;
+//            std::cout << "Numbers of broadcasting_new_messages = " << b << std::endl;
 
 //            if (received_token_buf->seq - b == aru) {  already update_rtr_aru_with_msg inside broadcasting_new_messages
 //                received_token_buf->aru += b;
@@ -318,19 +318,19 @@ bool Processor::data_tranfer(){
             int token_seq = received_token_buf->seq; int token_aru = received_token_buf->aru; int last_aru_setter = received_token_buf->last_aru_setter;
             int round = received_token_buf->round;
             int fcc = received_token_buf->fcc;
-            std::cout << "Token received:       token->fcc = " << fcc << std::endl;
+//            std::cout << "Token received:       token->fcc = " << fcc << std::endl;
             if (machine_id == 1) { //handles the machine id = 1, round update and fcc update
-                std::cout << "Token updated:        increment round to " << round + 1 << std::endl;
+//                std::cout << "Token updated:        increment round to " << round + 1 << std::endl;
                 round = received_token_buf->round + 1;
                 auto this_round_time = last_round_time;
                 gettimeofday(&last_round_time, nullptr);
-                std::cout << "LAST ROUND TIME SPENT:    " <<  diff_ms(this_round_time,last_round_time)<< "ms." <<std::endl;
+//                std::cout << "LAST ROUND TIME SPENT:    " <<  diff_ms(this_round_time,last_round_time)<< "ms." <<std::endl;
                 fcc = 0;
             }
             fcc = fcc + r + b;
             assert(token_seq >= token_aru);
-            std::cout << "Token:        Updated to seq: " << token_seq << "aru: " << token_aru <<
-            "las: " << last_aru_setter << "round: " << round << "fcc: " << fcc << std::endl;
+//            std::cout << "Token:        Updated to seq: " << token_seq << "aru: " << token_aru <<
+//            "las: " << last_aru_setter << "round: " << round << "fcc: " << fcc << std::endl;
 
             last_token_aru = token_aru_received;
 
@@ -359,7 +359,7 @@ bool Processor::data_tranfer(){
 void Processor::broadcast_exit_messages() {
     for (int i = 0; i < BROADCASTING_TIMES; i++) {
         update_msg_buf(MSG_TYPE::EXIT);
-        std::cout << "EXIT:         Machine " << machine_id << " is broadcasting exit messages !" << std::endl;
+//        std::cout << "EXIT:         Machine " << machine_id << " is broadcasting exit messages !" << std::endl;
         send_to_everyone();
     }
 }
@@ -646,7 +646,7 @@ bool Processor::form_ring() {
                 std::cout << "Ring:             Ring is formed!" << std::endl;
                 return true;
             }
-            std::cout << "Received:       machine " << machine_id << " received token with round number " << received_token_buf->round << "." << std::endl;
+//            std::cout << "Received:       machine " << machine_id << " received token with round number " << received_token_buf->round << "." << std::endl;
             if(received_token_buf->round == last_token_round) {
                 if(machine_id == 1) {
                     std::cout << "Ring:              Ring is formed!" << std::endl;
