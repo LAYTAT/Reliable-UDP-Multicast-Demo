@@ -87,11 +87,6 @@ Performance Processor::start_mcast(){
                 } else if (bytes > 0 && bytes < sizeof(Message)) {
                     std::cerr << "Received Message Corrupted. Bytes Received:" << bytes << std::endl;
                 } else if(bytes == 0) {
-                    if (recv_buf->type == MSG_TYPE::TOKEN){
-                        std::cerr << "Discarded:    Lost Token msg: " << std::endl;
-                    } else {
-                        std::cerr << "Discarded:    Lost mcast Msg "  << std::endl;
-                    }
                     continue;
                 }
 
@@ -631,7 +626,6 @@ void Processor::check_timeout(){
             sending_token_buf->round = last_token_round;
             update_msg_buf(MSG_TYPE::TOKEN);
             send_token_to_next();
-            std::cout << "Timer:            Timeout! Token resend to machine "<< next_id <<" at " <<  inet_ntoa(next_addr.sin_addr) << std::endl;
             gettimeofday(&last_token_sent_time,NULL);
         }
     }
