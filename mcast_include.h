@@ -39,7 +39,7 @@
 //#define PORT (10040)  // Chanha
 #define PORT (10280)  // Junjie
 #define DATA_SIZE (1400) // cannot be changed
-#define MAX_RTR (300)
+#define MAX_RTR (340)
 #define TOKEN_TIMEOUT_GAP_IN_MSECONDS (1)
 #define TOKEN_TIMEOUT_GAP_IN_USECONDS (250) //20: 250
 
