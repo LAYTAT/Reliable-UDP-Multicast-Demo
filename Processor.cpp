@@ -33,10 +33,7 @@ long long diff_ms(timeval t1, timeval t2)
 {
     int precision = 1000;
     struct timeval diff;
-    if(t1.tv_sec>t2.tv_sec)
-        timersub(&t1, &t2, &diff);
-    else
-        timersub(&t2, &t1, &diff);
+    timersub(&t1, &t2, &diff);
     return (diff.tv_sec * 1000 + diff.tv_usec / 1000);
 }
 
@@ -128,6 +125,8 @@ Performance Processor::start_mcast(){
     struct timeval ended_timestamp;
     gettimeofday(&ended_timestamp, nullptr);
     Performance ret;
+    std::cout << "Start time : " << started_timestamp.tv_sec << std::endl;
+    std::cout << "Ended time : " << ended_timestamp.tv_sec << std::endl;
     ret.msec = diff_ms(ended_timestamp, started_timestamp);
     ret.total_packet = aru;
     ret.pakcet_size_in_bytes = sizeof(Message);
