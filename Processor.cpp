@@ -652,7 +652,7 @@ bool Processor::form_ring() {
                     std::cout << "Ring:              Ring is formed!" << std::endl;
                     return true;
                 } else {
-                    std::cout << "Token:           Already sent token round number"<< last_token_round << std::endl;
+//                    std::cout << "Token:           Already sent token round number"<< last_token_round << std::endl;
                     break;
                 }
             }
