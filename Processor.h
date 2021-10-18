@@ -40,7 +40,7 @@ private:
     int bytes;
     int num;
     //buffer for receiving
-//    Message* recv_buf = new Message(); //TODO: buf_gen
+    Message* recv_buf = new Message();
     //buffer for sending
     Message* msg_buf = new Message();
     Token* received_token_buf = new Token();
@@ -125,8 +125,4 @@ private:
     int seq_equal_last_seq_and_aru_equal_seq_count = 0;
     bool check_if_everybody_ready_to_exit();
     void broadcast_exit_messages();
-
-    // buf generator
-    std::vector<Message*> buf_vec;
-    char* buf_generator();
 };

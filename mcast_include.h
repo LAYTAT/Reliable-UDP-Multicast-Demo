@@ -32,8 +32,8 @@
 #include <unordered_map>
 
 #define NUM_OF_TOTAL_PACKETS (16000)
-#define GLOBAL_MAX (10000)
-#define LOCAL_MAX (1000)
+#define GLOBAL_MAX (20000)
+#define LOCAL_MAX (2000)
 #define NUM_OF_MACHINES (10)
 #define MAX_MESS_LEN 1400
 //#define PORT (10040)  // Chanha
