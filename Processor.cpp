@@ -190,7 +190,6 @@ bool Processor::data_tranfer(){
             //"from machine: " << recv_buf->machine_id << "rand: " << recv_buf->random_num << std::endl;
             //std::cout << "My ARU is: " << aru << std::endl;
 
-            cancel_token_timer();
             //we recieved a multicast data
             //temp seq is the message seq
             int temp_seq = 0;
@@ -201,6 +200,7 @@ bool Processor::data_tranfer(){
                 //std::cout << "I already received this seq number" << std::endl;
                 break;
             }
+            cancel_token_timer();
 
             //push new message into the received_map
             store_to_input();
