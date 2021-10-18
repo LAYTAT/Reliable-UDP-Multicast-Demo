@@ -281,7 +281,7 @@ bool Processor::data_tranfer(){
             update_rtr_with_token_seq();
 
             //r is the number of retranmission happened
-            int r = retransmission();
+            int r = retransmission(m);
             std::cout << "Retransmission success! number of retransmission was: " << r << std::endl;
             //subtract number of retransmissions from m, call it m2
             int m2 = m - r;
@@ -411,7 +411,7 @@ void Processor::deleteMap(std::map<int, Message *> map) {
 //input: number of maximum retransmission
 //output: returns number of retransmissions happened
 //update received_token_buf->with new rtrs
-int Processor::retransmission() {
+int Processor::retransmission(int m) {
     int count_resend = 0;
     int num_retrans = std::min(m, (int)received_token_buf->rtr_size);
 

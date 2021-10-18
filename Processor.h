@@ -115,7 +115,7 @@ private:
     void update_rtr_with_token_seq();
     void update_rtr_aru_with_new_broadcast(int brdcst_msg_seq);
     void flush_input_buf();
-    int retransmission();
+    int retransmission(int m);
     int broadcasting_new_messages(int m2);
     void write_to_file();
     Message *make_Message(MSG_TYPE type, int s, int pkt, int id, int rand);
