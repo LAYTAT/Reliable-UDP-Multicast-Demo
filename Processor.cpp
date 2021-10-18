@@ -550,7 +550,7 @@ bool Processor::send_to_everyone(){
 bool Processor::send_token_to_next() {
     assert(has_next);
     long unsigned int bytes_sent = sendto(ssu, msg_buf, sizeof(Message), 0,(struct sockaddr *)&next_addr, sizeof(next_addr) );
-    std::cout << "Sending:        machine " << machine_id << " sent token with " << "rtr_size = " << received_token_buf->rtr_size << " , round number " << received_token_buf->round << " to " << inet_ntoa(next_addr.sin_addr) << std::endl;
+//    std::cout << "Sending:        machine " << machine_id << " sent token with " << "rtr_size = " << received_token_buf->rtr_size << " , round number " << received_token_buf->round << " to " << inet_ntoa(next_addr.sin_addr) << std::endl;
     /*std::cout << "Sent Token Info" << std::endl;
     for (int i = 0; i < DATA_SIZE; i++) {
         std::cout << msg_buf->payload[i] << std::endl;
