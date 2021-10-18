@@ -638,13 +638,13 @@ bool Processor::form_ring() {
         case MSG_TYPE::TOKEN:
             received_token_buf = (Token*)recv_buf->payload;
             if(received_token_buf->round == 1) {
-//                std::cout << "Ring:             Ring is formed!" << std::endl;
+                std::cout << "Ring:             Ring is formed!" << std::endl;
                 return true;
             }
 //            std::cout << "Received:       machine " << machine_id << " received token with round number " << received_token_buf->round << "." << std::endl;
             if(received_token_buf->round == last_token_round) {
                 if(machine_id == 1) {
-//                    std::cout << "Ring:              Ring is formed!" << std::endl;
+                    std::cout << "Ring:              Ring is formed!" << std::endl;
                     return true;
                 } else {
 //                    std::cout << "Token:           Already sent token round number"<< last_token_round << std::endl;
@@ -691,7 +691,7 @@ bool Processor::form_ring() {
             break;
         case MSG_TYPE::DATA:
 //            std::cout << "Received:      machine " << machine_id << " received data message with from machine " << recv_buf->machine_id << "." << std::endl;
-//            std::cout << "Ring:             Ring is formed!" << std::endl;
+            std::cout << "Ring:             Ring is formed!" << std::endl;
             return true;
             break;
         default:
