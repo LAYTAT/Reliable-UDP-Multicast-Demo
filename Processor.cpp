@@ -131,10 +131,7 @@ Performance Processor::start_mcast(){
 }
 
 void Processor::store_to_input() {
-
     msg_received_map.insert(std::make_pair(recv_buf->seq, make_Message(MSG_TYPE::DATA, recv_buf->seq, recv_buf->pkt_idx, recv_buf->machine_id, recv_buf->random_num)));
-//    input_set.insert(message->seq);
-    //std::cout << "I just stored to input_buf, and its content: seq: " << message->seq << " randnum: " << message->random_num << std::endl;
 }
 
 void Processor::update_rtr_with_token_seq() {
@@ -193,8 +190,7 @@ bool Processor::data_tranfer(){
             //"from machine: " << recv_buf->machine_id << "rand: " << recv_buf->random_num << std::endl;
             //std::cout << "My ARU is: " << aru << std::endl;
 
-            reset_token_timer();
-
+            cancel_token_timer();
             //we recieved a multicast data
             //temp seq is the message seq
             int temp_seq = 0;
