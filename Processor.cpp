@@ -415,7 +415,7 @@ void Processor::ring_request_multicast(){
 
     if((!had_token && machine_id != 1) || (machine_id == 1)) {
         update_msg_buf(MSG_TYPE::REQUEST_RING);
-        std::cout << "Ring:             my ip sent "<< my_ip_ << std::endl;
+//        std::cout << "Ring:             my ip sent "<< my_ip_ << std::endl;
         if(!send_to_everyone()){
             std::cerr << "send to everyone err" << std::endl;
         }
@@ -549,7 +549,7 @@ bool Processor::form_ring() {
         case MSG_TYPE::REQUEST_RING:
             if (next_id != recv_buf->machine_id) break;
             if (!has_next ) {
-                std::cout << "Ring:             From machine_id : " << recv_buf->machine_id << std::endl;
+//                std::cout << "Ring:             From machine_id : " << recv_buf->machine_id << std::endl;
                 char next_ip[strlen((const char *) recv_buf->payload)];
                 memcpy(next_ip, recv_buf->payload, strlen((char *) recv_buf->payload));
                 next_addr.sin_family = AF_INET;
@@ -571,7 +571,7 @@ bool Processor::form_ring() {
             }
             break;
         case MSG_TYPE::DATA:
-            std::cout << "Received:      machine " << machine_id << " received data message with from machine " << recv_buf->machine_id << "." << std::endl;
+//            std::cout << "Received:      machine " << machine_id << " received data message with from machine " << recv_buf->machine_id << "." << std::endl;
             std::cout << "Ring:             Ring is formed!" << std::endl;
             return true;
             break;
