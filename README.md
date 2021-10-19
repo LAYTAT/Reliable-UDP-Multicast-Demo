@@ -8,6 +8,10 @@ Using the unreliable UDP/IP protocol, our design aims to multicast packets betwe
 ## Single Ring Protocol
 A token gets passed around in a ring of machines, whereupon receiving a token, that machine with a token can multicast messages to all other machines. After broadcasting is over as well as updating its relevant variables, it passes the token to the next machine in a ring, and it does the exact same thing as the previous token holder. The sequence number of each message sent is derived from the token_sequence field of the token. Thus, the delivery of messages according to this “global” sequence number guarantees the agreed order delivery. In addition, the single ring protocol guarantees that the minimum of the aru field of the token this round and last round mean the agreed aru of all the machines (i.e. they all have messages with sequence number upto this token aru), satisfying the safe order criteria. Our protocol assumes that the processor failures do not occur, but handles the possibility of token loss from one machine to another. 
 
+## Benchmarks
+<img width="602" alt="Screen Shot 2021-10-19 at 2 05 44 AM" src="https://user-images.githubusercontent.com/23161882/137853054-3b9155a5-71c2-432f-9486-366c028e4188.png">
+
+
 ## Data Structure
     Message{ 
     MSG_TYPE type ;   //indicates the type of message         
@@ -117,14 +121,16 @@ When nobody is still requesting any retransmission, that is when it is ok for a 
 This is a demo for what is possible with a layer of protocal on top of UDP which enables it to run in a way that is both fast and reliable for multicast which require agreed and safe delivery.
 
 ## How to run it
+* first make it
+* then you run it as follow
+```
+mcast <num_of_packets> <machine_index> <number of machines> <loss rate>
+```
 The demo consists of two programs: 
 	1. mcast - the tool's process. 
 	2. start_mcast - a process signaling the mcast processes to start.
 The mcast process should be run as follows:
 
-```
-mcast <num_of_packets> <machine_index> <number of machines> <loss rate>
-```
 
 The <number of machines> indicates how many mcast machines will be run. 
 The maximal number of <number of machines> should be a constant and should be 
@@ -134,3 +140,13 @@ execution ([0..20] see below). Note also that machine_index will be in the
 range [1..<number of machines>] and that you can assume exactly 
 <number of machines> mcast programs, each with a different index, will be 
 ready to run before start_mcast is executed.
+	
+## Running Result Example
+It might look some like this, 
+![IMG_2748](https://user-images.githubusercontent.com/23161882/137853336-218075a0-a4d5-4ff4-b464-7ed382b11a5b.PNG)
+	
+
+After you running these on 8 machine where 6 of them are sending 160000 packet(each 1412 bytes) to all other 7 processor with a loss rate of 20:
+```
+mcast 168000 1 8 20
+```
