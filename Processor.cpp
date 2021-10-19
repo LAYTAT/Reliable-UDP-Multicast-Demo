@@ -195,6 +195,8 @@ bool Processor::data_tranfer(){
 
     switch (recv_buf->type) {
         case MSG_TYPE::DATA: {
+            //get message means someone already have the token
+            reset_token_timer();
             //we recieved a multicast data
             //temp seq is the message seq
             int temp_seq = 0;
@@ -204,8 +206,7 @@ bool Processor::data_tranfer(){
             if (temp_seq <= aru) {
                 break;
             }
-            //get message means someone already have the token
-            reset_token_timer();
+
 
             //push new message into the received_map
             store_to_input();
