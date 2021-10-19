@@ -106,11 +106,6 @@ Performance Processor::start_mcast(){
                     std::cout << "congratulation: everything is received" << std::endl;
                     break;
                 }
-            } else if (FD_ISSET( srm, &excep_mask) ){
-                std::cout << "exception for srm " << std::endl;
-            }
-            else {
-                std::cout << "msg for non-srm " << std::endl;
             }
         }
         if(mcast_received && !ring_formed ){
@@ -122,8 +117,8 @@ Performance Processor::start_mcast(){
     struct timeval ended_timestamp;
     gettimeofday(&ended_timestamp, nullptr);
     Performance ret;
-    std::cout << "Total Retransmission :    " << total_rtr_count << std::endl;
-    std::cout << "Acutal loss rate:         " << total_rtr_count * 100 / aru << std::endl;
+    std::cout << "Total Retransmission :    " << total_rtr_count << " times." << std::endl;
+    std::cout << "Retransmission rate:         " << total_rtr_count * 100 / aru << "%" << std::endl;
     ret.msec = diff_ms(ended_timestamp, started_timestamp);
     ret.total_packet = aru;
     ret.pakcet_size_in_bytes = sizeof(Message);
@@ -529,6 +524,7 @@ bool Processor::form_ring() {
                 std::cout << "Ring:             Ring is formed!" << std::endl;
                 return true;
             }
+
             if(received_token_buf->round == last_token_round) {
                 if(machine_id == 1) {
                     std::cout << "Ring:              Ring is formed!" << std::endl;
@@ -543,9 +539,8 @@ bool Processor::form_ring() {
                 send_token_to_next();
                 had_token = true;
                 //send token to next
-            } else {
-                std::cout << "Token:           But machine " << machine_id << " does not have next address" << std::endl;
             }
+
             if(!has_next && !had_token){
                 has_token = true;
                 had_token = true;
