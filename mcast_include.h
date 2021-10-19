@@ -41,7 +41,7 @@
 #define DATA_SIZE (1400) // cannot be changed
 #define MAX_RTR (340)
 #define TOKEN_TIMEOUT_GAP_IN_MSECONDS (1)
-#define TOKEN_TIMEOUT_GAP_IN_USECONDS (250) //20:250
+#define TOKEN_TIMEOUT_GAP_IN_USECONDS (100) //20:250/100
 
 struct Token{
     int seq;                        // The largest sequence number for any message, an upper limit of sequemce number
