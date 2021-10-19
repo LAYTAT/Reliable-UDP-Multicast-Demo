@@ -28,7 +28,6 @@
 #include <assert.h>
 #include <algorithm>
 #include <fstream>
-#include <map>
 #include <unordered_map>
 
 #define NUM_OF_TOTAL_PACKETS (16000)
