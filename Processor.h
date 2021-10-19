@@ -79,7 +79,7 @@ private:
 
     int last_token_round = -1;
 
-    int RING_MCAST_FREQ_FACTOR = 500000;  //test shows 500000 is a usable baseline
+    int RING_MCAST_FREQ_FACTOR = 5000;  //test shows 500000 is a usable baseline
     int count = 0;
 
     // packets
