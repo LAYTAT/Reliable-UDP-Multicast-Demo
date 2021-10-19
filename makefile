@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++11 -c -Ofast -march=native -flto -Wall -DNDEBUG -frename-registers -fno-signed-zeros -fno-trapping-math -funroll-loops
+CFLAGS = std=c++11 -c -Ofast -march=native -flto -Wall -DNDEBUG -frename-registers -funroll-loops
 #CFLAGS = -ansi -c -Wall -pedantic
 #TODO: delete -g after debugging is done
 

@@ -133,7 +133,7 @@ void Processor::update_rtr_with_token_seq() {
     //update rtr by checking received_token_buf->seq
     for(int i = aru + 1; i <= received_token_buf->seq; ++i) {
         if(input_set.count(i)==0) {
-            assert(i!=0);
+//            assert(i!=0);
             rtr.insert(i);
         }
     }
@@ -150,7 +150,7 @@ void Processor::update_rtr_with_token_seq() {
 // sort buffer, aru = last continous integer in the buffer, rtr = from aru (4) to input_buf last element (10)...
 void Processor::update_rtr_aru_with_msg(int msg_seq) {
     //update aru if this one connected
-    assert(msg_seq != 0);
+//    assert(msg_seq != 0);
     input_set.insert(msg_seq);
     rtr.erase(msg_seq);
     for(auto itr = input_set.find(msg_seq); itr != input_set.end(); itr++){
@@ -161,7 +161,7 @@ void Processor::update_rtr_aru_with_msg(int msg_seq) {
     // update rtr
     for(int i = aru + 1; i < msg_seq; ++i) {
         if(input_set.count(i)==0) {
-            assert(i!=0);
+//            assert(i!=0);
             rtr.insert(i);
         }
     }
@@ -173,13 +173,13 @@ void Processor::update_rtr_aru_with_new_broadcast(int brdcst_msg_seq) {
     for(auto itr = input_set.find(brdcst_msg_seq); itr != input_set.end(); itr++){
         if(*itr == aru + 1) {
             aru++;
-            assert(aru <= seq);
+//            assert(aru <= seq);
         } else break;
     }
     // update rtr
     for(int i = aru + 1; i < brdcst_msg_seq; ++i) {
         if(input_set.count(i)==0) {
-            assert(i!=0);
+//            assert(i!=0);
             rtr.insert(i);
         }
     }
@@ -256,7 +256,7 @@ bool Processor::data_tranfer(){
             //update token parameters
             if (aru < received_token_buf->aru || machine_id == received_token_buf->last_aru_setter || received_token_buf->last_aru_setter == 0) {
                 received_token_buf->aru = aru;
-                assert(received_token_buf->seq >= received_token_buf->aru);
+//                assert(received_token_buf->seq >= received_token_buf->aru);
                 if (received_token_buf->aru == received_token_buf->seq) {
                     received_token_buf->last_aru_setter = 0;
                 } else {
@@ -435,7 +435,7 @@ bool Processor::send_to_everyone(){
 }
 
 bool Processor::send_token_to_next() {
-    assert(has_next);
+//    assert(has_next);
     long unsigned int bytes_sent = sendto(ssu, msg_buf, sizeof(Message), 0,(struct sockaddr *)&next_addr, sizeof(next_addr) );
     if(bytes_sent == -1) {
         std::cerr << "Unicast Message Error." << std::endl;
@@ -467,7 +467,7 @@ void Processor::update_msg_buf(MSG_TYPE type) { //when broadcasting new messages
         return;
     }
     if(type == MSG_TYPE::TOKEN) {
-        assert(received_token_buf->aru <= received_token_buf->seq);
+//        assert(received_token_buf->aru <= received_token_buf->seq);
         memcpy(msg_buf->payload, sending_token_buf, sizeof(Token));
         return;
     }
@@ -477,7 +477,7 @@ void Processor::update_msg_buf(MSG_TYPE type) { //when broadcasting new messages
 }
 
 void Processor::update_sending_token_buf(int s, int a, int last_aru_setter, int rtr_size, std::set<int>& new_rtr, int round, int fcc){
-    assert(new_rtr.count(0) == 0);
+//    assert(new_rtr.count(0) == 0);
     memset(sending_token_buf, 0 , sizeof(Token));
     sending_token_buf->seq = s;
     sending_token_buf->fcc = fcc;
