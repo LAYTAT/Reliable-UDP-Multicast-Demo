@@ -7,9 +7,9 @@ A token gets passed around in a ring of machines, whereupon receiving a token, t
 
 ## Benchmarks
 ### for 0 percent loss rate over a 1 GB network.
-around 700 Mbits/sec
+around **_700 Mbits/sec_**
 ### for 20 percent loss rate over a 1 GB network.
-around 300 Mbits/sec
+around **_300 Mbits/sec_**
 
 <img width="602" alt="Screen Shot 2021-10-19 at 2 05 44 AM" src="https://user-images.githubusercontent.com/23161882/137853054-3b9155a5-71c2-432f-9486-366c028e4188.png">
 
