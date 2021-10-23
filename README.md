@@ -1,7 +1,4 @@
 # Reliable-UDP-Multicast-Demo
-###### Junjie Lei
-###### Chanha Kim
-
 ## General Approach
 Using the unreliable UDP/IP protocol, our design aims to multicast packets between N machines that reside on the same network segment using C++, so that one multicast message may get to all of them according to the agreed order as well as fulfilling safe delivery. This will be implemented using a token-based algorithm where the token is circulated among the processes where the token-holder has the privilege to broadcast packets. In other words, a version of the Single Ring Protocol will be implemented. 
 
