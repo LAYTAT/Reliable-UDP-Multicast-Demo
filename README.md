@@ -9,6 +9,11 @@ Using the unreliable UDP/IP protocol, our design aims to multicast packets betwe
 A token gets passed around in a ring of machines, whereupon receiving a token, that machine with a token can multicast messages to all other machines. After broadcasting is over as well as updating its relevant variables, it passes the token to the next machine in a ring, and it does the exact same thing as the previous token holder. The sequence number of each message sent is derived from the token_sequence field of the token. Thus, the delivery of messages according to this “global” sequence number guarantees the agreed order delivery. In addition, the single ring protocol guarantees that the minimum of the aru field of the token this round and last round mean the agreed aru of all the machines (i.e. they all have messages with sequence number upto this token aru), satisfying the safe order criteria. Our protocol assumes that the processor failures do not occur, but handles the possibility of token loss from one machine to another. 
 
 ## Benchmarks
+### for 0 percent loss rate over a 1 GB network.
+around 700 Mbits/sec
+### for 20 percent loss rate over a 1 GB network.
+around 300 Mbits/sec
+
 <img width="602" alt="Screen Shot 2021-10-19 at 2 05 44 AM" src="https://user-images.githubusercontent.com/23161882/137853054-3b9155a5-71c2-432f-9486-366c028e4188.png">
 
 
